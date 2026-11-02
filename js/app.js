@@ -190,6 +190,7 @@ function tierSection(tier, entries, { heading = 'h2', cardHeading = 'h3', link =
       filterByType(entries, cur).map((e, i) => cardTile(e, i, cardHeading, cur))));
   }
   function select(type) {
+    endEntrance();
     state.tierTabs[tier.id] = type;
     paint(true);
   }
@@ -264,6 +265,7 @@ function renderHome() {
   }
 
   function paintResults() {
+    endEntrance(); // elementos recriados por busca/filtro não podem repetir a animação de entrada
     const focusedTabId = results.contains(document.activeElement) && document.activeElement.getAttribute('role') === 'tab' ? document.activeElement.id : '';
     const found = search(state.index, f.q, { tier: f.tier || undefined, tags: [...f.tags] });
     const byTier = new Map(state.manifest.tiers.map((t) => [t.id, []]));
@@ -329,7 +331,6 @@ function renderHome() {
 
   trackFiltersHeight(document.querySelector('.filters'));
   countUp(main);
-  pauseHeroWhenOffscreen(main.querySelector('.hero'));
   if (state.focusSearch) { state.focusSearch = false; input.focus(); }
 }
 
@@ -460,10 +461,19 @@ function revealOnScroll(candidates) {
       const el = it.target;
       revealObserver.unobserve(el);
       el.classList.add('in');
-      setTimeout(() => el.classList.remove('reveal', 'in'), 1000); // volta ao estilo normal (hover etc.)
+      setTimeout(() => { // volta ao estilo normal (hover etc.) sem reanimar a entrada
+        el.classList.remove('reveal', 'in');
+        el.classList.add('revealed');
+      }, 1000);
     }
   }, { rootMargin: '0px', threshold: 0.01 });
   for (const el of targets) { el.classList.add('reveal'); revealObserver.observe(el); }
+}
+
+/** Encerra a fase de entrada: nada criado depois disso roda as animações de entrada. */
+function endEntrance() {
+  clearTimeout(enterTimer);
+  main.classList.remove('is-entering');
 }
 
 /** Anima a entrada da página (CSS `.is-entering`) e prepara a revelação ao rolar. */
@@ -551,8 +561,6 @@ function route() {
   if (!isAppHash(location.hash)) return;
   const wantsSearch = state.focusSearch; // a Home consome a flag e já foca a busca
   trackFiltersHeight(null); // só a Home tem filtros fixos
-  heroObserver?.disconnect(); // só a Home tem hero
-  heroObserver = null;
   try {
     const v = resolveView(parseRoute(location.hash), state.manifest);
     if (v.view === 'home') renderHome();
@@ -590,7 +598,6 @@ document.addEventListener('keydown', (e) => {
   else { state.focusSearch = true; location.hash = '#/'; }
 });
 
-let heroObserver;
 let filtersObserver;
 let filtersOnResize;
 
@@ -607,15 +614,6 @@ function trackFiltersHeight(el) {
   filtersOnResize = set; // a posição (sticky/static) muda por media query sem mudar o tamanho
   window.addEventListener('resize', set, { passive: true });
   set();
-}
-
-/** As animações infinitas do hero (brilho e gradiente do título) só rodam enquanto ele está na tela. */
-function pauseHeroWhenOffscreen(hero) {
-  heroObserver?.disconnect();
-  heroObserver = null;
-  if (!hero || !('IntersectionObserver' in window)) return;
-  heroObserver = new IntersectionObserver(([entry]) => hero.classList.toggle('is-offscreen', !entry.isIntersecting));
-  heroObserver.observe(hero);
 }
 
 /** Mantém --topbar-h igual à altura real do topo (ele quebra em linhas em telas médias). */
