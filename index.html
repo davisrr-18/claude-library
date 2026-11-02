@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Claude Library</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Pular para o conteúdo</a>
+  <header class="topbar">
+    <a class="brand" href="#/">Claude Library</a>
+    <nav class="tiers" id="tier-nav" aria-label="Níveis"></nav>
+    <button id="theme-toggle" type="button" class="icon-btn" aria-label="Alternar tema" hidden>◐</button>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <noscript><p class="notice">Esta página precisa de JavaScript.</p></noscript>
+  <script>
+    // Módulos ES não carregam via file://; avisa antes, com script clássico.
+    if (location.protocol === 'file:') {
+      var p = document.createElement('p');
+      p.className = 'notice error';
+      p.textContent = 'Abra via servidor local: rode "python3 -m http.server 8000" nesta pasta e acesse http://localhost:8000.';
+      document.getElementById('main').appendChild(p);
+    }
+  </script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

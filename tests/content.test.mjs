@@ -95,3 +95,43 @@ test('validateManifest: nivel desconhecido ou faltando', () => {
 test('validateManifest: card sem pecas e permitido', () => {
   assert.equal(validateManifest(manifest([card({ pieces: [] })])).ok, true);
 });
+
+test('parseFrontMatter: BOM no inicio', () => {
+  const { meta, body } = parseFrontMatter('﻿---\nname: x\n---\ncorpo');
+  assert.equal(meta.name, 'x');
+  assert.equal(body, 'corpo');
+});
+
+test('parseFrontMatter: front matter vazio', () => {
+  const { meta, body } = parseFrontMatter('---\n---\ncorpo');
+  assert.deepEqual(meta, {});
+  assert.equal(body, 'corpo');
+});
+
+test('validateManifest: tags e summary com tipo errado', () => {
+  assert.equal(validateManifest(manifest([card({ tags: 'modelo' })])).ok, false);
+  assert.equal(validateManifest(manifest([card({ tags: [1] })])).ok, false);
+  assert.equal(validateManifest(manifest([card({ summary: 5 })])).ok, false);
+});
+
+test('validateManifest: title de nivel e de peca obrigatorios', () => {
+  const m = manifest();
+  delete m.tiers[0].title;
+  assert.equal(validateManifest(m).ok, false);
+  assert.equal(validateManifest(manifest([card({ pieces: [piece({ title: '' })] })])).ok, false);
+});
+
+test('validateManifest: estruturas nao-lista, nulos e caminhos estranhos', () => {
+  const m = manifest();
+  m.tiers[0].cards = 'x';
+  assert.equal(validateManifest(m).ok, false);
+  assert.equal(validateManifest(manifest([card({ pieces: 'x' })])).ok, false);
+  assert.equal(validateManifest(manifest([null])).ok, false);
+  assert.equal(validateManifest(manifest([card({ pieces: [null] })])).ok, false);
+  for (const file of ['', 'a\\b.md', 'a/./b.md', 'a//b.md']) {
+    assert.equal(validateManifest(manifest([card({ pieces: [piece({ file })] })])).ok, false, file);
+  }
+  const dup = manifest();
+  dup.tiers.push({ id: 'basicas', title: 'x', cards: [] });
+  assert.equal(validateManifest(dup).ok, false);
+});

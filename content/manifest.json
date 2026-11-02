@@ -1,0 +1,21 @@
+{
+  "tiers": [
+    {
+      "id": "basicas",
+      "title": "Tarefas Básicas",
+      "cards": [
+        {
+          "id": "exemplo",
+          "title": "Card de exemplo",
+          "summary": "Modelo para copiar ao criar um novo card.",
+          "tags": ["modelo"],
+          "pieces": [
+            { "type": "skill", "title": "Skill de exemplo", "file": "basicas/exemplo/skill.md" }
+          ]
+        }
+      ]
+    },
+    { "id": "intermediarias", "title": "Tarefas Intermediárias", "cards": [] },
+    { "id": "complexas", "title": "Tarefas Complexas", "cards": [] }
+  ]
+}

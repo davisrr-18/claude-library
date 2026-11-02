@@ -5,11 +5,11 @@ const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /** Separa front matter `chave: valor` (entre `---`) do corpo. */
 export function parseFrontMatter(text) {
-  const src = String(text).replace(/\r\n?/g, '\n');
-  const m = src.match(/^---\n([\s\S]*?)\n---[ \t]*(?:\n|$)/);
+  const src = String(text).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
+  const m = src.match(/^---\n(?:([\s\S]*?)\n)?---[ \t]*(?:\n|$)/);
   if (!m) return { meta: {}, body: src };
   const meta = {};
-  for (const line of m[1].split('\n')) {
+  for (const line of (m[1] ?? '').split('\n')) {
     const i = line.indexOf(':');
     if (i <= 0) continue;
     const key = line.slice(0, i).trim();
@@ -18,6 +18,10 @@ export function parseFrontMatter(text) {
     if (key) meta[key] = value;
   }
   return { meta, body: src.slice(m[0].length) };
+}
+
+function isNonEmptyString(v) {
+  return typeof v === 'string' && v.trim() !== '';
 }
 
 function isSafeRelativePath(p) {
@@ -39,6 +43,7 @@ export function validateManifest(m) {
     }
     if (seenTiers.has(tier.id)) errors.push(`nível duplicado: ${tier.id}`);
     seenTiers.add(tier.id);
+    if (!isNonEmptyString(tier.title)) errors.push(`${tier.id}: falta title`);
     if (!Array.isArray(tier.cards)) {
       errors.push(`${tier.id}: "cards" deve ser uma lista`);
       continue;
@@ -52,7 +57,13 @@ export function validateManifest(m) {
       }
       if (seenCards.has(card.id)) errors.push(`${where}: id de card duplicado`);
       seenCards.add(card.id);
-      if (!card.title) errors.push(`${where}: falta title`);
+      if (!isNonEmptyString(card.title)) errors.push(`${where}: falta title`);
+      if (card.summary !== undefined && typeof card.summary !== 'string') {
+        errors.push(`${where}: "summary" deve ser texto`);
+      }
+      if (card.tags !== undefined && !(Array.isArray(card.tags) && card.tags.every((t) => typeof t === 'string'))) {
+        errors.push(`${where}: "tags" deve ser uma lista de textos`);
+      }
       if (!Array.isArray(card.pieces)) {
         errors.push(`${where}: "pieces" deve ser uma lista`);
         continue;
@@ -63,6 +74,7 @@ export function validateManifest(m) {
           errors.push(`${where}: tipo de peça inválido: ${JSON.stringify(piece?.type)}`);
           continue;
         }
+        if (!isNonEmptyString(piece.title)) errors.push(`${where}/${piece.type}: falta title`);
         if (seenTypes.has(piece.type)) errors.push(`${where}: tipo de peça repetido: ${piece.type}`);
         seenTypes.add(piece.type);
         if (!isSafeRelativePath(piece.file)) {
