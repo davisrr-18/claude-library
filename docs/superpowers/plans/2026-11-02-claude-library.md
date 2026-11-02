@@ -114,7 +114,7 @@
 - Consumes: `validateManifest` (Task 1)
 - Produces: `findSensitive(text: string) -> {rule: string, match: string}[]`; CLI `node scripts/check-content.mjs` sai com código 1 se houver erro de manifest, arquivo ausente ou conteúdo sensível.
 
-- [ ] **Step 1: Testes que falham** para `findSensitive`: detecta e-mail, `/home/<usuario>`, `ghp_` + 36 caracteres, `sk-` + 20 ou mais caracteres, `-----BEGIN PRIVATE KEY-----`; não dispara em texto comum nem em `~/.claude/skills`.
+- [ ] **Step 1: Testes que falham** para `findSensitive`: detecta e-mail, caminho pessoal (pasta home de usuário), token GitHub (`ghp_` + 36 caracteres), chave `sk-` (20 ou mais caracteres) e cabeçalho PEM de chave privada; não dispara em texto comum nem em `~/.claude/skills`.
 - [ ] **Step 2: Rodar e confirmar falha.**
 - [ ] **Step 3: Implementar `findSensitive` e a CLI** (valida manifest, confirma que cada `file` existe, varre todos os `.md` e o manifest).
 - [ ] **Step 4: Rodar `node --test tests/` e `node scripts/check-content.mjs`; esperado: testes passam e o script sai com 0 no conteúdo atual.**

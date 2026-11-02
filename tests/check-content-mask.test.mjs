@@ -47,3 +47,58 @@ test('e-mail e caminho pessoal continuam visiveis para facilitar a correcao', ()
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+// Valores falsos montados por concatenação: o literal completo não aparece neste arquivo.
+const SECRET_FIXTURES = [
+  { rule: 'chave-aws', prefix: 'AKIA***', value: 'AKIA' + 'ABCD1234EFGH5678' },
+  { rule: 'token-jwt', prefix: 'eyJ***', value: ['eyJhbGciOiJIUzI1NiJ9', 'eyJzdWIiOiJmdWxhbm8ifQ', 'c2lnbmF0dXJhLWZpY3RpY2lh'].join('.') },
+  { rule: 'token-github', prefix: 'ghu_***', value: 'ghu_' + 'A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8' },
+  { rule: 'token-github-pat', prefix: 'github_pat_***', value: 'github_pat_' + 'A1_'.repeat(8) },
+  { rule: 'token-slack', prefix: 'xoxb-***', value: 'xoxb-' + '1234567890-abcdef' },
+  { rule: 'chave-google', prefix: 'AIza***', value: 'AIza' + 'Ab_-1'.repeat(7) },
+  { rule: 'chave-stripe', prefix: 'sk_live_***', value: 'sk_live_' + 'a1'.repeat(8) },
+];
+
+test('segredos novos sao mascarados e o valor completo nunca aparece na saida', () => {
+  const body = SECRET_FIXTURES.map((f) => `${f.rule}: ${f.value}`).join('\n') + '\n';
+  const root = project(body);
+  try {
+    const { errors } = checkContent(root);
+    const text = errors.join('\n');
+    for (const { rule, prefix, value } of SECRET_FIXTURES) {
+      assert.ok(!text.includes(value), `${rule}: valor completo vazou na saida`);
+      assert.ok(text.includes(`${rule}: ${prefix}`), `${rule}: prefixo mascarado ausente\n${text}`);
+    }
+    assert.equal(errors.length, SECRET_FIXTURES.length, text);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('credencial em URL mostra so https://*** e o e-mail dentro dela nao e reportado de novo', () => {
+  const root = project('veja http://fulano:senha@example.com/x agora\n');
+  try {
+    const { errors } = checkContent(root);
+    assert.equal(errors.length, 1, errors.join('\n'));
+    assert.equal(errors[0].split(': ')[1], 'credencial-url', errors[0]);
+    assert.match(errors[0], /http:\/\/\*\*\*/);
+    const text = errors.join('\n');
+    assert.ok(!text.includes('senha'), 'senha vazou na saida');
+    assert.ok(!text.includes('example.com'), 'host vazou na saida');
+    assert.ok(!text.includes(': email:'), 'trecho coberto pela credencial foi reportado como email');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('CPF, caminhos Windows e /root continuam visiveis', () => {
+  const root = project('CPF 123.456.789-09, C:\\Users\\fulano\\x e /root/.ssh\n');
+  try {
+    const text = checkContent(root).errors.join('\n');
+    assert.match(text, /cpf: 123\.456\.789-09/);
+    assert.match(text, /caminho-pessoal: C:\\Users\\fulano/);
+    assert.match(text, /caminho-pessoal: \/root\//);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

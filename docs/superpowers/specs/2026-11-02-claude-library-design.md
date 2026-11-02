@@ -88,3 +88,15 @@ Aprovado pelo usuário após o Marco 2. Substitui o visual do Marco 1 e antecipa
 - **Manifest:** `tiers[].description` e `cards[].icon` opcionais (`CARD_ICONS` em `js/content.js`).
 - **Busca:** um registro por card (título, tags, resumo e corpo de todas as peças); todas as palavras devem casar; ordem: título > tags/resumo > corpo.
 - **Convenção pendente:** links e imagens relativos dentro dos `.md` ainda resolvem contra a página, não contra `content/`; definir antes de usar imagens.
+
+## Decisões registradas após a revisão final (2026-11-02)
+- **Largura:** a página usa a tela toda (margens proporcionais; limite só acima de 2560px). Texto das peças em até ~90 caracteres (o spec original falava em ~74), a pedido do usuário.
+- **Busca:** por palavra, com prefixo, sem diferenciar caixa e acentos (`git` não casa com `digital`; `migra` casa com `Migração`). Consulta só com pontuação não encontra nada.
+- **Tags:** `Git`, `git` e `GIT` são a mesma tag (primeira forma exibida).
+- **Navegação das peças:** abas são links de navegação (`aria-current`), sem `role="tab"`; o Tab alcança todas. Setas do teclado não são implementadas.
+- **Filtros:** persistem ao voltar para a Home dentro da mesma sessão.
+- **Títulos no Markdown:** `#` vira `h3` (o `h1` é o card e o `h2` é o título da peça).
+- **Conteúdo inicial:** 4 cards (Básicas: exemplo e investigação rápida; Intermediárias: implementar com testes; Complexas: planejar em marcos), em vez de um por nível.
+- **`package.json`:** tem os scripts `test` e `check` (o plano previa só `{"type":"module"}`).
+- **Verificação de conteúdo:** varre todos os arquivos de texto do projeto (exceto `tests/` e `vendor/`) e procura a identidade do autor em todos, inclusive `tests/`. Segredos são mascarados na saída.
+- **Deploy:** publicar por lista de permissão (`index.html`, `css/`, `js/`, `vendor/`, `content/`), nunca a raiz; só com autorização explícita do usuário.
