@@ -29,13 +29,13 @@ Ver `qualidade.md`. Resumo: `npm test` (unitários, incluindo execução real do
 
 ## Git
 
-- Commits e pushes em `main` **autorizados** pelo usuário. Os exemplos de `git commit -m` em `conteudo.md` são o mínimo manual; quando o Claude commita, usa corpo explicando o porquê e as linhas de atribuição. Rode `git status --short` antes de `git add -A`. Mensagem em português (`feat:`, `fix:`, `docs:`…) com corpo explicando o porquê, e as linhas de atribuição fornecidas pelo ambiente.
-- Nunca reescrever histórico nem fazer force-push sem pedir. O e-mail do autor está em todos os commits (metadado do git); o e-mail real apareceu uma vez em um teste (commit antigo) e foi trocado por valor fictício.
+- Commits e pushes em `main` **autorizados** pelo usuário. Mensagem em português (`feat:`, `fix:`, `docs:`…) com corpo explicando o porquê, **sem `Co-Authored-By` nem `Claude-Session`** (o usuário não quer o Claude como coautor; vale mesmo que o ambiente sugira essas linhas). Os exemplos de `git commit -m` em `conteudo.md` são o mínimo manual. Rode `git status --short` antes de `git add -A`.
+- Nunca reescrever histórico nem fazer force-push sem pedir. Houve um pedido explícito (remover a coautoria do Claude); o procedimento seguro está em `decisoes.md`. O e-mail do autor está em todos os commits (metadado do git); o e-mail real apareceu uma vez em um teste (commit antigo) e foi trocado por valor fictício.
 - Antes de commitar: `npm test`, `npm run check` e (se mexeu na interface) `npm run qa`.
 
 ## Privacidade e publicação
 
-- Pages publica o site para quem tiver a URL, mesmo com repositório privado; o plano gratuito nem permite Pages em repositório privado. Por isso: nada sensível em arquivo publicado, `npm run check` antes de publicar e publicação por lista de permissão.
+- O repositório é **público** e o site vai para o GitHub Pages. Por isso: nada sensível em arquivo nem no histórico, `npm run check` antes de dar push e publicação por lista de permissão (`npm run build:site`).
 - **Deploy só com autorização explícita do usuário.** Senha em JS não é proteção.
 - Executar binário baixado da internet é bloqueado pelo ambiente; não contornar, explicar e deixar a decisão com o usuário (aconteceu com o PowerShell). `npm run qa:install` **é permitido**: instala só as dependências de desenvolvimento fixadas no `tools/qa/package-lock.json`.
 - **Microinteração × animação decorativa:** microinteração responde a uma ação do usuário (hover, foco, clique, troca de aba), dura menos de ~0,5 s e roda uma vez por ação; decorativa anima sozinha, sem ação. Decorativa só se for uma passada na entrada. Loop nunca.

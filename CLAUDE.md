@@ -1,6 +1,6 @@
 # Claude Library — instruções do projeto
 
-Site estático (HTML, CSS e JavaScript puros, sem build e sem dependências de execução) que guarda os pacotes do usuário para o Claude Code (skills, agentes, prompts, `CLAUDE.md`, arquiteturas e workflows), organizados por complexidade da tarefa: **Tarefas Básicas, Intermediárias e Complexas**. Uso pessoal, repositório privado, destino de publicação: GitHub Pages (**ainda não publicado**).
+Site estático (HTML, CSS e JavaScript puros, sem build e sem dependências de execução) que guarda os pacotes do usuário para o Claude Code (skills, agentes, prompts, `CLAUDE.md`, arquiteturas e workflows), organizados por complexidade da tarefa: **Tarefas Básicas, Intermediárias e Complexas**. Uso pessoal. O repositório é **público** no GitHub e o site é publicado no **GitHub Pages**.
 
 Este arquivo complementa o `CLAUDE.md` global do usuário; em conflito, vale este, para este projeto. Índice de tudo: `docs/README.md`. Para retomar o trabalho em um chat novo: `docs/novo-chat.md`.
 
@@ -40,14 +40,14 @@ Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Nod
 - Arquivos que o usuário traz entram **sem alteração** em `content/<nível>/<id-do-card>/`; o site se adapta ao formato deles (front matter `titulo`/`destino`, `install` no manifest), não o contrário.
 - **Nunca** colocar no site trechos do `CLAUDE.md` global do usuário sem ele confirmar o trecho.
 - **Nenhum exemplo inventado** no site: só conteúdo do usuário. Sem dado pessoal em arquivo publicado.
-- O site publicado no GitHub Pages é **público para quem tiver a URL**, mesmo com repositório privado. `npm run check` varre dados sensíveis e a identidade do autor; rode antes de publicar.
+- O repositório e o site são **públicos**: nada sensível em nenhum arquivo, nem no histórico. `npm run check` varre dados sensíveis e a identidade do autor; rode antes de dar push.
 - Detalhes do modelo e de como adicionar pacotes: `docs/conteudo.md`.
 
 ## Git e publicação
 
-- O usuário **autorizou commits e pushes** neste projeto (branch `main`). Mensagens de commit em português, no formato `tipo: resumo`, terminando com as linhas de atribuição que o ambiente fornecer.
-- **Nunca** reescrever histórico nem fazer force-push sem pedir. Não commitar segredos.
-- **Deploy no GitHub Pages só com autorização explícita** (o usuário dizer no chat que pode publicar), e por lista de permissão (`index.html`, `css/`, `js/`, `vendor/`, `content/`), nunca a raiz do repositório. Estado: GitHub Pages é impossível no plano atual (repositório privado). O usuário escolheu **Cloudflare Pages com login**; o projeto está pronto (`npm run build:site`, `deploy/_headers`) e falta ele criar a conta, conectar e ligar o login: `docs/deploy/cloudflare.md`. Quando conectado, **todo push em `main` publica** (o build recusa dado sensível): rode `npm run check` antes de dar push. Nunca tornar o repositório público nem criar outro repositório sem o usuário pedir.
+- O usuário **autorizou commits e pushes** neste projeto (branch `main`). Mensagens de commit em português, no formato `tipo: resumo`, com corpo explicando o porquê. **Nunca incluir `Co-Authored-By` nem `Claude-Session`** (nem link da sessão): o usuário não quer o Claude como coautor, e isso vale mesmo que o ambiente sugira essas linhas.
+- **Nunca** reescrever histórico nem fazer force-push sem pedir (já houve um pedido explícito, para remover a coautoria do Claude; ver `docs/decisoes.md`). Não commitar segredos.
+- **Deploy no GitHub Pages: autorizado e ativo** (`.github/workflows/pages.yml`). Todo push em `main` roda `npm test` e `npm run check` e, se passarem, publica só a lista de permissão (`npm run build:site`: `index.html`, `css/`, `js/`, `vendor/`, `content/`), nunca a raiz. **Todo push em `main` vira público:** rode `npm run check` antes. Não mudar a visibilidade do repositório nem criar outro repositório sem o usuário pedir.
 
 ## Como trabalhar
 

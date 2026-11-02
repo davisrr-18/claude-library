@@ -127,11 +127,11 @@ docs/               documentação; docs/superpowers/ guarda o spec e o plano or
 npm run build:site     # monta dist/ só com index.html, css/, js/, vendor/ e content/ (recusa se achar dado sensível)
 ```
 
-Destino escolhido: Cloudflare Pages com login, mantendo o repositório privado. Passo a passo: [`docs/deploy/cloudflare.md`](docs/deploy/cloudflare.md). O GitHub Pages não funciona em repositório privado no plano gratuito.
+Publicado no **GitHub Pages**: a cada push em `main`, o workflow `.github/workflows/pages.yml` roda `npm test` e `npm run check` e, se passarem, publica só a lista de permissão. Alternativa com login (não usada): [`docs/deploy/cloudflare.md`](docs/deploy/cloudflare.md).
 
 ## Segurança e privacidade
 
-- **GitHub Pages publica o site para quem tiver a URL, mesmo com repositório privado** (só o plano Enterprise Cloud restringe o acesso). O `noindex` da página reduz a indexação, mas não é controle de acesso.
+- **O repositório e o site são públicos.** O `noindex` da página reduz a indexação, mas não é controle de acesso.
 - Por isso, nada sensível deve estar em arquivo publicado. Ao publicar, envie só `index.html`, `css/`, `js/`, `vendor/` e `content/`, nunca a raiz do repositório (que traz `tests/`, `docs/` e `.git`).
 - O Markdown é renderizado com HTML bruto escapado, URLs filtradas e uma segunda lista de permissões de tags e atributos no DOM.
 

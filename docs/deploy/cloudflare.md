@@ -1,8 +1,10 @@
-# Publicar no Cloudflare Pages, com login
+# Publicar no Cloudflare Pages, com login (alternativa, não usada)
+
+> **Não é o destino atual.** O repositório ficou público e o site é publicado no GitHub Pages (`.github/workflows/pages.yml`). Este guia continua válido se um dia o usuário quiser o site atrás de login mantendo o repositório privado.
 
 Escolha do usuário para publicar: mantém o repositório **privado** e o site só abre para quem entrar com login (Cloudflare Access). O GitHub Pages não serve, porque o plano gratuito não permite Pages em repositório privado.
 
-**Estado:** o lado do projeto está pronto e testado. Falta o que só o usuário pode fazer: criar a conta no Cloudflare, conectar o repositório e ligar o login (passos abaixo). Os nomes de botões do painel do Cloudflare mudam de vez em quando; se algo não bater, procure o equivalente.
+**Estado:** o lado do projeto está pronto e testado; o que só o usuário pode fazer é criar a conta, conectar o repositório e ligar o login (passos abaixo). Os nomes de botões do painel do Cloudflare mudam de vez em quando; se algo não bater, procure o equivalente.
 
 ## O que já está no repositório
 
@@ -11,7 +13,7 @@ Escolha do usuário para publicar: mantém o repositório **privado** e o site s
 | `scripts/build-site.mjs` (`npm run build:site`) | Monta `dist/` só com `index.html`, `css/`, `js/`, `vendor/` e `content/` (+ `_headers`). **Recusa construir** se a verificação de conteúdo achar dado sensível, se faltar arquivo do manifest ou se o `index.html` apontar para fora da lista. Nunca apaga uma pasta que não seja vazia ou um build anterior. Testado em Linux, macOS e Windows pelo CI. |
 | `deploy/_headers` | Cabeçalhos do site: `noindex`, sem iframe, sem referrer, `nosniff`. O Cloudflare aplica este arquivo. |
 | `.node-version` | Node 22 no build do Cloudflare. |
-| `docs/deploy/pages.yml` | Alternativa **inativa** para o GitHub Pages (só funciona com plano pago ou repositório público). |
+| `.github/workflows/pages.yml` | O deploy **ativo** no GitHub Pages (usa o mesmo `npm run build:site`). |
 
 ## Passo a passo (uma vez)
 

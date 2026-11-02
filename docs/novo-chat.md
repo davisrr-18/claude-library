@@ -55,6 +55,6 @@ Necessário: Node 22 ou superior, git e Python (só para servir localmente). No 
 - Site completo e verde (`npm test`, `npm run check`, `npm run qa`).
 - Conteúdo: card **Estudos em Programação** (Tarefas Intermediárias), 11 peças.
 - CI verde em Linux, macOS e Windows (comandos de instalação executados de verdade em bash, zsh e PowerShell).
-- Publicação: o usuário escolheu **Cloudflare Pages com login**; o projeto está pronto (`npm run build:site`) e o guia está em `docs/deploy/cloudflare.md`.
-- **Pendente (depende do usuário):** criar a conta no Cloudflare, conectar o repositório e ligar o login (guia acima); depois, novos pacotes para Básicas e Complexas.
+- Publicação: **GitHub Pages ativo** (repositório público); todo push em `main` publica depois de `npm test` e `npm run check`. Alternativa com login documentada em `docs/deploy/cloudflare.md`.
+- **Pendente (depende do usuário):** novos pacotes para Básicas e Complexas.
 - Detalhes e histórico: `docs/decisoes.md`.

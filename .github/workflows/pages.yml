@@ -1,10 +1,6 @@
-# INATIVO: este arquivo NÃO está em .github/workflows/ de propósito. O plano gratuito do GitHub não permite Pages em
-# repositório privado (a API responde 422), então ativo ele falharia a cada push. Para ativar: torne o Pages
-# disponível (plano pago ou repositório público) e mova para .github/workflows/pages.yml.
-#
 # Publica o site no GitHub Pages a cada push em main, DEPOIS de os testes e a verificação de conteúdo passarem.
 # Só uma lista de permissão vai para o ar (index.html, css/, js/, vendor/, content/); tests/, docs/, tools/,
-# scripts/ e .git nunca. O site fica público para quem tiver a URL, mesmo com o repositório privado.
+# scripts/ e .git nunca. O repositório e o site são públicos.
 name: Publicar no GitHub Pages
 
 on:

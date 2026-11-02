@@ -11,8 +11,9 @@ Mais recente no fim. Cada decisão: o quê, por quê. Itens que mudaram de ideia
 
 ## Publicação e privacidade
 
-- Pretendido: GitHub Pages com repositório privado, "só para mim". **Realidade:** Pages publica o site para quem tiver a URL (só Enterprise Cloud restringe; o plano gratuito nem permite Pages em repositório privado). Decisão: projetar para exposição pública, varrer dados sensíveis, `noindex`, e **publicar só com autorização explícita**. Senha em JS foi descartada (não é proteção).
-- O e-mail real do autor está nos metadados dos commits (configuração do git) e apareceu uma vez num teste; foi trocado por valor fictício. Histórico **não** foi reescrito (exigiria force-push); o usuário pode adotar o e-mail `noreply` do GitHub nos próximos commits.
+- Pretendido: GitHub Pages com repositório privado, "só para mim". **Realidade:** Pages publica o site para quem tiver a URL, e o plano gratuito nem permite Pages em repositório privado. Decisão: projetar para exposição pública, varrer dados sensíveis, `noindex` e **publicar só com autorização explícita** (dada depois, ver Publicação). Senha em JS foi descartada (não é proteção).
+- O e-mail real do autor está nos metadados dos commits (configuração do git) e apareceu uma vez num teste (commit antigo), depois trocado por valor fictício. **Atenção:** o repositório agora é público, então esse e-mail e o conteúdo antigo desse teste são públicos; o usuário pode adotar o e-mail `noreply` do GitHub nos próximos commits.
+- **Coautoria do Claude removida do histórico (pedido explícito do usuário).** As linhas `Co-Authored-By: Claude …` e `Claude-Session: …` foram retiradas das mensagens dos 26 commits que as tinham, com `git filter-branch --msg-filter` e `git push --force-with-lease`. Procedimento seguro usado: backup (`git bundle`), conferência de que as árvores de arquivos ficaram idênticas nos 27 commits e de que não restou nenhuma linha, e só então o force-push. A autoria (nome e e-mail do usuário) foi preservada. Commits antigos podem continuar acessíveis pelo hash no GitHub até o GC dele. **Daqui para frente, commits não levam essas linhas.**
 
 ## Interface
 
@@ -27,9 +28,8 @@ Mais recente no fim. Cada decisão: o quê, por quê. Itens que mudaram de ideia
 
 ## Publicação
 
-- **GitHub Pages foi tentado e é impossível no plano atual:** o usuário mandou publicar e o GitHub respondeu 422 (o plano gratuito não permite Pages em repositório privado). Não se tornou o repositório público (exporia código, documentos e o e-mail dos commits) nem se criou outro repositório sem o usuário decidir.
-- **Escolha do usuário: Cloudflare Pages com login (Cloudflare Access).** Mantém o repositório privado e atende o desejo original de "só eu acesso". Alternativas descartadas: GitHub Pro (site público), repositório público só do site, tornar este repositório público.
-- **Uma única definição do que é publicado:** `scripts/build-site.mjs` (lista de permissão `index.html`, `css/`, `js/`, `vendor/`, `content/` + `_headers`). Ele é um portão: **recusa construir** com dado sensível, arquivo faltando ou referência fora da lista, porque o Cloudflare publica a cada push mesmo se o CI falhar. O workflow inativo do GitHub (`docs/deploy/pages.yml`) usa o mesmo script.
+- **GitHub Pages:** ao tentar ativar com o repositório privado o GitHub respondeu 422 (o plano gratuito não permite). O usuário então **tornou o repositório público e autorizou o Pages**. Foi considerado Cloudflare Pages com login (guia mantido em `docs/deploy/cloudflare.md`, não usado).
+- **Uma única definição do que é publicado:** `scripts/build-site.mjs` (lista de permissão `index.html`, `css/`, `js/`, `vendor/`, `content/` + `_headers`). Ele é um portão: **recusa construir** com dado sensível, arquivo faltando ou referência fora da lista, porque o deploy pode rodar mesmo que outra verificação falhe. O workflow do GitHub Pages (`.github/workflows/pages.yml`) usa o mesmo script.
 - O build apaga a pasta de saída, então só aceita uma pasta inexistente, vazia ou que pareça um build anterior; nunca a raiz do projeto, um ancestral dela ou uma pasta do site (testado).
 
 ## Segurança
@@ -48,6 +48,5 @@ Mais recente no fim. Cada decisão: o quê, por quê. Itens que mudaram de ideia
 
 ## Em aberto
 
-- **Publicação:** falta o usuário criar a conta no Cloudflare, conectar o repositório e ligar o login (passo a passo em `docs/deploy/cloudflare.md`). O lado do projeto está pronto (`npm run build:site`, `deploy/_headers`, `.node-version`).
 - Cards de **Básicas** e **Complexas** (vazias) e de `CLAUDE.md`/arquitetura de outros pacotes, quando o usuário trouxer.
 - Link e imagem relativos dentro dos `.md` resolvem contra `index.html`, não contra `content/` (convenção a definir se algum pacote usar).
