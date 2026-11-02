@@ -1,5 +1,7 @@
 import { parseFrontMatter, validateManifest } from './content.js';
 import { parseRoute, isAppHash } from './router.js';
+import { renderMarkdown } from './markdown.js';
+import { isTagAllowed, isAttrAllowed } from './sanitize.js';
 
 const TYPE_LABELS = {
   skill: 'Skill',
@@ -86,6 +88,85 @@ function renderTier(tier) {
       : message('Nenhum card neste nível ainda.'));
 }
 
+/**
+ * Segunda camada de defesa: o HTML de renderMarkdown já escapa HTML bruto e filtra URLs.
+ * Aqui ele é parseado em um <template> (inerte: nada executa nem carrega) e só passam
+ * tags e atributos aprovados por js/sanitize.js (política pura, testada em Node).
+ */
+function safeFragment(html) {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html;
+  const walk = (node) => {
+    for (const child of [...node.children]) {
+      const attrs = Object.fromEntries([...child.attributes].map((a) => [a.name, a.value]));
+      if (!isTagAllowed(child.tagName, attrs)) { child.remove(); continue; }
+      for (const [name, value] of Object.entries(attrs)) {
+        if (!isAttrAllowed(child.tagName, name, value)) child.removeAttribute(name);
+      }
+      walk(child);
+    }
+  };
+  walk(tpl.content);
+  return tpl.content;
+}
+
+/** Copia texto; usa a Clipboard API e, se indisponível, um textarea temporário. */
+async function copyText(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch { /* cai no fallback */ }
+  try {
+    const ta = h('textarea', { 'aria-hidden': 'true', style: 'position:fixed;opacity:0;top:0' });
+    ta.value = text;
+    document.body.append(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
+function copyButton(label, getText) {
+  const btn = h('button', { type: 'button', class: 'copy-btn', 'aria-live': 'polite' }, label);
+  btn.addEventListener('click', async () => {
+    const ok = await copyText(getText());
+    btn.textContent = ok ? 'Copiado!' : 'Não foi possível copiar';
+    setTimeout(() => { btn.textContent = label; }, 1800);
+  });
+  return btn;
+}
+
+function addCopyButtons(root) {
+  for (const pre of root.querySelectorAll('pre')) {
+    const wrap = h('div', { class: 'code-wrap' });
+    pre.replaceWith(wrap);
+    wrap.append(copyButton('Copiar', () => pre.textContent), pre);
+  }
+}
+
+function initTheme() {
+  const btn = document.getElementById('theme-toggle');
+  const root = document.documentElement;
+  const read = () => { try { return localStorage.getItem('theme'); } catch { return null; } };
+  const write = (v) => { try { localStorage.setItem('theme', v); } catch { /* sem persistência */ } };
+  const saved = read();
+  if (saved === 'light' || saved === 'dark') root.dataset.theme = saved;
+  const isDark = () => root.dataset.theme
+    ? root.dataset.theme === 'dark'
+    : matchMedia('(prefers-color-scheme: dark)').matches;
+  btn.hidden = false;
+  btn.addEventListener('click', () => {
+    const next = isDark() ? 'light' : 'dark';
+    root.dataset.theme = next;
+    write(next);
+  });
+}
+
 async function fetchText(file) {
   const res = await fetch(`content/${file.split('/').map(enc).join('/')}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -116,12 +197,16 @@ async function renderCard(tier, card, activeType) {
   if (!current) return;
   panel.append(message('Carregando…'));
   try {
-    const { meta, body } = parseFrontMatter(await fetchText(current.file));
+    const raw = await fetchText(current.file);
+    const { meta, body } = parseFrontMatter(raw);
+    const article = h('article', { class: 'md' }, safeFragment(renderMarkdown(body)));
+    addCopyButtons(article);
     panel.replaceChildren(
+      h('div', { class: 'piece-actions' }, copyButton('Copiar peça', () => raw)),
       meta.name || meta.description
         ? h('p', { class: 'lead' }, [meta.name && h('strong', {}, meta.name), meta.name && meta.description ? ' — ' : '', meta.description])
         : null,
-      h('pre', { class: 'plain' }, body));
+      article);
   } catch (err) {
     panel.replaceChildren(message(`Não foi possível carregar "${current.file}": ${err.message}`, 'error'));
   }
@@ -169,4 +254,5 @@ async function init() {
   route();
 }
 
+initTheme();
 init();

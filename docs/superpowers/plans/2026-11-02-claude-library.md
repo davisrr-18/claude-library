@@ -11,7 +11,7 @@
 **Spec:** `docs/superpowers/specs/2026-11-02-claude-library-design.md`
 
 ## Global Constraints
-- Sem backend, build, framework ou CDN; `marked` fica em `vendor/marked.min.js`.
+- Sem backend, build, framework ou CDN; `marked` fica em `vendor/marked.esm.js`.
 - `package.json` só com `{"type":"module"}`; zero dependências.
 - Tipos de peça: `skill | claude-md | arquitetura | agente | workflow | prompt`. Níveis: `basicas`, `intermediarias`, `complexas`.
 - Rotas: `#/`, `#/<nivel>`, `#/<nivel>/<card>`, `#/<nivel>/<card>/<tipo>`.
@@ -64,7 +64,7 @@
 ### Task 3: Markdown seguro, copiar e tema — Marco 2
 
 **Files:**
-- Create: `vendor/marked.min.js` (versão fixa, anotar a versão no topo de `vendor/README.md`), `js/markdown.js`, `tests/markdown.test.mjs`
+- Create: `vendor/marked.esm.js` (versão fixa, anotar a versão no topo de `vendor/README.md`), `js/markdown.js`, `tests/markdown.test.mjs`
 - Modify: `js/app.js`, `css/style.css`
 
 **Interfaces:**

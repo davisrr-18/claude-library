@@ -80,3 +80,26 @@ pre.plain {
   white-space: pre-wrap; word-break: break-word; background: var(--code-bg);
   padding: 16px; border-radius: var(--radius); overflow-x: auto;
 }
+
+.md { overflow-wrap: anywhere; }
+.md h1 { font-size: 1.5rem; margin: 24px 0 8px; }
+.md h2 { font-size: 1.2rem; margin: 24px 0 8px; }
+.md h3 { font-size: 1.05rem; margin: 20px 0 6px; }
+.md img { max-width: 100%; height: auto; }
+.md blockquote { margin: 12px 0; padding: 4px 14px; border-left: 3px solid var(--border); color: var(--muted); }
+.md table { border-collapse: collapse; display: block; overflow-x: auto; max-width: 100%; }
+.md th, .md td { border: 1px solid var(--border); padding: 6px 10px; }
+.md :not(pre) > code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+.code-wrap { position: relative; margin: 12px 0; }
+.code-wrap pre {
+  margin: 0; background: var(--code-bg); padding: 14px 16px; padding-top: 40px;
+  border-radius: var(--radius); overflow-x: auto;
+}
+.code-wrap pre code { font-size: .9rem; }
+.code-wrap .copy-btn { position: absolute; top: 8px; right: 8px; }
+.copy-btn {
+  font: inherit; font-size: .82rem; color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; cursor: pointer; min-height: 32px;
+}
+.copy-btn:hover { border-color: var(--accent); }
+.piece-actions { display: flex; justify-content: flex-end; margin-bottom: 8px; }
