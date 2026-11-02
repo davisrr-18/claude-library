@@ -13,6 +13,7 @@ Este arquivo complementa o `CLAUDE.md` global do usuário; em conflito, vale est
 | Verificar conteúdo (manifest, arquivos, dados sensíveis) | `npm run check` | `npm run check` |
 | QA completo (uma vez: instalar) | `npm run qa:install` | `npm run qa:install` |
 | QA completo (lint, CSS, fuzz, fumaça, estresse) | `npm run qa` | `npm run qa` |
+| Montar o site publicável em `dist/` | `npm run build:site` | `npm run build:site` |
 
 Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Node 22 ou superior é o ambiente de testes.
 
@@ -46,7 +47,7 @@ Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Nod
 
 - O usuário **autorizou commits e pushes** neste projeto (branch `main`). Mensagens de commit em português, no formato `tipo: resumo`, terminando com as linhas de atribuição que o ambiente fornecer.
 - **Nunca** reescrever histórico nem fazer force-push sem pedir. Não commitar segredos.
-- **Deploy no GitHub Pages só com autorização explícita** (o usuário dizer no chat que pode publicar), e por lista de permissão (`index.html`, `css/`, `js/`, `vendor/`, `content/`), nunca a raiz do repositório. Estado: o workflow está pronto e **inativo** em `docs/deploy/pages.yml`, porque o plano gratuito do GitHub não permite Pages em repositório privado; ver `docs/decisoes.md`. Nunca tornar o repositório público sem o usuário pedir (expõe código, documentos e o e-mail dos commits).
+- **Deploy no GitHub Pages só com autorização explícita** (o usuário dizer no chat que pode publicar), e por lista de permissão (`index.html`, `css/`, `js/`, `vendor/`, `content/`), nunca a raiz do repositório. Estado: GitHub Pages é impossível no plano atual (repositório privado). O usuário escolheu **Cloudflare Pages com login**; o projeto está pronto (`npm run build:site`, `deploy/_headers`) e falta ele criar a conta, conectar e ligar o login: `docs/deploy/cloudflare.md`. Quando conectado, **todo push em `main` publica** (o build recusa dado sensível): rode `npm run check` antes de dar push. Nunca tornar o repositório público nem criar outro repositório sem o usuário pedir.
 
 ## Como trabalhar
 

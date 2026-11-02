@@ -121,6 +121,14 @@ tools/qa/           verificação com dependências isoladas (fumaça, fuzz, est
 docs/               documentação; docs/superpowers/ guarda o spec e o plano originais
 ```
 
+## Publicar
+
+```bash
+npm run build:site     # monta dist/ só com index.html, css/, js/, vendor/ e content/ (recusa se achar dado sensível)
+```
+
+Destino escolhido: Cloudflare Pages com login, mantendo o repositório privado. Passo a passo: [`docs/deploy/cloudflare.md`](docs/deploy/cloudflare.md). O GitHub Pages não funciona em repositório privado no plano gratuito.
+
 ## Segurança e privacidade
 
 - **GitHub Pages publica o site para quem tiver a URL, mesmo com repositório privado** (só o plano Enterprise Cloud restringe o acesso). O `noindex` da página reduz a indexação, mas não é controle de acesso.

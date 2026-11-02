@@ -6,3 +6,4 @@ node_modules/
 .claude/
 *.local
 tools/qa/node_modules/
+dist/

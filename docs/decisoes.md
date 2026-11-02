@@ -25,6 +25,13 @@ Mais recente no fim. Cada decisão: o quê, por quê. Itens que mudaram de ideia
 - **Animações:** uma passada e param (mudou de ideia: as do hero eram infinitas e o usuário reclamou). Botão Copiar em linha própria (antes flutuava e invadia).
 - Cards de exemplo inventados **removidos** a pedido; só conteúdo do usuário.
 
+## Publicação
+
+- **GitHub Pages foi tentado e é impossível no plano atual:** o usuário mandou publicar e o GitHub respondeu 422 (o plano gratuito não permite Pages em repositório privado). Não se tornou o repositório público (exporia código, documentos e o e-mail dos commits) nem se criou outro repositório sem o usuário decidir.
+- **Escolha do usuário: Cloudflare Pages com login (Cloudflare Access).** Mantém o repositório privado e atende o desejo original de "só eu acesso". Alternativas descartadas: GitHub Pro (site público), repositório público só do site, tornar este repositório público.
+- **Uma única definição do que é publicado:** `scripts/build-site.mjs` (lista de permissão `index.html`, `css/`, `js/`, `vendor/`, `content/` + `_headers`). Ele é um portão: **recusa construir** com dado sensível, arquivo faltando ou referência fora da lista, porque o Cloudflare publica a cada push mesmo se o CI falhar. O workflow inativo do GitHub (`docs/deploy/pages.yml`) usa o mesmo script.
+- O build apaga a pasta de saída, então só aceita uma pasta inexistente, vazia ou que pareça um build anterior; nunca a raiz do projeto, um ancestral dela ou uma pasta do site (testado).
+
 ## Segurança
 
 - Sanitização em duas camadas (renderer do Markdown + política de DOM). `safeFragment` é o único `innerHTML`, sobre `<template>` inerte.
@@ -41,6 +48,6 @@ Mais recente no fim. Cada decisão: o quê, por quê. Itens que mudaram de ideia
 
 ## Em aberto
 
-- **Deploy no GitHub Pages: autorizado, mas bloqueado pelo plano.** O usuário mandou publicar; o GitHub respondeu que o plano gratuito não permite Pages em repositório privado (HTTP 422). Workflow pronto e inativo em `docs/deploy/pages.yml`. Caminhos possíveis, a escolher pelo usuário: (A) plano pago (GitHub Pro) mantendo o repositório privado; (B) tornar o repositório público (expõe código, documentos e o e-mail dos commits); (C) repositório público separado só com o site; (D) hospedagem com controle de acesso, como Cloudflare Pages com Access ou Netlify, que atende o desejo original de "só eu acesso". Nunca escolher sem o usuário.
+- **Publicação:** falta o usuário criar a conta no Cloudflare, conectar o repositório e ligar o login (passo a passo em `docs/deploy/cloudflare.md`). O lado do projeto está pronto (`npm run build:site`, `deploy/_headers`, `.node-version`).
 - Cards de **Básicas** e **Complexas** (vazias) e de `CLAUDE.md`/arquitetura de outros pacotes, quando o usuário trouxer.
 - Link e imagem relativos dentro dos `.md` resolvem contra `index.html`, não contra `content/` (convenção a definir se algum pacote usar).

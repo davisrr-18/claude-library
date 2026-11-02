@@ -13,6 +13,7 @@ Três camadas. Rode da raiz do projeto; os comandos são iguais em Linux, macOS 
 Arquivos em `tests/` (um por módulo ou tema):
 
 - **Módulos puros:** `content`, `router`, `search`, `tabs`, `install`, `markdown`, `sanitize`, `icons`.
+- **Build do site:** `build-site` (publica só a lista de permissão, recusa dado sensível e referência fora da lista, e **nunca apaga** a raiz, um ancestral dela ou uma pasta do site).
 - **Verificador:** `check-content` (regras, mascaramento, varredura, binários, symlink), `check-content-cli` (a CLI de verdade, inclusive por link simbólico, e a listagem pelo git), `check-content-mask`, `check-content-perf` (tempo linear), `repo-content` (o próprio repositório passa).
 - **CSS por leitura:** `css-layout` (grids que encolhem, botão Copiar em linha própria, espaçamento do bloco, barras finas) e `css-motion` (só o esqueleto pode ser infinito; elemento já revelado não reanima).
 - **Execução real:** `install-exec` roda **de verdade** os comandos gerados no `bash` (e no `zsh`/PowerShell quando existirem), num diretório temporário, e compara os arquivos criados com o conteúdo original, inclusive com conteúdo hostil a shells (`$(…)`, crases, aspas, linhas `EOF`, `'@`, emoji). Sem `zsh`/PowerShell na máquina, esses testes são **pulados** (hoje: 4).

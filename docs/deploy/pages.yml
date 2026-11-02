@@ -43,18 +43,10 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
-      - name: Montar o site (somente a lista de permissão)
-        run: |
-          mkdir _site
-          cp -r index.html css js vendor content _site/
-          touch _site/.nojekyll
-          echo "Arquivos publicados:"
-          (cd _site && find . -type f | sort | sed 's|^\./||')
-          extra="$(ls -A _site | grep -vxE 'index.html|css|js|vendor|content|\.nojekyll' || true)"
-          if [ -n "$extra" ]; then echo "ERRO: itens fora da lista de permissão: $extra"; exit 1; fi
-          test -f _site/content/manifest.json
+      - name: Montar o site (somente a lista de permissão, com verificação de conteúdo)
+        run: npm run build:site
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
-          path: _site
+          path: dist
       - id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
