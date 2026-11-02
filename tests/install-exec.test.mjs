@@ -52,7 +52,9 @@ for (const [label, files] of [['pacote real do site', realFiles()], ['conteudo h
     assert.ok(files.length > 0);
     const dir = mkdtempSync(join(base, 'bash-'));
     const script = buildInstall('linux', files);
-    const r = spawnSync('bash', ['-c', script], { cwd: dir, encoding: 'utf8' });
+    // O script vai pela entrada padrão (-s), não como argumento (-c): no Windows a linha de comando reescreve
+    // aspas e barras invertidas e corromperia o script (o teste falharia sem o comando estar errado).
+    const r = spawnSync('bash', ['-s'], { cwd: dir, input: script, encoding: 'utf8' });
     assert.equal(r.status, 0, r.stderr);
     assert.equal(r.stdout + r.stderr, '', 'o script nao pode imprimir nada nem executar o conteudo (ex.: $(echo pwned))');
     assert.deepEqual(listAll(dir).sort(), files.map((f) => f.path).sort());
@@ -64,7 +66,7 @@ for (const [label, files] of [['pacote real do site', realFiles()], ['conteudo h
 
   test(`zsh/macOS: o mesmo script funciona no zsh (${label})`, { skip: !has('zsh') }, () => {
     const dir = mkdtempSync(join(base, 'zsh-'));
-    const r = spawnSync('zsh', ['-c', buildInstall('macos', files)], { cwd: dir, encoding: 'utf8' });
+    const r = spawnSync('zsh', ['-s'], { cwd: dir, input: buildInstall('macos', files), encoding: 'utf8' });
     assert.equal(r.status, 0, r.stderr);
     for (const f of files) assert.equal(readFileSync(join(dir, f.path), 'utf8'), f.content + '\n', f.path);
   });
@@ -85,7 +87,7 @@ for (const [label, files] of [['pacote real do site', realFiles()], ['conteudo h
 
 test('o conteudo hostil nunca e executado: nenhum arquivo extra aparece fora das pastas do pacote', { skip: !HAS_BASH }, () => {
   const dir = mkdtempSync(join(base, 'bash-hostil-'));
-  spawnSync('bash', ['-c', buildInstall('linux', NASTY)], { cwd: dir, encoding: 'utf8' });
+  spawnSync('bash', ['-s'], { cwd: dir, input: buildInstall('linux', NASTY), encoding: 'utf8' });
   assert.deepEqual(readdirSync(dir), ['nasty']);
 });
 
