@@ -23,6 +23,8 @@ const PATHS = {
   x: 'M18 6 6 18M6 6l12 12',
 };
 
+export const ICON_NAMES = Object.keys(PATHS);
+
 /** Ícone de cada tipo de peça. */
 export const TYPE_ICON = {
   skill: 'zap',

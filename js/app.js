@@ -111,9 +111,9 @@ function renderNav(activeTier) {
 
 /* ---------- cards e níveis ---------- */
 
-function cardTile(entry) {
+function cardTile(entry, i = 0) {
   const { cardObj: card, tierObj: tier } = entry;
-  return h('a', { class: 'card', href: cardHref(tier.id, card.id) },
+  return h('a', { class: 'card', href: cardHref(tier.id, card.id), style: `--i:${Math.min(i, 12)}` },
     h('span', { class: 'card-icon' }, icon(card.icon || 'folder', 22)),
     h('h3', {}, card.title),
     h('p', { class: 'card-summary' }, card.summary || ''),
@@ -135,8 +135,8 @@ function tierSection(tier, entries, { heading = 'h2', link = true } = {}) {
         tier.description ? h('p', {}, tier.description) : null),
       h('span', { class: 'count' }, plural(entries.length, ['card', 'cards']))),
     entries.length
-      ? h('div', { class: 'grid' }, entries.map(cardTile))
-      : message('Nenhum card neste nível ainda. Adicione um em content/manifest.json.'));
+      ? h('div', { class: 'grid' }, entries.map((e, i) => cardTile(e, i)))
+      : message('Nenhum card neste nível ainda.'));
 }
 
 /* ---------- home ---------- */
@@ -171,17 +171,24 @@ function renderHome() {
 
   const active = () => Boolean(f.q.trim() || f.tier || f.tags.size);
 
+  const tierButtons = [{ id: '', title: 'Todos' }, ...state.manifest.tiers].map((t) =>
+    h('button', {
+      type: 'button', class: 'seg-btn', 'aria-pressed': 'false',
+      onclick: () => { f.tier = t.id; paintFilters(); paintResults(); },
+    }, t.title));
+  const tagButtons = collectTags(state.entries).map(({ tag, count }) =>
+    h('button', {
+      type: 'button', class: 'tag-btn', 'aria-pressed': 'false', 'data-tag': tag,
+      onclick: () => { f.tags.has(tag) ? f.tags.delete(tag) : f.tags.add(tag); paintFilters(); paintResults(); },
+    }, `#${tag}`, h('span', {}, count)));
+  tierBar.replaceChildren(...tierButtons);
+  tagBar.replaceChildren(...tagButtons);
+
+  /** Só atualiza o estado dos botões existentes; recriá-los faria o foco do teclado voltar ao topo. */
   function paintFilters() {
-    tierBar.replaceChildren(...[{ id: '', title: 'Todos' }, ...state.manifest.tiers].map((t) =>
-      h('button', {
-        type: 'button', class: 'seg-btn', 'aria-pressed': String(f.tier === t.id),
-        onclick: () => { f.tier = t.id; paintFilters(); paintResults(); },
-      }, t.title)));
-    tagBar.replaceChildren(...collectTags(state.entries).map(({ tag, count }) =>
-      h('button', {
-        type: 'button', class: 'tag-btn', 'aria-pressed': String(f.tags.has(tag)),
-        onclick: () => { f.tags.has(tag) ? f.tags.delete(tag) : f.tags.add(tag); paintFilters(); paintResults(); },
-      }, `#${tag}`, h('span', {}, count))));
+    const ids = ['', ...state.manifest.tiers.map((t) => t.id)];
+    tierButtons.forEach((btn, i) => btn.setAttribute('aria-pressed', String(f.tier === ids[i])));
+    tagButtons.forEach((btn) => btn.setAttribute('aria-pressed', String(f.tags.has(btn.dataset.tag))));
     clearBtn.hidden = !active();
   }
 
@@ -189,10 +196,12 @@ function renderHome() {
     const found = search(state.index, f.q, { tier: f.tier || undefined, tags: [...f.tags] });
     const byTier = new Map(state.manifest.tiers.map((t) => [t.id, []]));
     for (const e of found) byTier.get(e.tier).push(e);
+    // Só nível escolhido (sem texto nem tags): mostra a faixa mesmo vazia, com o aviso do nível.
+    const narrowed = Boolean(f.q.trim() || f.tags.size);
     const sections = state.manifest.tiers
-      .filter((t) => (!f.tier || f.tier === t.id) && (!active() || byTier.get(t.id).length))
+      .filter((t) => (!f.tier || f.tier === t.id) && (!narrowed || byTier.get(t.id).length))
       .map((t) => tierSection(t, byTier.get(t.id)));
-    if (active() && !found.length) {
+    if (narrowed && !found.length) {
       results.replaceChildren(h('div', { class: 'empty' },
         icon('search', 28),
         h('h2', {}, 'Nada encontrado'),
@@ -208,6 +217,7 @@ function renderHome() {
   function clearAll() {
     f.q = ''; f.tier = ''; f.tags.clear(); input.value = '';
     paintFilters(); paintResults();
+    input.focus();
   }
   clearBtn.addEventListener('click', clearAll);
 
@@ -235,6 +245,7 @@ function renderHome() {
     status,
     results);
 
+  trackFiltersHeight(document.querySelector('.filters'));
   if (state.focusSearch) { state.focusSearch = false; input.focus(); }
 }
 
@@ -252,7 +263,7 @@ function renderTier(tier) {
 /* ---------- card ---------- */
 
 function skeleton() {
-  return h('div', { class: 'skeleton', 'aria-busy': 'true', 'aria-label': 'Carregando' },
+  return h('div', { class: 'skeleton', role: 'status', 'aria-busy': 'true', 'aria-label': 'Carregando' },
     h('i', { style: 'width:40%' }), h('i', {}), h('i', {}), h('i', { style: 'width:70%' }));
 }
 
@@ -267,6 +278,7 @@ async function loadPiece(panel, piece) {
       h('div', { class: 'piece-head' },
         h('div', {},
           h('h2', {}, piece.title),
+          meta.name && meta.name !== piece.title ? h('code', { class: 'piece-name' }, meta.name) : null,
           meta.description ? h('p', {}, meta.description) : null),
         copyButton('Copiar peça', () => raw)),
       article);
@@ -288,6 +300,14 @@ function renderCard(tier, card, activeType) {
   const prev = siblings[at - 1];
   const next = siblings[at + 1];
 
+  const aside = siblings.length > 1
+    ? h('aside', { class: 'card-aside', 'aria-label': `Cards em ${tier.title}` },
+        h('h2', {}, tier.title),
+        h('ul', {}, siblings.map((c) => h('li', {},
+          h('a', { href: cardHref(tier.id, c.id), 'aria-current': c.id === card.id ? 'page' : null },
+            icon(c.icon || 'folder', 16), h('span', {}, c.title))))))
+    : null;
+
   setView(
     h('nav', { class: 'crumbs', 'aria-label': 'Você está em' },
       h('a', { href: '#/' }, 'Início'), h('a', { href: tierHref(tier.id) }, tier.title), h('span', {}, card.title)),
@@ -300,21 +320,24 @@ function renderCard(tier, card, activeType) {
         (card.tags || []).length
           ? h('ul', { class: 'tags' }, card.tags.map((t) => h('li', { class: 'tag' }, `#${t}`)))
           : null)),
-    pieces.length
-      ? h('nav', { class: 'tabs', 'aria-label': 'Peças do card' },
-          pieces.map((p) => h('a', {
-            href: pieceHref(tier.id, card.id, p.type),
-            'aria-current': p === current ? 'page' : null,
-          }, icon(TYPE_ICON[p.type], 16), TYPE_LABELS[p.type])))
-      : null,
-    pieces.length ? panel : message('Este card ainda não tem peças.'),
-    prev || next
-      ? h('nav', { class: 'pager', 'aria-label': 'Outros cards deste nível' },
-          prev ? h('a', { class: 'pager-link', href: cardHref(tier.id, prev.id) },
-            icon('arrow-left', 16), h('span', {}, h('small', {}, 'Anterior'), prev.title)) : h('span', {}),
-          next ? h('a', { class: 'pager-link is-next', href: cardHref(tier.id, next.id) },
-            h('span', {}, h('small', {}, 'Próximo'), next.title), icon('arrow-right', 16)) : null)
-      : null);
+    h('div', { class: `card-layout${aside ? ' has-aside' : ''}` },
+      h('div', { class: 'card-main' },
+        pieces.length
+          ? h('nav', { class: 'tabs', 'aria-label': 'Peças do card' },
+              pieces.map((p) => h('a', {
+                href: pieceHref(tier.id, card.id, p.type),
+                'aria-current': p === current ? 'page' : null,
+              }, icon(TYPE_ICON[p.type], 16), TYPE_LABELS[p.type])))
+          : null,
+        pieces.length ? panel : message('Este card ainda não tem peças.'),
+        prev || next
+          ? h('nav', { class: 'pager', 'aria-label': 'Outros cards deste nível' },
+              prev ? h('a', { class: 'pager-link', href: cardHref(tier.id, prev.id) },
+                icon('arrow-left', 16), h('span', {}, h('small', {}, 'Anterior'), prev.title)) : h('span', {}),
+              next ? h('a', { class: 'pager-link is-next', href: cardHref(tier.id, next.id) },
+                h('span', {}, h('small', {}, 'Próximo'), next.title), icon('arrow-right', 16)) : null)
+          : null),
+      aside));
 
   if (current) loadPiece(panel, current);
 }
@@ -331,9 +354,38 @@ function renderNotFound() {
 
 /* ---------- rotas e inicialização ---------- */
 
+let enterTimer;
+let revealObserver;
+
+/** Anima a entrada da página (CSS `.is-entering`) e revela as faixas de nível ao rolar. */
+function playEntrance() {
+  main.classList.add('is-entering');
+  clearTimeout(enterTimer);
+  enterTimer = setTimeout(() => main.classList.remove('is-entering'), 1100);
+
+  revealObserver?.disconnect();
+  if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = [...main.querySelectorAll('.tier')].slice(1);
+  if (!targets.length) return;
+  revealObserver = new IntersectionObserver((items) => {
+    for (const it of items) {
+      if (!it.isIntersecting) continue;
+      it.target.classList.add('in');
+      revealObserver.unobserve(it.target);
+    }
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+  for (const t of targets) { t.classList.add('reveal'); revealObserver.observe(t); }
+  // Rede de segurança: nada fica escondido se o observador não disparar.
+  setTimeout(() => targets.forEach((t) => t.classList.add('in')), 2500);
+}
+
+let lastCardKey = '';
+
 function route() {
   // Âncoras como #main (link "Pular para o conteúdo") não são rotas do app.
   if (!isAppHash(location.hash)) return;
+  const wantsSearch = state.focusSearch; // a Home consome a flag e já foca a busca
+  trackFiltersHeight(null); // só a Home tem filtros fixos
   try {
     const r = parseRoute(location.hash);
     const tier = r.tier && findTier(r.tier);
@@ -346,8 +398,15 @@ function route() {
   } catch (err) {
     setView(message(`Erro ao exibir a página: ${err.message}`, 'error'));
   }
-  main.focus({ preventScroll: true });
-  window.scrollTo(0, 0);
+  // Foco: na busca (atalho "/"), na aba ativa (troca de peça no mesmo card) ou no <main>.
+  const r = parseRoute(location.hash);
+  const cardKey = r.view === 'card' || r.view === 'piece' ? `${r.tier}/${r.card}` : '';
+  const activeTab = cardKey && cardKey === lastCardKey ? main.querySelector('.tabs a[aria-current="page"]') : null;
+  lastCardKey = cardKey;
+  if (wantsSearch) { /* já focado em renderHome */ } else if (activeTab) activeTab.focus({ preventScroll: true });
+  else main.focus({ preventScroll: true });
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  playEntrance();
 }
 
 function isTyping(el) {
@@ -362,8 +421,31 @@ document.addEventListener('keydown', (e) => {
   else { state.focusSearch = true; location.hash = '#/'; }
 });
 
+let filtersObserver;
+
+/** Expõe a altura da barra de filtros (quando fixa) em --filters-h, para o scroll-padding não deixar o foco atrás dela. */
+function trackFiltersHeight(el) {
+  filtersObserver?.disconnect();
+  const root = document.documentElement;
+  if (!el || !('ResizeObserver' in window)) { root.style.setProperty('--filters-h', '0px'); return; }
+  const set = () => root.style.setProperty('--filters-h', getComputedStyle(el).position === 'sticky' ? `${el.offsetHeight}px` : '0px');
+  filtersObserver = new ResizeObserver(set);
+  filtersObserver.observe(el);
+  set();
+}
+
+/** Mantém --topbar-h igual à altura real do topo (ele quebra em linhas em telas médias). */
+function trackTopbarHeight() {
+  const topbar = document.querySelector('.topbar');
+  if (!topbar || !('ResizeObserver' in window)) return;
+  const set = () => document.documentElement.style.setProperty('--topbar-h', `${topbar.offsetHeight}px`);
+  new ResizeObserver(set).observe(topbar);
+  set();
+}
+
 async function init() {
   initTheme(document.getElementById('theme-toggle'));
+  trackTopbarHeight();
   setView(skeleton());
   try {
     const res = await fetch('content/manifest.json');

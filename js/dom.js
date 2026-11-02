@@ -94,6 +94,8 @@ export function initTheme(btn) {
   btn.hidden = false;
   btn.addEventListener('click', () => {
     const next = isDark() ? 'light' : 'dark';
+    root.classList.add('theme-anim'); // transição de cores só durante a troca
+    setTimeout(() => root.classList.remove('theme-anim'), 450);
     root.dataset.theme = next;
     write(next);
     paint();

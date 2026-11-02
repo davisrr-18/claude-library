@@ -28,9 +28,14 @@ const core = () => (corePromise ??= import('../vendor/highlight/core.min.js').th
 export async function highlightCodeBlocks(root) {
   const blocks = [...root.querySelectorAll('pre code[class*="language-"]')];
   if (!blocks.length) return;
+  let hljs;
   try {
-    const hljs = await core();
-    for (const code of blocks) {
+    hljs = await core();
+  } catch {
+    return; // sem destaque: o código continua legível
+  }
+  for (const code of blocks) {
+    try {
       const m = code.className.match(/language-([\w-]+)/);
       if (!m) continue;
       const lang = ALIASES[m[1].toLowerCase()] ?? m[1].toLowerCase();
@@ -38,8 +43,8 @@ export async function highlightCodeBlocks(root) {
       if (!load) continue;
       if (!hljs.getLanguage(lang)) hljs.registerLanguage(lang, (await load()).default);
       hljs.highlightElement(code);
+    } catch {
+      /* este bloco fica como texto simples; os demais seguem */
     }
-  } catch {
-    /* sem destaque: o código continua legível */
   }
 }
