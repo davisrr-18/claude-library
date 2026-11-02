@@ -44,7 +44,7 @@ const rules = (text) => findSensitive(text).map((f) => f.rule);
 // ---------- findSensitive ----------
 
 test('findSensitive: detecta e-mail', () => {
-  assert.deepEqual(rules('contato: davisrocha.contato@gmail.com'), ['email']);
+  assert.deepEqual(rules('contato: fulano@example.com'), ['email']);
   const [finding] = findSensitive('x a@b.co y');
   assert.equal(finding.match, 'a@b.co');
 });
@@ -56,9 +56,9 @@ test('findSensitive: não dispara em @ sem e-mail válido', () => {
 });
 
 test('findSensitive: detecta caminho pessoal /home e /Users', () => {
-  const [home] = findSensitive('veja /home/davisr/Programação/x');
+  const [home] = findSensitive('veja /home/fulano/projeto/x');
   assert.equal(home.rule, 'caminho-pessoal');
-  assert.equal(home.match, '/home/davisr');
+  assert.equal(home.match, '/home/fulano');
   assert.deepEqual(rules('em /Users/maria/Documents'), ['caminho-pessoal']);
 });
 
@@ -103,7 +103,7 @@ test('findSensitive: texto comum não dispara', () => {
 });
 
 test('findSensitive: reporta todas as ocorrências de regras diferentes', () => {
-  assert.deepEqual(rules('a@b.com e /home/davisr'), ['email', 'caminho-pessoal']);
+  assert.deepEqual(rules('a@b.com e /home/fulano'), ['email', 'caminho-pessoal']);
 });
 
 // ---------- checkContent ----------
@@ -145,10 +145,10 @@ test('checkContent: caminho fora de content/ não é lido nem causa falha', () =
 test('checkContent: e-mail em .md gera erro com arquivo e trecho', () => {
   const root = makeRoot({
     'content/manifest.json': json(manifest([cardWith()])),
-    'content/basicas/exemplo/skill.md': `${CLEAN}\nFale com davisrocha.contato@gmail.com\n`,
+    'content/basicas/exemplo/skill.md': `${CLEAN}\nFale com fulano@example.com\n`,
   });
   assert.deepEqual(checkContent(root).errors, [
-    'content/basicas/exemplo/skill.md: email: davisrocha.contato@gmail.com',
+    'content/basicas/exemplo/skill.md: email: fulano@example.com',
   ]);
 });
 
