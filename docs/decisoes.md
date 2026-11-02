@@ -33,6 +33,8 @@ Mais recente no fim. Cada decisão: o quê, por quê. Itens que mudaram de ideia
 
 ## Qualidade
 
+- **CI em 3 sistemas** (`ci.yml`): confirmou em máquinas reais que os comandos de instalação funcionam em bash (Linux, macOS, Windows/Git Bash), zsh (macOS) e PowerShell (Linux, macOS, Windows). Um falso erro no Windows era do teste (o script ia como argumento do `bash -c`, que o Windows reescreve); agora vai pela entrada padrão.
+
 - `npm test` sem dependências; QA com dependências **isoladas** em `tools/qa/`.
 - Sem navegador no ambiente: aparência, animação e layout real são confirmados pelo usuário; a regra do CSS que causou o bug é travada por teste que lê o CSS.
 - Revisão independente depois de cada funcionalidade; relatório de agente sempre conferido.
@@ -40,6 +42,5 @@ Mais recente no fim. Cada decisão: o quê, por quê. Itens que mudaram de ideia
 ## Em aberto
 
 - **Deploy no GitHub Pages: autorizado, mas bloqueado pelo plano.** O usuário mandou publicar; o GitHub respondeu que o plano gratuito não permite Pages em repositório privado (HTTP 422). Workflow pronto e inativo em `docs/deploy/pages.yml`. Caminhos possíveis, a escolher pelo usuário: (A) plano pago (GitHub Pro) mantendo o repositório privado; (B) tornar o repositório público (expõe código, documentos e o e-mail dos commits); (C) repositório público separado só com o site; (D) hospedagem com controle de acesso, como Cloudflare Pages com Access ou Netlify, que atende o desejo original de "só eu acesso". Nunca escolher sem o usuário.
-- **PowerShell (Windows) e zsh (macOS):** comandos testados por texto; execução real só onde existirem (o ambiente bloqueou executar o PowerShell baixado).
 - Cards de **Básicas** e **Complexas** (vazias) e de `CLAUDE.md`/arquitetura de outros pacotes, quando o usuário trouxer.
 - Link e imagem relativos dentro dos `.md` resolvem contra `index.html`, não contra `content/` (convenção a definir se algum pacote usar).

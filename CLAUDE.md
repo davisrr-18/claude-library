@@ -65,5 +65,5 @@ Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Nod
 ## Limites do ambiente
 
 - **Não há navegador** aqui: aparência, layout em celular, animações e foco real só o usuário confirma. Dizer isso explicitamente. Peça print quando algo estiver estranho.
-- **Não executar binários baixados da internet** (o ambiente bloqueia): explicar e deixar a decisão com o usuário. PowerShell e zsh não existem na máquina; os testes que dependem deles são pulados sozinhos.
+- **Não executar binários baixados da internet** (o ambiente bloqueia): explicar e deixar a decisão com o usuário. PowerShell e zsh não existem na máquina; os testes que dependem deles são pulados aqui e **executados no CI** (Linux, macOS, Windows): consulte `gh run list` antes de dizer que algo do Windows não foi verificado.
 - Arquivos temporários vão no diretório de rascunho da sessão, nunca em `/tmp` solto nem dentro do projeto.

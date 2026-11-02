@@ -17,7 +17,7 @@ Arquivos em `tests/` (um por módulo ou tema):
 - **CSS por leitura:** `css-layout` (grids que encolhem, botão Copiar em linha própria, espaçamento do bloco, barras finas) e `css-motion` (só o esqueleto pode ser infinito; elemento já revelado não reanima).
 - **Execução real:** `install-exec` roda **de verdade** os comandos gerados no `bash` (e no `zsh`/PowerShell quando existirem), num diretório temporário, e compara os arquivos criados com o conteúdo original, inclusive com conteúdo hostil a shells (`$(…)`, crases, aspas, linhas `EOF`, `'@`, emoji). Sem `zsh`/PowerShell na máquina, esses testes são **pulados** (hoje: 4).
 
-No Windows e no macOS, `npm test` roda sozinho os testes de PowerShell/zsh que aqui são pulados: é a forma de confirmar os comandos do Windows.
+**CI (`.github/workflows/ci.yml`) roda `npm test` e `npm run check` em Linux, macOS e Windows a cada push.** Lá os comandos de instalação são executados de verdade: `bash` nos três, `zsh` no macOS e **PowerShell nos três** (o `pwsh` já vem nos runners), todos passando com o pacote real e com o conteúdo hostil. Na máquina de desenvolvimento (Fedora, só com `bash`) os testes de `zsh` e PowerShell são pulados; a evidência deles é o CI. Para ver o resultado: `gh run list --limit 3` e `gh run view <id>`.
 
 ## 2. `npm run check` (`scripts/check-content.mjs`)
 
@@ -45,7 +45,7 @@ Os testes de fumaça rodam o `app.js` **de verdade** sobre um DOM simulado (jsdo
 ## O que não está coberto (dizer sempre)
 
 - **Aparência e layout reais** (cores, espaçamentos, estouro de caixa, celular), **animações** e **foco visual**: só em navegador. O usuário confirma; peça print.
-- **PowerShell e zsh** não rodam nesta máquina (e o ambiente bloqueia executar binário baixado): os comandos do Windows têm testes de texto, mas a execução real só acontece onde existir PowerShell.
+- **PowerShell e zsh** não rodam na máquina de desenvolvimento (e o ambiente bloqueia executar binário baixado); a execução real deles é verificada no **CI**, não localmente.
 - `marked` 15.0.12 estoura a pilha com ~5000 `>` aninhados e fica lento com milhares de `[a](` abertos (entrada patológica, só do próprio conteúdo do usuário; o app mostra erro em vez de travar o resto).
 
 ## Adicionar verificação
