@@ -124,7 +124,7 @@ main:focus, main:focus-visible { outline: none; } /* o JS foca o <main> a cada r
 .hero::before {
   content: ""; position: absolute; z-index: -1; inset: -58px calc(50% - 50vw) 0;
   background:
-    radial-gradient(55% 60% at var(--hx) var(--hy), var(--glow), transparent 72%),
+    radial-gradient(55% 60% at var(--hx, 50%) var(--hy, 0%), var(--glow), transparent 72%),
     linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 44px 44px,
     linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 44px 44px;
   -webkit-mask-image: linear-gradient(#000 35%, transparent);
@@ -406,10 +406,6 @@ main:focus, main:focus-visible { outline: none; } /* o JS foca o <main> a cada r
 .crumbs a:hover { background-size: 100% 1px; }
 .btn svg, .seg-btn, .tag-btn { transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), background-color .2s ease, color .2s ease, border-color .2s ease; }
 
-/* feedback de toque/clique */
-.btn:active, .icon-btn:active, .seg-btn:active, .tag-btn:active { transform: scale(.96); }
-.card:active { transform: scale(.985); }
-
 @media (hover: hover) {
   .stats li:hover { transform: translateY(-2px); background: var(--glow); }
   .tag-btn:hover, .seg-btn:hover { transform: translateY(-1px); }
@@ -420,6 +416,12 @@ main:focus, main:focus-visible { outline: none; } /* o JS foca o <main> a cada r
   .tiers a:hover, .tabs a:hover, .card-aside a:hover { transform: translateY(-1px); }
   .icon-btn:hover { transform: rotate(14deg); }
 }
+
+/* feedback de toque/clique */
+.btn:active, .icon-btn:active, .seg-btn:active, .tag-btn:active { transform: scale(.96); }
+.card:active { transform: scale(.985); }
+/* hover logo após a revelação não pode ser anulado por .reveal.in */
+@media (hover: hover) { .card.reveal.in:hover { transform: translateY(-3px); } }
 
 /* troca de tema: transição só enquanto a classe existe (adicionada por JS) */
 html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after {
@@ -471,7 +473,8 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 }
 /* telas baixas (celular na horizontal): nada de barras fixas ocupando a tela */
 @media (max-height: 520px) {
-  .filters, .topbar { position: static; }
+  .filters { position: static; }
+  .topbar { position: relative; }
   .card-aside { position: static; }
   .hero { padding-top: 24px; }
 }
@@ -485,6 +488,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .reveal { opacity: 1; transform: none; }
+  html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after { transition: none !important; }
   .progress { transition: none; }
   .searchbox:focus-within, .stats li:hover { transform: none; }
   .card:hover, .card:active, .icon-btn:hover, .brand:hover .brand-mark { transform: none; }

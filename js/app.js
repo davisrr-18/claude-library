@@ -364,7 +364,7 @@ const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').match
 /** Esconde o que está abaixo da dobra e revela (com transição) quando entra na tela. */
 function revealOnScroll(candidates) {
   if (!('IntersectionObserver' in window) || reducedMotion()) return;
-  const fold = window.innerHeight * 0.92;
+  const fold = window.innerHeight; // só o que está totalmente abaixo da tela espera a rolagem
   const targets = [...candidates].filter((el) => el.getBoundingClientRect().top > fold);
   if (!targets.length) return;
   revealObserver ??= new IntersectionObserver((items) => {
@@ -375,7 +375,7 @@ function revealOnScroll(candidates) {
       el.classList.add('in');
       setTimeout(() => el.classList.remove('reveal', 'in'), 1000); // volta ao estilo normal (hover etc.)
     }
-  }, { rootMargin: '0px 0px -6% 0px', threshold: 0.05 });
+  }, { rootMargin: '0px', threshold: 0.01 });
   for (const el of targets) { el.classList.add('reveal'); revealObserver.observe(el); }
 }
 
@@ -397,7 +397,7 @@ function countUp(root) {
     const target = Number(el.dataset.n);
     const start = performance.now();
     const step = (now) => {
-      const t = Math.min(1, (now - start) / 800);
+      const t = Math.min(1, Math.max(0, now - start) / 800);
       el.textContent = String(Math.round(target * (1 - (1 - t) ** 3)));
       if (t < 1 && el.isConnected) raf(step);
     };
@@ -427,23 +427,33 @@ function initScrollFx() {
   updateScrollFx();
 }
 
-/** Brilho que segue o ponteiro nos cards e no hero. */
+/** Brilho que segue o ponteiro nos cards e no hero (no máximo uma escrita por frame). */
 function initPointerFx() {
-  main.addEventListener('pointermove', (e) => {
-    if (e.pointerType === 'touch') return;
-    const card = e.target.closest?.('.card');
+  const raf = window.requestAnimationFrame?.bind(window) ?? ((fn) => fn());
+  let last = null;
+  let scheduled = false;
+  const apply = () => {
+    scheduled = false;
+    if (!last) return;
+    const { x, y, target } = last;
+    const card = target.closest?.('.card');
     if (card) {
       const r = card.getBoundingClientRect();
-      card.style.setProperty('--mx', `${Math.round(e.clientX - r.left)}px`);
-      card.style.setProperty('--my', `${Math.round(e.clientY - r.top)}px`);
+      card.style.setProperty('--mx', `${Math.round(x - r.left)}px`);
+      card.style.setProperty('--my', `${Math.round(y - r.top)}px`);
     }
-    const hero = e.target.closest?.('.hero');
+    const hero = target.closest?.('.hero');
     if (hero) {
       const r = hero.getBoundingClientRect();
       const pct = (v) => `${Math.max(0, Math.min(100, Math.round(v)))}%`;
-      hero.style.setProperty('--hx', pct((e.clientX / window.innerWidth) * 100));
-      hero.style.setProperty('--hy', pct(((e.clientY - r.top) / r.height) * 100));
+      hero.style.setProperty('--hx', pct((x / window.innerWidth) * 100));
+      hero.style.setProperty('--hy', pct(((y - r.top) / r.height) * 100));
     }
+  };
+  main.addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'touch') return;
+    last = { x: e.clientX, y: e.clientY, target: e.target };
+    if (!scheduled) { scheduled = true; raf(apply); }
   }, { passive: true });
 }
 

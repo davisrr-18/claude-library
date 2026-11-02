@@ -83,6 +83,7 @@ export function addCopyButtons(root) {
 /** Tema claro/escuro: respeita o sistema e guarda a escolha (localStorage é opcional). */
 export function initTheme(btn) {
   const root = document.documentElement;
+  let themeTimer;
   const write = (v) => { try { localStorage.setItem('theme', v); } catch { /* sem persistência */ } };
   const isDark = () => (root.dataset.theme
     ? root.dataset.theme === 'dark'
@@ -94,8 +95,11 @@ export function initTheme(btn) {
   btn.hidden = false;
   btn.addEventListener('click', () => {
     const next = isDark() ? 'light' : 'dark';
-    root.classList.add('theme-anim'); // transição de cores só durante a troca
-    setTimeout(() => root.classList.remove('theme-anim'), 450);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      root.classList.add('theme-anim'); // transição de cores só durante a troca
+      clearTimeout(themeTimer);
+      themeTimer = setTimeout(() => root.classList.remove('theme-anim'), 450);
+    }
     root.dataset.theme = next;
     write(next);
     paint();
