@@ -19,7 +19,7 @@ test('isSafeUrl: rejeita esquemas perigosos e disfarces', () => {
 
 test('renderiza titulo, lista e bloco de codigo', () => {
   const html = renderMarkdown('# T\n\n- a\n- b\n\n```js\nlet x = 1 < 2;\n```\n');
-  assert.match(html, /<h1[^>]*>T<\/h1>/);
+  assert.match(html, /<h3[^>]*>T<\/h3>/); // # vira h3: o h1 é o card e o h2 é o título da peça
   assert.match(html, /<li>a<\/li>/);
   assert.match(html, /<pre><code[^>]*>/);
   assert.match(html, /1 &lt; 2/);
@@ -74,4 +74,20 @@ test('isSafeUrl: barra invertida vira // (protocol-relative) e e rejeitada', () 
 
 test('lista ordenada preserva o numero inicial no HTML gerado', () => {
   assert.match(renderMarkdown('3. a\n4. b'), /<ol start="3">/);
+});
+
+test('titulos do Markdown comecam em h3 e nunca passam de h6 (sem h1/h2 dentro da peca)', () => {
+  const html = renderMarkdown('# a\n## b\n### c\n#### d\n##### e\n###### f');
+  assert.match(html, /<h3>a<\/h3>/);
+  assert.match(html, /<h4>b<\/h4>/);
+  assert.match(html, /<h5>c<\/h5>/);
+  assert.match(html, /<h6>d<\/h6>/);
+  assert.match(html, /<h6>e<\/h6>/);
+  assert.match(html, /<h6>f<\/h6>/);
+  assert.doesNotMatch(html, /<h[12][ >]/);
+});
+
+test('titulo com formatacao inline e HTML escapado', () => {
+  const html = renderMarkdown('# **forte** e `codigo` <b>x</b>');
+  assert.match(html, /<h3><strong>forte<\/strong> e <code>codigo<\/code> &lt;b&gt;x&lt;\/b&gt;<\/h3>/);
 });

@@ -33,6 +33,11 @@ const md = new Marked({
     html({ text }) {
       return escapeHtml(text);
     },
+    // Dentro da peça o h1 é o card e o h2 é o título da peça: `#` vira h3 (máximo h6).
+    heading({ tokens, depth }) {
+      const level = Math.min(depth + 2, 6);
+      return `<h${level}>${this.parser.parseInline(tokens)}</h${level}>\n`;
+    },
     link({ href, title, tokens }) {
       const inner = this.parser.parseInline(tokens);
       if (!isSafeUrl(href)) return inner;

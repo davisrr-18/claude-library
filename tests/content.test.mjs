@@ -155,3 +155,47 @@ test('validateManifest: description de nivel e texto opcional', () => {
   m.tiers[0].description = 5;
   assert.equal(validateManifest(m).ok, false);
 });
+
+test('parseFrontMatter: bloco dobrado (>) e literal (|)', () => {
+  const folded = parseFrontMatter('---\nname: x\ndescription: >\n  linha um\n  linha dois\n---\ncorpo');
+  assert.equal(folded.meta.description, 'linha um linha dois');
+  const literal = parseFrontMatter('---\ndescription: |\n  a\n  b\n---\ncorpo');
+  assert.equal(literal.meta.description, 'a\nb');
+  assert.equal(folded.body, 'corpo');
+});
+
+test('parseFrontMatter: regua --- no inicio do corpo nao engole a secao', () => {
+  const text = '---\n\n# Titulo\n\ntexto\n\n---\n\n# Outro\n';
+  const { meta, body } = parseFrontMatter(text);
+  assert.deepEqual(meta, {});
+  assert.equal(body, text);
+});
+
+test('parseFrontMatter: titulo entre reguas continua sendo corpo', () => {
+  const { meta, body } = parseFrontMatter('---\n# Titulo\n---\ntexto');
+  assert.deepEqual(meta, {});
+  assert.equal(body, '---\n# Titulo\n---\ntexto');
+});
+
+test('parseFrontMatter: aspas removidas, chave duplicada vale a ultima', () => {
+  const { meta } = parseFrontMatter('---\nname: "a"\nname: b\ndescription: \'c\'\n---\n');
+  assert.deepEqual(meta, { name: 'b', description: 'c' });
+});
+
+test('validateManifest: tags vazias ou so com espacos sao rejeitadas', () => {
+  assert.equal(validateManifest(manifest([card({ tags: [''] })])).ok, false);
+  assert.equal(validateManifest(manifest([card({ tags: ['  '] })])).ok, false);
+});
+
+test('validateManifest: file com espaco nas pontas ou caractere de controle', () => {
+  for (const file of ['a.md ', ' a.md', 'a\u0000.md', 'a\n.md']) {
+    assert.equal(validateManifest(manifest([card({ pieces: [piece({ file })] })])).ok, false, JSON.stringify(file));
+  }
+});
+
+test('validateManifest: mensagens dizem o que esta errado', () => {
+  const dup = validateManifest(manifest([card(), card()])).errors.join('\n');
+  assert.match(dup, /basicas\/a: id de card duplicado/);
+  const rep = validateManifest(manifest([card({ pieces: [piece(), piece({ file: 'basicas/a/b.md' })] })])).errors.join('\n');
+  assert.match(rep, /tipo de peça repetido: skill/);
+});

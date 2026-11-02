@@ -7,19 +7,34 @@ export const CARD_ICONS = [
 
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-/** Separa front matter `chave: valor` (entre `---`) do corpo. */
+const KEY_LINE = /^([A-Za-z0-9_-]+)[ \t]*:(.*)$/;
+
+/**
+ * Separa o front matter (`chave: valor`, entre `---`) do corpo.
+ * Subconjunto de YAML: valores simples, aspas, blocos `>` (dobrado) e `|` (literal) e continuação indentada.
+ * Se alguma linha do bloco não tiver esse formato, nada é front matter (ex.: régua `---` no corpo).
+ */
 export function parseFrontMatter(text) {
   const src = String(text).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
   const m = src.match(/^---\n(?:([\s\S]*?)\n)?---[ \t]*(?:\n|$)/);
   if (!m) return { meta: {}, body: src };
-  const meta = {};
+
+  const fields = []; // { key, value, extra: [] }
   for (const line of (m[1] ?? '').split('\n')) {
-    const i = line.indexOf(':');
-    if (i <= 0) continue;
-    const key = line.slice(0, i).trim();
-    let value = line.slice(i + 1).trim();
-    if (/^(["']).*\1$/.test(value) && value.length >= 2) value = value.slice(1, -1);
-    if (key) meta[key] = value;
+    if (line.trim() === '') continue;
+    const kv = line.match(KEY_LINE);
+    if (kv && !/^\s/.test(line)) fields.push({ key: kv[1], value: kv[2].trim(), extra: [] });
+    else if (/^\s+\S/.test(line) && fields.length) fields[fields.length - 1].extra.push(line.trim());
+    else return { meta: {}, body: src };
+  }
+
+  const meta = {};
+  for (const { key, value, extra } of fields) {
+    let v = value;
+    if (/^[>|][+-]?$/.test(v)) v = extra.join(v[0] === '>' ? ' ' : '\n');
+    else if (extra.length) v = [v, ...extra].join(' ');
+    else if (v.length >= 2 && /^(["']).*\1$/.test(v)) v = v.slice(1, -1);
+    meta[key] = v;
   }
   return { meta, body: src.slice(m[0].length) };
 }
@@ -30,6 +45,7 @@ function isNonEmptyString(v) {
 
 function isSafeRelativePath(p) {
   if (typeof p !== 'string' || !p || p.startsWith('/') || p.includes('\\')) return false;
+  if (p !== p.trim() || /[\u0000-\u001f\u007f]/.test(p)) return false;
   return !p.split('/').some((seg) => seg === '..' || seg === '' || seg === '.');
 }
 
@@ -71,8 +87,8 @@ export function validateManifest(m) {
       if (card.icon !== undefined && !CARD_ICONS.includes(card.icon)) {
         errors.push(`${where}: icon inválido: ${JSON.stringify(card.icon)}`);
       }
-      if (card.tags !== undefined && !(Array.isArray(card.tags) && card.tags.every((t) => typeof t === 'string'))) {
-        errors.push(`${where}: "tags" deve ser uma lista de textos`);
+      if (card.tags !== undefined && !(Array.isArray(card.tags) && card.tags.every(isNonEmptyString))) {
+        errors.push(`${where}: "tags" deve ser uma lista de textos não vazios`);
       }
       if (!Array.isArray(card.pieces)) {
         errors.push(`${where}: "pieces" deve ser uma lista`);

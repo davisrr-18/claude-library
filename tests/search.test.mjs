@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalize, buildIndex, search, collectTags } from '../js/search.js';
+import { normalize, buildIndex, search, collectTags, dedupeTags } from '../js/search.js';
 
 const entries = [
   { tier: 'basicas', card: 'commit', title: 'Commits limpos', summary: 'Mensagens de commit', tags: ['git'], text: 'Use conventional commits e revisão.' },
@@ -21,9 +21,25 @@ test('consulta vazia ou so espacos nao filtra (retorna todos, na ordem original)
 });
 
 test('acentos: "acao" acha "Ação"; "revisao" acha "Revisão"', () => {
-  // busca por trecho: "acao" tambem esta em "Migração"; o titulo pesa mais, entao vem primeiro
-  assert.deepEqual(ids(search(idx, 'acao')), ['migracao', 'revisao']);
+  assert.deepEqual(ids(search(idx, 'acao')), ['revisao']);
   assert.ok(ids(search(idx, 'revisao')).includes('revisao'));
+});
+
+test('casa por PALAVRA (prefixo), nao por trecho solto', () => {
+  const i = buildIndex([
+    { tier: 'basicas', card: 'a', title: 'Mundo digital', summary: '', tags: [], text: '' },
+    { tier: 'basicas', card: 'b', title: 'Controle com git', summary: '', tags: [], text: '' },
+  ]);
+  assert.deepEqual(ids(search(i, 'git')), ['b']); // "digital" contem "git" no meio: nao casa
+  assert.deepEqual(ids(search(i, 'dig')), ['a']); // prefixo casa
+  assert.deepEqual(ids(search(i, 'ital')), []); // sufixo nao casa
+});
+
+test('prefixo: "migra" acha "Migração"; hifen separa palavras', () => {
+  assert.deepEqual(ids(search(idx, 'migra')), ['migracao']);
+  const i = buildIndex([{ tier: 'basicas', card: 'a', title: 'Arquivo claude-md', summary: '', tags: [], text: '' }]);
+  assert.deepEqual(ids(search(i, 'claude-md')), ['a']);
+  assert.deepEqual(ids(search(i, 'md')), ['a']);
 });
 
 test('varias palavras exigem todas (AND)', () => {
@@ -44,8 +60,31 @@ test('filtro por nivel e por tags (AND entre tags)', () => {
   assert.deepEqual(ids(search(idx, 'commit', { tier: 'basicas', tags: ['git'] })), ['commit']);
 });
 
-test('caracteres especiais de regex nao quebram', () => {
+test('caracteres especiais nao quebram; so pontuacao nao encontra nada', () => {
   assert.deepEqual(ids(search(idx, '(.*[')), []);
+  assert.deepEqual(ids(search(idx, '***')), []);
+});
+
+test('peso: titulo > tags/resumo > corpo (ordem decide, nao so presenca)', () => {
+  const i = buildIndex([
+    { tier: 'basicas', card: 'corpo', title: 'Zeta', summary: '', tags: [], text: 'teste aqui' },
+    { tier: 'basicas', card: 'resumo', title: 'Beta', summary: 'sobre teste', tags: [], text: '' },
+    { tier: 'basicas', card: 'titulo', title: 'Teste geral', summary: '', tags: [], text: '' },
+    { tier: 'basicas', card: 'tag', title: 'Gama', summary: '', tags: ['teste'], text: '' },
+  ]);
+  assert.deepEqual(ids(search(i, 'teste')), ['titulo', 'resumo', 'tag', 'corpo']);
+});
+
+test('dedupeTags: ignora caixa e acento, mantem a primeira forma', () => {
+  assert.deepEqual(dedupeTags(['Git', 'git', 'GIT', 'revisão', 'revisao', '']), ['Git', 'revisão']);
+  assert.deepEqual(dedupeTags(undefined), []);
+});
+
+test('collectTags junta tags que so diferem na caixa', () => {
+  const got = collectTags([
+    { tags: ['Git'] }, { tags: ['git', 'x'] }, { tags: ['GIT', 'git'] },
+  ]);
+  assert.deepEqual(got, [{ tag: 'Git', count: 3 }, { tag: 'x', count: 1 }]);
 });
 
 test('collectTags: unicas, ordenadas, com contagem', () => {

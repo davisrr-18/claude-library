@@ -1,8 +1,8 @@
 import { parseFrontMatter, validateManifest, TIER_IDS } from './content.js';
-import { parseRoute, isAppHash } from './router.js';
+import { parseRoute, isAppHash, resolveView } from './router.js';
 import { renderMarkdown } from './markdown.js';
-import { buildIndex, search, collectTags } from './search.js';
-import { h, safeFragment, copyButton, addCopyButtons, initTheme } from './dom.js';
+import { buildIndex, search, collectTags, dedupeTags } from './search.js';
+import { h, safeFragment, copyButton, addCopyButtons, wrapTables, initTheme } from './dom.js';
 import { icon, TYPE_ICON } from './icons.js';
 import { highlightCodeBlocks } from './code-highlight.js';
 
@@ -37,8 +37,6 @@ const enc = encodeURIComponent;
 const tierHref = (t) => `#/${enc(t)}`;
 const cardHref = (t, c) => `#/${enc(t)}/${enc(c)}`;
 const pieceHref = (t, c, p) => `#/${enc(t)}/${enc(c)}/${enc(p)}`;
-const findTier = (id) => state.manifest.tiers.find((t) => t.id === id);
-const findCard = (tier, id) => tier?.cards.find((c) => c.id === id);
 const tierLevel = (id) => TIER_IDS.indexOf(id) + 1;
 const plural = (n, [one, many]) => `${n} ${n === 1 ? one : many}`;
 
@@ -55,8 +53,10 @@ function message(text, kind = 'notice') {
 }
 
 function levelDots(level, label) {
-  return h('span', { class: 'level', role: 'img', 'aria-label': label ?? `Nível ${level} de 3` },
-    [1, 2, 3].map((i) => h('i', { class: i <= level ? 'on' : '' })));
+  const a11y = label === ''
+    ? { 'aria-hidden': 'true' } // o texto ao lado já diz o nível
+    : { role: 'img', 'aria-label': label ?? `Nível ${level} de 3` };
+  return h('span', { class: 'level', ...a11y }, [1, 2, 3].map((i) => h('i', { class: i <= level ? 'on' : '' })));
 }
 
 /* ---------- dados ---------- */
@@ -87,15 +87,17 @@ function fetchText(file) {
   return promise;
 }
 
-/** Carrega o corpo de todas as peças uma única vez, para a busca no texto. */
+/** Carrega o corpo de todas as peças uma vez, para a busca no texto. Se alguma falhar, a próxima busca tenta de novo. */
 function ensureBodies() {
   state.bodiesPromise ??= (async () => {
+    let incomplete = false;
     await Promise.all(state.entries.map(async (entry) => {
       const parts = await Promise.all(entry.cardObj.pieces.map((p) =>
-        fetchText(p.file).then((t) => parseFrontMatter(t).body).catch(() => '')));
+        fetchText(p.file).then((t) => parseFrontMatter(t).body).catch(() => { incomplete = true; return ''; })));
       entry.text = parts.join('\n');
     }));
     state.index = buildIndex(state.entries);
+    if (incomplete) state.bodiesPromise = null; // não guarda o resultado parcial
   })();
   return state.bodiesPromise;
 }
@@ -111,21 +113,23 @@ function renderNav(activeTier) {
 
 /* ---------- cards e níveis ---------- */
 
-function cardTile(entry, i = 0) {
+function cardTile(entry, i = 0, headingTag = 'h3') {
   const { cardObj: card, tierObj: tier } = entry;
-  return h('a', { class: 'card', href: cardHref(tier.id, card.id), style: `--i:${Math.min(i, 12)}` },
+  const titleId = `card-${tier.id}-${card.id}`;
+  const tags = dedupeTags(card.tags);
+  return h('a', { class: 'card', href: cardHref(tier.id, card.id), style: `--i:${Math.min(i, 12)}`, 'aria-labelledby': titleId },
     h('span', { class: 'card-icon' }, icon(card.icon || 'folder', 22)),
-    h('h3', {}, card.title),
+    h(headingTag, { id: titleId }, card.title),
     h('p', { class: 'card-summary' }, card.summary || ''),
     h('ul', { class: 'chips', 'aria-label': 'Peças incluídas' },
       card.pieces.map((p) => h('li', { class: 'chip' }, icon(TYPE_ICON[p.type], 13), TYPE_LABELS[p.type]))),
-    (card.tags || []).length
-      ? h('ul', { class: 'tags', 'aria-label': 'Tags' }, card.tags.map((t) => h('li', { class: 'tag' }, `#${t}`)))
+    tags.length
+      ? h('ul', { class: 'tags', 'aria-label': 'Tags' }, tags.map((t) => h('li', { class: 'tag' }, `#${t}`)))
       : null,
     h('span', { class: 'card-go', 'aria-hidden': 'true' }, icon('arrow-right', 16)));
 }
 
-function tierSection(tier, entries, { heading = 'h2', link = true } = {}) {
+function tierSection(tier, entries, { heading = 'h2', cardHeading = 'h3', link = true } = {}) {
   const title = link ? h('a', { href: tierHref(tier.id) }, tier.title) : tier.title;
   return h('section', { class: 'tier', 'aria-labelledby': `tier-${tier.id}` },
     h('header', { class: 'tier-head' },
@@ -135,7 +139,7 @@ function tierSection(tier, entries, { heading = 'h2', link = true } = {}) {
         tier.description ? h('p', {}, tier.description) : null),
       h('span', { class: 'count' }, plural(entries.length, ['card', 'cards']))),
     entries.length
-      ? h('div', { class: 'grid' }, entries.map((e, i) => cardTile(e, i)))
+      ? h('div', { class: 'grid' }, entries.map((e, i) => cardTile(e, i, cardHeading)))
       : message('Nenhum card neste nível ainda.'));
 }
 
@@ -159,7 +163,7 @@ function renderHome() {
 
   const input = h('input', {
     id: 'q', type: 'search', class: 'searchbox-input', placeholder: 'Buscar skills, workflows, agentes…',
-    autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Buscar no conteúdo', 'aria-controls': 'results',
+    autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Buscar skills, workflows, agentes', 'aria-controls': 'results',
   });
   input.value = f.q;
 
@@ -179,6 +183,7 @@ function renderHome() {
   const tagButtons = collectTags(state.entries).map(({ tag, count }) =>
     h('button', {
       type: 'button', class: 'tag-btn', 'aria-pressed': 'false', 'data-tag': tag,
+      'aria-label': `#${tag}, ${plural(count, ['card', 'cards'])}`,
       onclick: () => { f.tags.has(tag) ? f.tags.delete(tag) : f.tags.add(tag); paintFilters(); paintResults(); },
     }, `#${tag}`, h('span', {}, count)));
   tierBar.replaceChildren(...tierButtons);
@@ -258,7 +263,7 @@ function renderTier(tier) {
   const entries = state.entries.filter((e) => e.tier === tier.id);
   setView(
     h('nav', { class: 'crumbs', 'aria-label': 'Você está em' }, h('a', { href: '#/' }, 'Início'), h('span', {}, tier.title)),
-    tierSection(tier, entries, { heading: 'h1', link: false }));
+    tierSection(tier, entries, { heading: 'h1', cardHeading: 'h2', link: false }));
 }
 
 /* ---------- card ---------- */
@@ -275,6 +280,7 @@ async function loadPiece(panel, piece) {
     const { meta, body } = parseFrontMatter(raw);
     const article = h('article', { class: 'md' }, safeFragment(renderMarkdown(body)));
     addCopyButtons(article);
+    wrapTables(article);
     panel.replaceChildren(
       h('div', { class: 'piece-head' },
         h('div', {},
@@ -320,8 +326,8 @@ function renderCard(tier, card, activeType) {
         h('div', { class: 'card-meta' }, levelDots(tierLevel(tier.id)), h('span', {}, tier.title)),
         h('h1', {}, card.title),
         card.summary ? h('p', { class: 'lead' }, card.summary) : null,
-        (card.tags || []).length
-          ? h('ul', { class: 'tags' }, card.tags.map((t) => h('li', { class: 'tag' }, `#${t}`)))
+        dedupeTags(card.tags).length
+          ? h('ul', { class: 'tags' }, dedupeTags(card.tags).map((t) => h('li', { class: 'tag' }, `#${t}`)))
           : null)),
     h('div', { class: `card-layout${aside ? ' has-aside' : ''}` },
       h('div', { class: 'card-main' },
@@ -465,13 +471,10 @@ function route() {
   const wantsSearch = state.focusSearch; // a Home consome a flag e já foca a busca
   trackFiltersHeight(null); // só a Home tem filtros fixos
   try {
-    const r = parseRoute(location.hash);
-    const tier = r.tier && findTier(r.tier);
-    const card = tier && r.card && findCard(tier, r.card);
-    const typeOk = r.view !== 'piece' || card?.pieces.some((p) => p.type === r.type);
-    if (r.view === 'home') renderHome();
-    else if (r.view === 'tier' && tier) renderTier(tier);
-    else if ((r.view === 'card' || r.view === 'piece') && card && typeOk) renderCard(tier, card, r.type);
+    const v = resolveView(parseRoute(location.hash), state.manifest);
+    if (v.view === 'home') renderHome();
+    else if (v.view === 'tier') renderTier(v.tier);
+    else if (v.view === 'card' || v.view === 'piece') renderCard(v.tier, v.card, v.type);
     else renderNotFound();
   } catch (err) {
     setView(message(`Erro ao exibir a página: ${err.message}`, 'error'));
@@ -482,7 +485,11 @@ function route() {
   const activeTab = cardKey && cardKey === lastCardKey ? main.querySelector('.tabs a[aria-current="page"]') : null;
   lastCardKey = cardKey;
   if (wantsSearch) { /* já focado em renderHome */ } else if (activeTab) activeTab.focus({ preventScroll: true });
-  else main.focus({ preventScroll: true });
+  else {
+    const heading = main.querySelector('h1');
+    if (heading) heading.setAttribute('tabindex', '-1');
+    (heading ?? main).focus({ preventScroll: true });
+  }
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   playEntrance();
   updateScrollFx();
@@ -539,6 +546,10 @@ async function init() {
   } catch (err) {
     setView(message(`Manifest inválido ou indisponível: ${err.message}`, 'error'));
     return;
+  }
+  if (!isAppHash(location.hash)) {
+    // Entrou por uma âncora (ex.: #main depois do link "Pular"): trata como Home.
+    window.history.replaceState(null, '', `${location.pathname}${location.search}#/`);
   }
   window.addEventListener('hashchange', route);
   route();

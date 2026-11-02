@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRoute, isAppHash } from '../js/router.js';
+import { parseRoute, isAppHash, resolveView } from '../js/router.js';
 
 test('home', () => {
   assert.deepEqual(parseRoute('#/'), { view: 'home' });
@@ -44,4 +44,38 @@ test('isAppHash: so hashes de rota do app (nao ancoras como #main)', () => {
 test('barras duplicadas e barra final no card', () => {
   assert.deepEqual(parseRoute('#/basicas/exemplo/'), { view: 'card', tier: 'basicas', card: 'exemplo' });
   assert.equal(parseRoute('#/basicas//exemplo/skill').view, 'piece');
+});
+
+test('segmentos extras e caracteres hostis dao notfound', () => {
+  assert.equal(parseRoute('#/basicas/exemplo/skill/extra').view, 'notfound');
+  assert.equal(parseRoute('#/basicas%00').view, 'notfound');
+  assert.equal(parseRoute('#/basicas%2Fexemplo').view, 'notfound');
+  assert.equal(parseRoute('#//basicas').view, 'tier');
+});
+
+const m = {
+  tiers: [
+    { id: 'basicas', cards: [{ id: 'a', pieces: [{ type: 'skill' }] }, { id: 'vazio', pieces: [] }] },
+    { id: 'intermediarias', cards: [] },
+    { id: 'complexas', cards: [] },
+  ],
+};
+
+test('resolveView: casa a rota com o manifest', () => {
+  assert.deepEqual(resolveView({ view: 'home' }, m), { view: 'home' });
+  assert.equal(resolveView(parseRoute('#/basicas'), m).tier.id, 'basicas');
+  const card = resolveView(parseRoute('#/basicas/a'), m);
+  assert.equal(card.view, 'card');
+  assert.equal(card.card.id, 'a');
+  const piece = resolveView(parseRoute('#/basicas/a/skill'), m);
+  assert.deepEqual([piece.view, piece.type], ['piece', 'skill']);
+});
+
+test('resolveView: nivel vazio existe; card, peca ou nivel inexistentes dao notfound', () => {
+  assert.equal(resolveView(parseRoute('#/intermediarias'), m).view, 'tier');
+  assert.equal(resolveView(parseRoute('#/basicas/nao-existe'), m).view, 'notfound');
+  assert.equal(resolveView(parseRoute('#/basicas/a/agente'), m).view, 'notfound'); // tipo valido, mas o card nao tem
+  assert.equal(resolveView(parseRoute('#/basicas/vazio/skill'), m).view, 'notfound'); // card sem pecas
+  assert.equal(resolveView(parseRoute('#/xyz'), m).view, 'notfound');
+  assert.equal(resolveView({ view: 'notfound' }, m).view, 'notfound');
 });

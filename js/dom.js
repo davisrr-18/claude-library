@@ -60,9 +60,9 @@ export async function copyText(text) {
 }
 
 /** Botão que copia `getText()` e mostra o resultado por 1,8 s (anunciado via aria-live). */
-export function copyButton(label, getText, extraClass = '') {
+export function copyButton(label, getText, extraClass = '', ariaLabel = null) {
   const content = (name, text) => [icon(name, 15), h('span', {}, text)];
-  const btn = h('button', { type: 'button', class: `btn btn-ghost btn-sm ${extraClass}`.trim(), 'aria-live': 'polite' }, content('copy', label));
+  const btn = h('button', { type: 'button', class: `btn btn-ghost btn-sm ${extraClass}`.trim(), 'aria-live': 'polite', 'aria-label': ariaLabel }, content('copy', label));
   btn.addEventListener('click', async () => {
     const ok = await copyText(getText());
     btn.replaceChildren(...(ok ? content('check', 'Copiado!') : content('x', 'Não foi possível copiar')));
@@ -71,12 +71,26 @@ export function copyButton(label, getText, extraClass = '') {
   return btn;
 }
 
-/** Envolve cada <pre> com um botão de copiar. */
+/** Envolve cada <pre> com um botão de copiar e o torna rolável pelo teclado. */
 export function addCopyButtons(root) {
-  for (const pre of root.querySelectorAll('pre')) {
+  const blocks = [...root.querySelectorAll('pre')];
+  blocks.forEach((pre, i) => {
     const wrap = h('div', { class: 'code-wrap' });
     pre.replaceWith(wrap);
-    wrap.append(copyButton('Copiar', () => pre.textContent, 'code-copy'), pre);
+    pre.setAttribute('tabindex', '0');
+    pre.setAttribute('role', 'region');
+    pre.setAttribute('aria-label', blocks.length > 1 ? `Bloco de código ${i + 1} de ${blocks.length}` : 'Bloco de código');
+    const label = blocks.length > 1 ? `Copiar bloco de código ${i + 1} de ${blocks.length}` : 'Copiar bloco de código';
+    wrap.append(copyButton('Copiar', () => pre.textContent, 'code-copy', label), pre);
+  });
+}
+
+/** Tabelas largas ganham um contêiner rolável focável (mantém a semântica de tabela). */
+export function wrapTables(root) {
+  for (const table of root.querySelectorAll('table')) {
+    const wrap = h('div', { class: 'table-wrap', tabindex: '0', role: 'region', 'aria-label': 'Tabela (use as setas para rolar)' });
+    table.replaceWith(wrap);
+    wrap.append(table);
   }
 }
 
