@@ -108,3 +108,24 @@ test('ç e ñ sao normalizados; letras sem decomposicao (ø, ß) viram separador
   assert.deepEqual(search(i, 'coracao').map((e) => e.card), ['a']);
   assert.doesNotThrow(() => search(i, 'straße ø'));
 });
+
+test('letras sem decomposicao (ø, ß, æ, ł) formam palavras e sao buscaveis por prefixo', () => {
+  const i = buildIndex([
+    { tier: 'basicas', card: 'a', title: 'Straße Ølen', summary: '', tags: [], text: '' },
+    { tier: 'basicas', card: 'b', title: 'Łódź Æble', summary: '', tags: [], text: '' },
+  ]);
+  assert.deepEqual(ids(search(i, 'ølen')), ['a']);
+  assert.deepEqual(ids(search(i, 'stra')), ['a']);
+  assert.deepEqual(ids(search(i, 'straße')), ['a']);
+  assert.deepEqual(ids(search(i, 'æble')), ['b']);
+  assert.deepEqual(ids(search(i, 'lodz')), []); // ł nao decompoe: nao vira l (limitacao conhecida)
+  assert.deepEqual(ids(search(i, 'len')), []); // "Ølen" e UMA palavra: o Ø nao pode virar separador
+  assert.deepEqual(ids(search(i, 'e')), []); // nem "Straße" pode virar "stra" + "e"
+});
+
+test('numeros, cirilico e CJK tambem formam palavras', () => {
+  const i = buildIndex([
+    { tier: 'basicas', card: 'a', title: 'Versão 2024 Привет 日本語', summary: '', tags: [], text: '' },
+  ]);
+  for (const q of ['2024', 'привет', '日本語', 'versao']) assert.deepEqual(ids(search(i, q)), ['a'], q);
+});

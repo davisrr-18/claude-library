@@ -165,7 +165,11 @@ main:focus, main:focus-visible, h1:focus, h1:focus-visible { outline: none; } /*
 /* ---------- filtros ---------- */
 .filters {
   position: sticky; top: var(--topbar-h); z-index: 20; margin: 12px calc(var(--gutter) * -1) 0;
-  padding: 12px var(--gutter); display: grid; gap: 10px;
+  padding: 12px var(--gutter); display: grid; gap: 10px; isolation: isolate;
+}
+/* Fundo e linha ocupam a largura toda da tela (como o topo), mesmo acima do limite de --maxw. */
+.filters::before {
+  content: ""; position: absolute; z-index: -1; inset: 0 calc(50% - 50vw);
   background: var(--bg);
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
@@ -406,6 +410,7 @@ main:focus, main:focus-visible, h1:focus, h1:focus-visible { outline: none; } /*
 .card-aside li { animation: rise .5s cubic-bezier(.22, 1, .36, 1) backwards; animation-delay: calc(.2s + min(var(--i, 0), 8) * 50ms); }
 .callout { animation: fade .4s ease backwards; }
 .hero::before { animation: breathe 7s ease-in-out infinite; }
+.hero.is-offscreen::before, .hero.is-offscreen .accent { animation-play-state: paused; } /* hero fora da tela: para de animar */
 
 /* revelação ao rolar (aplicada por JS só nas faixas abaixo da dobra) */
 .reveal { opacity: 0; transform: translateY(26px) scale(.985); animation: none !important; transition: opacity .7s cubic-bezier(.22, 1, .36, 1), transform .7s cubic-bezier(.22, 1, .36, 1); transition-delay: calc(min(var(--i, 0), 6) * 60ms); }

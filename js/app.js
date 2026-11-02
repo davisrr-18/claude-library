@@ -295,10 +295,14 @@ function renderHome() {
   }
   clearBtn.addEventListener('click', clearAll);
 
+  let typingTimer;
   input.addEventListener('input', () => {
     f.q = input.value;
     ensureBodies().then(() => { if (input.isConnected) paintResults(); });
-    paintResults();
+    // Com muitos cards, espera uma pausa na digitação em vez de reconstruir a lista a cada tecla.
+    clearTimeout(typingTimer);
+    if (state.entries.length > 60) typingTimer = setTimeout(() => { if (input.isConnected) paintResults(); }, 90);
+    else paintResults();
   });
   input.addEventListener('keydown', (e) => { if (e.key === 'Escape') clearAll(); });
 
@@ -321,6 +325,7 @@ function renderHome() {
 
   trackFiltersHeight(document.querySelector('.filters'));
   countUp(main);
+  pauseHeroWhenOffscreen(main.querySelector('.hero'));
   if (state.focusSearch) { state.focusSearch = false; input.focus(); }
 }
 
@@ -542,6 +547,8 @@ function route() {
   if (!isAppHash(location.hash)) return;
   const wantsSearch = state.focusSearch; // a Home consome a flag e já foca a busca
   trackFiltersHeight(null); // só a Home tem filtros fixos
+  heroObserver?.disconnect(); // só a Home tem hero
+  heroObserver = null;
   try {
     const v = resolveView(parseRoute(location.hash), state.manifest);
     if (v.view === 'home') renderHome();
@@ -579,6 +586,7 @@ document.addEventListener('keydown', (e) => {
   else { state.focusSearch = true; location.hash = '#/'; }
 });
 
+let heroObserver;
 let filtersObserver;
 let filtersOnResize;
 
@@ -595,6 +603,15 @@ function trackFiltersHeight(el) {
   filtersOnResize = set; // a posição (sticky/static) muda por media query sem mudar o tamanho
   window.addEventListener('resize', set, { passive: true });
   set();
+}
+
+/** As animações infinitas do hero (brilho e gradiente do título) só rodam enquanto ele está na tela. */
+function pauseHeroWhenOffscreen(hero) {
+  heroObserver?.disconnect();
+  heroObserver = null;
+  if (!hero || !('IntersectionObserver' in window)) return;
+  heroObserver = new IntersectionObserver(([entry]) => hero.classList.toggle('is-offscreen', !entry.isIntersecting));
+  heroObserver.observe(hero);
 }
 
 /** Mantém --topbar-h igual à altura real do topo (ele quebra em linhas em telas médias). */

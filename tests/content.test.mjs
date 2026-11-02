@@ -199,3 +199,18 @@ test('validateManifest: mensagens dizem o que esta errado', () => {
   const rep = validateManifest(manifest([card({ pieces: [piece(), piece({ file: 'basicas/a/b.md' })] })])).errors.join('\n');
   assert.match(rep, /tipo de peça repetido: skill/);
 });
+
+test('parseFrontMatter: lista com "- item" (indentada ou nao) vira texto separado por virgulas', () => {
+  assert.equal(parseFrontMatter('---\ntags:\n- a\n- b\n---\ncorpo').meta.tags, 'a, b');
+  assert.equal(parseFrontMatter('---\ntags:\n  - a\n  - b c\n---\ncorpo').meta.tags, 'a, b c');
+  const { meta, body } = parseFrontMatter('---\nname: x\ntags:\n- a\ndescription: d\n---\ncorpo');
+  assert.deepEqual(meta, { name: 'x', tags: 'a', description: 'd' });
+  assert.equal(body, 'corpo');
+});
+
+test('parseFrontMatter: chaves com ponto sao aceitas; item de lista sem chave antes nao e front matter', () => {
+  assert.equal(parseFrontMatter('---\nallowed.tools: Read\n---\n').meta['allowed.tools'], 'Read');
+  const text = '---\n- solto\n---\ncorpo';
+  assert.deepEqual(parseFrontMatter(text).meta, {});
+  assert.equal(parseFrontMatter(text).body, text);
+});

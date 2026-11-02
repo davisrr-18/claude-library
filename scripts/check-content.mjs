@@ -10,8 +10,10 @@ import { validateManifest } from '../js/content.js';
 
 const URL_CREDENTIAL_RULE = 'credencial-url';
 
+// O lookbehind do e-mail só deixa a regex começar no início de um trecho; sem ele, cada posição varria
+// o trecho inteiro até o fim (tempo quadrático: base64 grande travava `npm run check`).
 const SENSITIVE_RULES = [
-  { rule: 'email', re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g },
+  { rule: 'email', re: /(?<![A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g },
   { rule: 'caminho-pessoal', re: /\/(?:home|Users)\/[^\s/\\`'"]+/g },
   { rule: 'caminho-pessoal', re: /(?<![A-Za-z0-9_.-])\/root\/|(?<![A-Za-z0-9])[A-Za-z]:\\Users\\[^\s/\\`'"]+/g },
   { rule: 'cpf', re: /(?<!\d)\d{3}\.\d{3}\.\d{3}-\d{2}(?!\d)/g },

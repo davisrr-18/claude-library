@@ -66,3 +66,12 @@ test('resolveTypeTab: guardado valido fica; ausente ou inexistente volta para To
   assert.equal(resolveTypeTab('', available), '');
   assert.equal(resolveTypeTab('skill', []), '');
 });
+
+test('nextTabIndex: indice atual invalido (nao inteiro) nunca devolve NaN', () => {
+  for (const cur of [NaN, null, undefined, '1', 1.5, -1, Infinity]) {
+    for (const key of ['ArrowRight', 'ArrowLeft', 'Home', 'End']) {
+      const r = nextTabIndex(key, cur, 3);
+      assert.ok(r === null || (Number.isInteger(r) && r >= 0 && r < 3), `${key}/${String(cur)} -> ${r}`);
+    }
+  }
+});

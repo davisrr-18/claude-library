@@ -7,7 +7,7 @@ export const CARD_ICONS = [
 
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-const KEY_LINE = /^([A-Za-z0-9_-]+)[ \t]*:(.*)$/;
+const KEY_LINE = /^([A-Za-z0-9_.-]+)[ \t]*:(.*)$/;
 
 /**
  * Separa o front matter (`chave: valor`, entre `---`) do corpo.
@@ -25,13 +25,16 @@ export function parseFrontMatter(text) {
     const kv = line.match(KEY_LINE);
     if (kv && !/^\s/.test(line)) fields.push({ key: kv[1], value: kv[2].trim(), extra: [] });
     else if (/^\s+\S/.test(line) && fields.length) fields[fields.length - 1].extra.push(line.trim());
+    else if (/^-\s+\S/.test(line) && fields.length) fields[fields.length - 1].extra.push(line.trim()); // lista sem indentação
     else return { meta: {}, body: src };
   }
 
   const meta = {};
   for (const { key, value, extra } of fields) {
     let v = value;
-    if (/^[>|][+-]?$/.test(v)) v = extra.join(v[0] === '>' ? ' ' : '\n');
+    const isList = extra.length > 0 && extra.every((e) => /^-\s+\S/.test(e));
+    if (isList && v === '') v = extra.map((e) => e.replace(/^-\s+/, '')).join(', '); // lista YAML → "a, b"
+    else if (/^[>|][+-]?$/.test(v)) v = extra.join(v[0] === '>' ? ' ' : '\n');
     else if (extra.length) v = [v, ...extra].join(' ');
     else if (v.length >= 2 && /^(["']).*\1$/.test(v)) v = v.slice(1, -1);
     meta[key] = v;

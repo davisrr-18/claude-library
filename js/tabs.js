@@ -22,7 +22,7 @@ export function filterByType(entries, type) {
 
 /** Teclado das abas: índice da próxima aba para a tecla, ou null se a tecla não for de navegação. */
 export function nextTabIndex(key, current, length) {
-  if (length <= 0) return null;
+  if (!(length > 0) || !Number.isInteger(current)) return null;
   switch (key) {
     case 'ArrowRight': return (current + 1) % length;
     case 'ArrowLeft': return (current - 1 + length) % length;
