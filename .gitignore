@@ -1,9 +1,53 @@
+# O repositório é PÚBLICO: nada pessoal, local ou secreto pode ser versionado.
+# Este arquivo é conferido por tests/gitignore.test.mjs (com o próprio git).
+
+# ---- Gerado (reconstruível) ----
 node_modules/
-.env
-.env.*
-.DS_Store
-*.log
-.claude/
-*.local
 tools/qa/node_modules/
 dist/
+.wrangler/
+
+# ---- Pessoal e local do Claude Code ----
+.claude/
+CLAUDE.local.md
+*.local
+*.local.*
+
+# ---- Segredos e credenciais ----
+.env
+.env.*
+!.env.example
+.dev.vars
+.npmrc
+.netrc
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*.secret
+secrets/
+credentials*.json
+
+# ---- Sistema operacional ----
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ---- Editores ----
+.vscode/
+.idea/
+*.swp
+*~
+.history/
+
+# ---- Logs, backups e rascunhos ----
+*.log
+npm-debug.log*
+*.bak
+*.orig
+*.rej
+*.bundle
+*.tmp

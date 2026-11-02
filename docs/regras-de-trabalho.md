@@ -35,7 +35,7 @@ Ver `qualidade.md`. Resumo: `npm test` (unitários, incluindo execução real do
 
 ## Privacidade e publicação
 
-- O repositório é **público** e o site vai para o GitHub Pages. Por isso: nada sensível em arquivo nem no histórico, `npm run check` antes de dar push e publicação por lista de permissão (`npm run build:site`).
+- O repositório é **público** e o site vai para o GitHub Pages. O `.gitignore` bloqueia o que costuma vazar (credenciais, `.claude/`, `*.local`, editores, backups) e é testado; se aparecer um tipo novo de arquivo pessoal, acrescente o padrão **e** o teste em `tests/gitignore.test.mjs`. Por isso: nada sensível em arquivo nem no histórico, `npm run check` antes de dar push e publicação por lista de permissão (`npm run build:site`).
 - **Deploy só com autorização explícita do usuário.** Senha em JS não é proteção.
 - Executar binário baixado da internet é bloqueado pelo ambiente; não contornar, explicar e deixar a decisão com o usuário (aconteceu com o PowerShell). `npm run qa:install` **é permitido**: instala só as dependências de desenvolvimento fixadas no `tools/qa/package-lock.json`.
 - **Microinteração × animação decorativa:** microinteração responde a uma ação do usuário (hover, foco, clique, troca de aba), dura menos de ~0,5 s e roda uma vez por ação; decorativa anima sozinha, sem ação. Decorativa só se for uma passada na entrada. Loop nunca.
