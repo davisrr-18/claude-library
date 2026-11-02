@@ -15,7 +15,7 @@ test('todo tipo de peca tem icone, e ele existe', () => {
 });
 
 test('icones usados pela interface existem', () => {
-  for (const name of ['search', 'copy', 'check', 'x', 'arrow-left', 'arrow-right', 'sun', 'moon', 'folder']) {
+  for (const name of ['search', 'copy', 'check', 'x', 'arrow-left', 'arrow-right', 'sun', 'moon', 'folder', 'terminal']) {
     assert.ok(ICON_NAMES.includes(name), name);
   }
 });

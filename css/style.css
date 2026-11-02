@@ -544,3 +544,26 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   .searchbox:focus-within, .stats li:hover { transform: none; }
   .card:hover, .card:active, .icon-btn:hover, .brand:hover .brand-mark { transform: none; }
 }
+
+/* ---------- instalar pelo terminal ---------- */
+.install-slot:not(:empty) { margin-bottom: 20px; }
+.install { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); margin: 0 0 20px; }
+.install[open] { border-color: var(--border-strong); }
+.install > summary {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; font-weight: 600;
+  list-style: none; border-radius: var(--radius); min-height: 44px;
+}
+.install > summary::-webkit-details-marker { display: none; }
+.install > summary svg { color: var(--accent-ink); flex: none; }
+.install > summary::after { content: "+"; margin-left: auto; color: var(--muted); font-weight: 500; font-size: 1.2rem; line-height: 1; }
+.install[open] > summary::after { content: "−"; }
+.install > summary:hover { background: var(--surface-2); }
+.install-body { padding: 4px 16px 16px; display: grid; gap: 12px; }
+.install-hint { margin: 0; color: var(--muted); font-size: .92rem; max-width: 70ch; }
+.os-tabs { display: inline-flex; gap: 2px; padding: 3px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; justify-self: start; }
+.os-tab { border: 0; background: transparent; padding: 8px 16px; min-height: 36px; border-radius: 999px; cursor: pointer; color: var(--muted); font-weight: 500; font-size: .9rem; }
+.os-tab:hover { color: var(--text); }
+.os-tab[aria-selected="true"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.install .code-wrap { margin: 0; }
+.install .code-wrap pre { max-height: 360px; overflow: auto; }
+.piece > .install { margin-top: -4px; }

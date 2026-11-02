@@ -113,3 +113,10 @@ Pedido do usuário após a revisão final. Em cada faixa de nível (Home e pági
 - **Interface:** a aba do tipo mostra todas as peças do tipo, empilhadas na ordem do manifest, cada uma com cabeçalho, botão de copiar e blocos de código próprios; o card da Home mostra os chips agrupados com contagem (`Agente ×3`) e, com uma aba de tipo escolhida, "3 agentes". Lógica pura em `groupPiecesByType` (`js/tabs.js`).
 - **Front matter do pacote:** usa `titulo`, `destino`, `tipo`, `nivel`, `stack`, `slug`. O site entende `destino` como texto de apoio ("Destino: .claude/agents/tutor.md") quando não há `description` (`pieceDescription` em `js/content.js`), sem editar os arquivos do usuário.
 - Os títulos das peças no manifest foram escolhidos iguais ao primeiro título (H1) de cada arquivo, para a interface não repetir o título no topo do texto.
+
+## Instalar pelo terminal (2026-11-02)
+Pedido do usuário: mostrar, no site, os comandos de Linux, macOS e Windows para instalar o que um pacote ensina a salvar, e (como preferência permanente) incluir os comandos dos três sistemas sempre que ele pedir para adicionar algo.
+- **Gerador:** `js/install.js` (puro, sem DOM): `installTarget(destino)` valida o caminho do front matter, `extractArtifact(md)` pega o primeiro bloco ` ```markdown ` (inclusive o de 4 crases que contém outros de 3), `buildInstall(os, files)` gera bash (Linux e macOS, heredoc com delimitador entre aspas e único) ou PowerShell (here-string literal, UTF-8 sem BOM, base64 se uma linha começar com `'@`) e `detectOs`.
+- **Segurança:** só entram caminhos `.md` relativos com `[A-Za-z0-9_./-]`, sem `..` nem `/` inicial nem `-` inicial; o conteúdo nunca é interpretado pelo shell. Erro explícito para sistema ou caminho inválidos.
+- **Interface:** `<details>` "Salvar ... pelo terminal" em cada peça instalável e "Instalar o pacote inteiro" no card (2 ou mais arquivos), com abas de sistema (setas, Home, End), seleção automática do sistema e lembrança da escolha.
+- **Verificação:** os comandos são executados de verdade nos testes (`tests/install-exec.test.mjs`): bash sempre que existir; zsh e PowerShell só quando instalados (senão o teste é pulado).

@@ -5,6 +5,7 @@ import { buildIndex, search, collectTags, dedupeTags, sameTitle } from './search
 import { typeCounts, filterByType, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS, groupPiecesByType } from './tabs.js';
 import { h, safeFragment, copyButton, addCopyButtons, wrapTables, initTheme } from './dom.js';
 import { icon, TYPE_ICON } from './icons.js';
+import { installTarget, extractArtifact, buildInstall, detectOs, OS_LIST } from './install.js';
 import { highlightCodeBlocks } from './code-highlight.js';
 
 const TYPE_LABELS = {
@@ -355,6 +356,82 @@ function skeleton() {
     h('i', { style: 'width:40%' }), h('i', {}), h('i', {}), h('i', { style: 'width:70%' }));
 }
 
+/* ---------- instalar pelo terminal ---------- */
+
+let preferredOs = null;
+
+function currentOs() {
+  if (preferredOs) return preferredOs;
+  let saved = null;
+  try { saved = localStorage.getItem('os'); } catch { /* sem persistência */ }
+  if (OS_LIST.some((o) => o.id === saved)) return (preferredOs = saved);
+  return (preferredOs = detectOs(navigator.userAgentData?.platform || navigator.platform || navigator.userAgent));
+}
+
+function rememberOs(id) {
+  preferredOs = id;
+  try { localStorage.setItem('os', id); } catch { /* sem persistência */ }
+}
+
+/**
+ * Bloco recolhível "Instalar no terminal": abas Linux / macOS / Windows com os comandos que criam os
+ * arquivos em `files` ([{ path, content }]) no lugar certo. Os comandos só são montados quando abre.
+ */
+function installPanel(summary, files) {
+  const body = h('div', { class: 'install-body' });
+  const details = h('details', { class: 'install' }, h('summary', {}, icon('terminal', 16), h('span', {}, summary)), body);
+  let built = false;
+  details.addEventListener('toggle', () => {
+    if (!details.open || built) return;
+    built = true;
+    const code = h('code', {}, '');
+    const pre = h('pre', { tabindex: '0', role: 'region', 'aria-label': 'Comandos de instalação' }, code);
+    const show = (osId) => { code.textContent = buildInstall(osId, files); };
+    const tabs = OS_LIST.map((os) => h('button', {
+      type: 'button', role: 'tab', class: 'os-tab', onclick: () => select(os.id),
+    }, os.label));
+    const select = (osId) => {
+      rememberOs(osId);
+      tabs.forEach((btn, i) => {
+        const on = OS_LIST[i].id === osId;
+        btn.setAttribute('aria-selected', String(on));
+        btn.setAttribute('tabindex', on ? '0' : '-1');
+      });
+      show(osId);
+    };
+    const bar = h('div', { class: 'os-tabs', role: 'tablist', 'aria-label': 'Sistema operacional' }, tabs);
+    bar.addEventListener('keydown', (e) => {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      const from = tabs.indexOf(e.target.closest?.('[role="tab"]'));
+      const to = from < 0 ? null : nextTabIndex(e.key, from, tabs.length);
+      if (to === null) return;
+      e.preventDefault();
+      tabs[to].focus();
+      select(OS_LIST[to].id);
+    });
+    select(currentOs());
+    body.append(
+      h('p', { class: 'install-hint' }, 'Abra o terminal na pasta onde quer instalar (ex.: a sua pasta de estudos), cole e execute. No Windows, use o PowerShell.'),
+      bar,
+      h('div', { class: 'code-wrap' }, copyButton('Copiar', () => code.textContent, 'code-copy', 'Copiar comandos de instalação'), pre));
+  });
+  return details;
+}
+
+/** Arquivos instaláveis de uma peça: precisa de `destino` com caminho .md e de um bloco ```markdown. */
+function installFileOf(meta, body) {
+  const path = installTarget(meta.destino);
+  const content = path ? extractArtifact(body) : null;
+  return path && content ? { path, content } : null;
+}
+
+/** Todos os arquivos instaláveis do card, na ordem do manifest. Peças que falham ao carregar são ignoradas. */
+async function collectInstallFiles(card) {
+  const files = await Promise.all(card.pieces.map((p) =>
+    fetchText(p.file).then((raw) => { const { meta, body } = parseFrontMatter(raw); return installFileOf(meta, body); }).catch(() => null)));
+  return files.filter(Boolean);
+}
+
 /** Monta uma peça (cabeçalho + texto). Falha de uma peça vira aviso nela, sem derrubar as outras. */
 async function buildPiece(piece, index) {
   const headId = `piece-${index}-title`;
@@ -376,6 +453,8 @@ async function buildPiece(piece, index) {
           description ? h('p', {}, description) : null),
         copyButton('Copiar peça', () => raw, '', `Copiar peça: ${piece.title}`)),
       article);
+    const installFile = installFileOf(meta, body);
+    if (installFile) node.querySelector('.piece-head').after(installPanel(`Salvar "${installFile.path}" pelo terminal`, [installFile]));
     return { node, article };
   } catch (err) {
     return { node: h('section', { class: 'piece' }, message(`Não foi possível carregar "${piece.file}": ${err.message}`, 'error')), article: null };
@@ -402,6 +481,7 @@ function renderCard(tier, card, activeType) {
   const groups = groupPiecesByType(pieces);
   const current = groups.find((g) => g.type === activeType) || groups[0];
   const panel = h('div', { class: 'panel', id: 'piece-panel' });
+  const installSlot = h('div', { class: 'install-slot' });
 
   const siblings = tier.cards;
   const at = siblings.findIndex((c) => c.id === card.id);
@@ -430,6 +510,7 @@ function renderCard(tier, card, activeType) {
           : null)),
     h('div', { class: `card-layout${aside ? ' has-aside' : ''}` },
       h('div', { class: 'card-main' },
+        installSlot,
         groups.length
           ? h('nav', { class: 'tabs', 'aria-label': 'Peças do card' },
               groups.map((g) => h('a', {
@@ -449,6 +530,12 @@ function renderCard(tier, card, activeType) {
       aside));
 
   if (current) loadPieces(panel, current.pieces);
+  // Pacote com 2 ou mais arquivos instaláveis: um bloco que instala todos de uma vez.
+  collectInstallFiles(card).then((files) => {
+    if (files.length >= 2 && installSlot.isConnected) {
+      installSlot.replaceChildren(installPanel(`Instalar o pacote inteiro pelo terminal (${files.length} arquivos)`, files));
+    }
+  });
 }
 
 function renderNotFound() {

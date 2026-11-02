@@ -12,6 +12,11 @@ python3 -m http.server 8000
 
 Abra <http://localhost:8000>. Abrir `index.html` com duplo clique não funciona: módulos ES não carregam via `file://`.
 
+| Sistema | Comando (na pasta do projeto) |
+|---|---|
+| Linux / macOS | `python3 -m http.server 8000` |
+| Windows (PowerShell) | `py -m http.server 8000` (ou `python -m http.server 8000`) |
+
 Atalho: `/` foca a busca. Dentro de cada faixa de tarefa há abas por tipo de peça (Todos, Skills, Agentes, Workflows, Prompts…), navegáveis com as setas, Home e End; só aparecem os tipos que existem naquele nível, e ao escolher um tipo o card abre direto a peça correspondente.
 
 ## Comandos (Node 22)
@@ -28,6 +33,12 @@ npm run check     # valida o manifest e procura dados sensíveis nos arquivos do
 - a identidade do autor (e-mail e nome do `git config` e usuário do sistema) em **todos** os arquivos, inclusive `tests/`.
 
 Segredos nunca são impressos por inteiro. Rode antes de cada publicação.
+
+## Instalar uma peça pelo terminal
+
+Peças que ensinam a salvar um arquivo (agentes, skills e `CLAUDE.md` do pacote de estudos) têm um bloco **"Salvar ... pelo terminal"**, e o card inteiro tem **"Instalar o pacote pelo terminal"**. Escolha **Linux**, **macOS** ou **Windows** (o site já seleciona o seu), copie e cole no terminal aberto na pasta onde quer instalar. Os comandos criam as pastas e os arquivos com o conteúdo embutido, sem baixar nada.
+
+Para uma peça aparecer assim, o arquivo `.md` precisa de `destino:` no front matter com o caminho (ex.: `destino: .claude/agents/tutor.md`) e de um bloco ` ```markdown ` com o conteúdo do arquivo. Caminhos com `..`, absolutos ou com caracteres de shell são recusados.
 
 ## Adicionar um card
 
@@ -54,6 +65,31 @@ Segredos nunca são impressos por inteiro. Rode antes de cada publicação.
 - `file` é relativo a `content/`, sem `..` nem `/` inicial. `id` em kebab-case.
 
 3. Rode `npm run check` e `npm test`.
+
+### Os mesmos passos pelo terminal
+
+Copiar os arquivos do pacote para dentro do site (ajuste os caminhos):
+
+```bash
+# Linux e macOS (bash/zsh)
+mkdir -p content/intermediarias/meu-pacote
+cp "$HOME/caminho/do/pacote"/*.md content/intermediarias/meu-pacote/
+```
+
+```powershell
+# Windows (PowerShell)
+New-Item -ItemType Directory -Force content\intermediarias\meu-pacote | Out-Null
+Copy-Item "$HOME\caminho\do\pacote\*.md" content\intermediarias\meu-pacote\
+```
+
+Depois edite `content/manifest.json` (passo 2) e verifique e publique no repositório (igual nos três sistemas):
+
+```bash
+npm run check && npm test
+git add -A
+git commit -m "feat: adiciona meu-pacote"
+git push
+```
 
 ## Estrutura
 
