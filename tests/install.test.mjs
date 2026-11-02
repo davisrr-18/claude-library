@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
-import { installTarget, extractArtifact, buildInstall, detectOs, OS_LIST } from '../js/install.js';
+import { installTarget, extractArtifact, buildInstall, detectOs, installFile, OS_LIST } from '../js/install.js';
 
 test('OS_LIST: Linux, macOS e Windows, nessa ordem', () => {
   assert.deepEqual(OS_LIST.map((o) => o.id), ['linux', 'macos', 'windows']);
@@ -133,4 +133,29 @@ test('base64 do fallback do PowerShell decodifica de volta, inclusive acentos e 
   const out = buildInstall('windows', [f('x.md', content)]);
   const b64 = out.match(/FromBase64String\('([A-Za-z0-9+/=]+)'\)/)[1];
   assert.equal(Buffer.from(b64, 'base64').toString('utf8'), content);
+});
+
+const FM = { destino: 'arquitetura.md (raiz da pasta de estudos)' };
+
+test('installFile (padrao): usa o bloco ```markdown do arquivo', () => {
+  const body = 'texto\n\n```markdown\nconteudo\n```\n';
+  assert.deepEqual(installFile({}, { destino: '.claude/agents/a.md' }, body), { path: '.claude/agents/a.md', content: 'conteudo' });
+  assert.deepEqual(installFile({ install: 'block' }, { destino: '.claude/agents/a.md' }, body), { path: '.claude/agents/a.md', content: 'conteudo' });
+});
+
+test('installFile (install: "file"): o corpo inteiro do arquivo e o conteudo, sem o front matter', () => {
+  const body = '\n# Arquitetura\n\n```\narvore\n```\n\nfim\n\n';
+  assert.deepEqual(installFile({ install: 'file' }, FM, body), { path: 'arquitetura.md', content: '# Arquitetura\n\n```\narvore\n```\n\nfim' });
+});
+
+test('installFile: sem destino de caminho, sem conteudo ou caminho inseguro -> null', () => {
+  assert.equal(installFile({ install: 'file' }, { destino: 'colar no início' }, '# x'), null);
+  assert.equal(installFile({ install: 'file' }, FM, '   \n\n'), null);
+  assert.equal(installFile({}, FM, 'sem bloco markdown'), null); // padrao exige bloco
+  assert.equal(installFile({ install: 'file' }, { destino: '../fora.md' }, '# x'), null);
+  assert.equal(installFile({ install: 'file' }, undefined, '# x'), null);
+});
+
+test('installFile: normaliza CRLF no modo "file"', () => {
+  assert.equal(installFile({ install: 'file' }, FM, 'a\r\nb\r\n').content, 'a\nb');
 });

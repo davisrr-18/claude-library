@@ -120,3 +120,8 @@ Pedido do usuário: mostrar, no site, os comandos de Linux, macOS e Windows para
 - **Segurança:** só entram caminhos `.md` relativos com `[A-Za-z0-9_./-]`, sem `..` nem `/` inicial nem `-` inicial; o conteúdo nunca é interpretado pelo shell. Erro explícito para sistema ou caminho inválidos.
 - **Interface:** `<details>` "Salvar ... pelo terminal" em cada peça instalável e "Instalar o pacote inteiro" no card (2 ou mais arquivos), com abas de sistema (setas, Home, End), seleção automática do sistema e lembrança da escolha.
 - **Verificação:** os comandos são executados de verdade nos testes (`tests/install-exec.test.mjs`): bash sempre que existir; zsh e PowerShell só quando instalados (senão o teste é pulado).
+
+## Arquitetura da pasta de estudos e botão Copiar (2026-11-02)
+- **Peça nova:** `arquitetura.md` do usuário entrou como segunda peça de Arquitetura do pacote de estudos (cópia sem alteração; `destino: arquitetura.md`). Os cards já aceitam várias peças do mesmo tipo.
+- **`install` na peça do manifest:** opcional, `"file"` ou `"block"` (padrão). `"file"` instala o corpo inteiro do arquivo (sem o front matter da biblioteca); `"block"` instala o bloco ` ```markdown `. Função pura `installFile(piece, meta, body)` em `js/install.js`; o teste que executa os comandos de verdade cobre os dois modos.
+- **Blocos de código:** o botão "Copiar" tem uma linha própria no topo do bloco (`.code-wrap` é a caixa; `<pre>` rola por dentro). Antes ele flutuava por cima do código e da barra de rolagem.

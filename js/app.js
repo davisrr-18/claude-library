@@ -5,7 +5,7 @@ import { buildIndex, search, collectTags, dedupeTags, sameTitle } from './search
 import { typeCounts, filterByType, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS, groupPiecesByType } from './tabs.js';
 import { h, safeFragment, copyButton, addCopyButtons, wrapTables, initTheme } from './dom.js';
 import { icon, TYPE_ICON } from './icons.js';
-import { installTarget, extractArtifact, buildInstall, detectOs, OS_LIST } from './install.js';
+import { installFile, buildInstall, detectOs, OS_LIST } from './install.js';
 import { highlightCodeBlocks } from './code-highlight.js';
 
 const TYPE_LABELS = {
@@ -418,17 +418,10 @@ function installPanel(summary, files) {
   return details;
 }
 
-/** Arquivos instaláveis de uma peça: precisa de `destino` com caminho .md e de um bloco ```markdown. */
-function installFileOf(meta, body) {
-  const path = installTarget(meta.destino);
-  const content = path ? extractArtifact(body) : null;
-  return path && content ? { path, content } : null;
-}
-
 /** Todos os arquivos instaláveis do card, na ordem do manifest. Peças que falham ao carregar são ignoradas. */
 async function collectInstallFiles(card) {
   const files = await Promise.all(card.pieces.map((p) =>
-    fetchText(p.file).then((raw) => { const { meta, body } = parseFrontMatter(raw); return installFileOf(meta, body); }).catch(() => null)));
+    fetchText(p.file).then((raw) => { const { meta, body } = parseFrontMatter(raw); return installFile(p, meta, body); }).catch(() => null)));
   return files.filter(Boolean);
 }
 
@@ -453,8 +446,8 @@ async function buildPiece(piece, index) {
           description ? h('p', {}, description) : null),
         copyButton('Copiar peça', () => raw, '', `Copiar peça: ${piece.title}`)),
       article);
-    const installFile = installFileOf(meta, body);
-    if (installFile) node.querySelector('.piece-head').after(installPanel(`Salvar "${installFile.path}" pelo terminal`, [installFile]));
+    const toInstall = installFile(piece, meta, body);
+    if (toInstall) node.querySelector('.piece-head').after(installPanel(`Salvar "${toInstall.path}" pelo terminal`, [toInstall]));
     return { node, article };
   } catch (err) {
     return { node: h('section', { class: 'piece' }, message(`Não foi possível carregar "${piece.file}": ${err.message}`, 'error')), article: null };

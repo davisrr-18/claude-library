@@ -48,3 +48,19 @@ test('grids que recebem texto de tamanho imprevisivel (filtros, lista lateral) t
   assert.match(declarations('.card-aside ul'), /grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   assert.match(declarations('.card-aside a span'), /overflow-wrap:\s*anywhere/);
 });
+
+// Regressão: o botão "Copiar" ficava flutuando (position: absolute) por cima do bloco, cobrindo a barra de
+// rolagem vertical e o texto. Ele agora tem uma linha própria no topo do bloco.
+test('botao Copiar do bloco de codigo nao flutua sobre o codigo (linha propria, sem position: absolute)', () => {
+  assert.doesNotMatch(declarations('.code-wrap .code-copy'), /position:\s*absolute/);
+  assert.match(declarations('.code-wrap'), /display:\s*flex/);
+  assert.match(declarations('.code-wrap'), /flex-direction:\s*column/);
+  assert.match(declarations('.code-wrap .code-copy'), /align-self:\s*flex-end/);
+});
+
+test('o bloco de codigo e a caixa (borda/fundo no .code-wrap) e o <pre> rola por dentro sem moldura propria', () => {
+  assert.match(declarations('.code-wrap'), /border:\s*1px solid/);
+  assert.match(declarations('.code-wrap'), /overflow:\s*hidden/);
+  assert.match(declarations('.code-wrap pre'), /border:\s*0/);
+  assert.match(declarations('.code-wrap pre'), /overflow-x:\s*auto/);
+});

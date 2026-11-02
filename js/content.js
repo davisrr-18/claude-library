@@ -112,6 +112,9 @@ export function validateManifest(m) {
           if (seenTitles.has(key)) errors.push(`${where}: título repetido entre peças do tipo ${piece.type}: ${piece.title}`);
           seenTitles.add(key);
         }
+        if (piece.install !== undefined && piece.install !== 'file' && piece.install !== 'block') {
+          errors.push(`${where}/${piece.type}: "install" deve ser "file" ou "block"`);
+        }
         if (typeof piece.file === 'string') {
           if (seenFiles.has(piece.file)) errors.push(`${where}: arquivo repetido no card: ${piece.file}`);
           seenFiles.add(piece.file);

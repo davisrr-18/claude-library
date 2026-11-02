@@ -29,6 +29,12 @@
               "file": "intermediarias/estudos-em-programacao/00-indice.md"
             },
             {
+              "type": "arquitetura",
+              "title": "Arquitetura da pasta de estudos",
+              "file": "intermediarias/estudos-em-programacao/10-arquitetura.md",
+              "install": "file"
+            },
+            {
               "type": "prompt",
               "title": "Prompt principal de sessão de estudo",
               "file": "intermediarias/estudos-em-programacao/01-prompt-principal.md"

@@ -38,7 +38,7 @@ Segredos nunca são impressos por inteiro. Rode antes de cada publicação.
 
 Peças que ensinam a salvar um arquivo (agentes, skills e `CLAUDE.md` do pacote de estudos) têm um bloco **"Salvar ... pelo terminal"**, e o card inteiro tem **"Instalar o pacote pelo terminal"**. Escolha **Linux**, **macOS** ou **Windows** (o site já seleciona o seu), copie e cole no terminal aberto na pasta onde quer instalar. Os comandos criam as pastas e os arquivos com o conteúdo embutido, sem baixar nada.
 
-Para uma peça aparecer assim, o arquivo `.md` precisa de `destino:` no front matter com o caminho (ex.: `destino: .claude/agents/tutor.md`) e de um bloco ` ```markdown ` com o conteúdo do arquivo. Caminhos com `..`, absolutos ou com caracteres de shell são recusados.
+Para uma peça aparecer assim, o arquivo `.md` precisa de `destino:` no front matter com o caminho (ex.: `destino: .claude/agents/tutor.md`) e de um bloco ` ```markdown ` com o conteúdo do arquivo. Se o arquivo inteiro for o que se instala (como um `arquitetura.md`), declare na peça do manifest `"install": "file"`: o corpo do arquivo é instalado, sem o front matter da biblioteca. Caminhos com `..`, absolutos ou com caracteres de shell são recusados.
 
 ## Adicionar um card
 

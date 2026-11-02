@@ -5,7 +5,7 @@ import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync, existsSy
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildInstall, extractArtifact, installTarget } from '../js/install.js';
+import { buildInstall, installFile } from '../js/install.js';
 import { parseFrontMatter } from '../js/content.js';
 
 // Executa DE VERDADE os comandos gerados (bash e, se existir, PowerShell) e compara os arquivos criados
@@ -24,9 +24,8 @@ function realFiles() {
   const out = [];
   for (const t of manifest.tiers) for (const c of t.cards) for (const p of c.pieces) {
     const { meta, body } = parseFrontMatter(readFileSync(join(ROOT, 'content', p.file), 'utf8'));
-    const path = installTarget(meta.destino);
-    const content = path ? extractArtifact(body) : null;
-    if (path && content) out.push({ path, content });
+    const file = installFile(p, meta, body);
+    if (file) out.push(file);
   }
   return out;
 }

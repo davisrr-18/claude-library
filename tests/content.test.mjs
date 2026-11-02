@@ -255,3 +255,14 @@ test('pieceDescription: usa description; senao "Destino: ..." (formato do pacote
   assert.equal(pieceDescription({}), '');
   assert.equal(pieceDescription(undefined), '');
 });
+
+test('validateManifest: piece.install opcional, so "file" ou "block"', () => {
+  assert.equal(validateManifest(manifest([card({ pieces: [piece({ install: 'file' })] })])).ok, true);
+  assert.equal(validateManifest(manifest([card({ pieces: [piece({ install: 'block' })] })])).ok, true);
+  assert.equal(validateManifest(manifest([card({ pieces: [piece()] })])).ok, true);
+  for (const bad of ['tudo', '', 1, true, null, ['file']]) {
+    const r = validateManifest(manifest([card({ pieces: [piece({ install: bad })] })]));
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.match(r.errors.join('\n'), /"install" deve ser "file" ou "block"/);
+  }
+});

@@ -40,6 +40,22 @@ export function extractArtifact(markdown) {
   return m ? m[2] : null;
 }
 
+/**
+ * Arquivo a instalar para uma peça: { path, content } ou null.
+ * - padrão (`install` ausente ou "block"): o conteúdo é o bloco ```markdown do arquivo;
+ * - `install: "file"` (no manifest): o arquivo inteiro É o que se instala (ex.: arquitetura.md); `body` já vem
+ *   sem o front matter, que é só metadado da biblioteca e não deve ir para o arquivo instalado.
+ * Precisa de `destino` com um caminho .md seguro (senão null).
+ */
+export function installFile(piece, meta, body) {
+  const path = installTarget(meta?.destino);
+  if (!path) return null;
+  const content = piece?.install === 'file'
+    ? String(body ?? '').replace(/\r\n?/g, '\n').replace(/^\n+/, '').replace(/\s+$/, '')
+    : extractArtifact(body);
+  return content ? { path, content } : null;
+}
+
 /** 'linux' | 'macos' | 'windows' a partir de navigator.platform ou do userAgent. Padrão: linux. */
 export function detectOs(platform) {
   const p = String(platform ?? '');
