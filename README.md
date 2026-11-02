@@ -91,16 +91,34 @@ git commit -m "feat: adiciona meu-pacote"
 git push
 ```
 
+## Documentação
+
+Tudo que define como o projeto funciona e como trabalhamos nele está em **`CLAUDE.md`** (regras lidas pelo Claude Code em todo chat) e em **`docs/`**: arquitetura, design, regras de trabalho, conteúdo, qualidade e decisões. Comece por [`docs/README.md`](docs/README.md) e, para retomar em um chat novo, [`docs/novo-chat.md`](docs/novo-chat.md).
+
+## Qualidade
+
+```bash
+npm test            # testes unitários (inclui a documentação conferida contra o código)
+npm run check       # manifest, arquivos, dados sensíveis, identidade do autor
+npm run qa:install  # uma vez: instala as ferramentas de QA (jsdom, eslint, css-tree) isoladas em tools/qa
+npm run qa          # linter, CSS, fuzz, fumaça com DOM simulado e estresse com 300 cards
+```
+
+Os comandos são iguais em Linux, macOS e Windows. O que cada um cobre e o que não cobre: [`docs/qualidade.md`](docs/qualidade.md).
+
 ## Estrutura
 
 ```
+CLAUDE.md           regras do projeto (lidas pelo Claude Code)
 index.html          página única (rotas por hash: #/, #/<nivel>, #/<nivel>/<card>, #/<nivel>/<card>/<tipo>)
 css/style.css       tema preto/laranja e branco/laranja
-js/                 app.js (interface), content.js, router.js, search.js, tabs.js, markdown.js, sanitize.js, dom.js, icons.js
+js/                 app.js (interface), dom.js, content.js, router.js, search.js, tabs.js, install.js, markdown.js, sanitize.js, icons.js, code-highlight.js
 content/            manifest.json e os .md de cada peça
+vendor/             marked e highlight.js (versão, licença e hash em vendor/README.md)
 scripts/            check-content.mjs
 tests/              testes unitários
-docs/superpowers/   spec e plano de implementação
+tools/qa/           verificação com dependências isoladas (fumaça, fuzz, estresse, lint, CSS)
+docs/               documentação; docs/superpowers/ guarda o spec e o plano originais
 ```
 
 ## Segurança e privacidade
@@ -111,6 +129,6 @@ docs/superpowers/   spec e plano de implementação
 
 ## Limites conhecidos
 
-- O front matter é um subconjunto de YAML (`chave: valor`, aspas, blocos `>` e `|`).
+- O front matter é um subconjunto de YAML (`chave: valor`, aspas, blocos `>` e `|`, listas `- item`).
 - Links e imagens relativos dentro dos `.md` resolvem contra `index.html`, não contra `content/`.
-- Os testes não cobrem a interface (`app.js`) em navegador; a interface foi verificada por leitura e por um DOM simulado fora do repositório.
+- Aparência, layout e animações reais só se confirmam em navegador. A lógica da interface (`app.js`) é verificada em `npm run qa` com um DOM simulado (jsdom), que não tem layout nem CSS.

@@ -42,8 +42,6 @@ const NASTY = [
   { path: 'nasty/hash.md', content: '# titulo\n#!/bin/sh\n! history\n~ til' },
 ];
 
-const expected = (content) => content.replace(/\s+$/, '') ? content : content; // o conteúdo exato, como está
-
 function listAll(dir, prefix = '') {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
     e.isDirectory() ? listAll(join(dir, e.name), `${prefix}${e.name}/`) : [`${prefix}${e.name}`]);
