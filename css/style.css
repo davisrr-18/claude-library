@@ -165,7 +165,7 @@ main:focus, main:focus-visible, h1:focus, h1:focus-visible { outline: none; } /*
 /* ---------- filtros ---------- */
 .filters {
   position: sticky; top: var(--topbar-h); z-index: 20; margin: 12px calc(var(--gutter) * -1) 0;
-  padding: 12px var(--gutter); display: grid; gap: 10px; isolation: isolate;
+  padding: 12px var(--gutter); display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; isolation: isolate;
 }
 /* Fundo e linha ocupam a largura toda da tela (como o topo), mesmo acima do limite de --maxw. */
 .filters::before {
@@ -306,7 +306,8 @@ main:focus, main:focus-visible, h1:focus, h1:focus-visible { outline: none; } /*
 .card-main { min-width: 0; }
 .card-aside { display: none; }
 .card-aside h2 { margin: 0 0 10px; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.card-aside ul { display: grid; gap: 2px; }
+.card-aside ul { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
+.card-aside a span { min-width: 0; overflow-wrap: anywhere; }
 .card-aside a {
   display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius-sm);
   color: var(--muted); text-decoration: none; font-size: .93rem; font-weight: 500;
@@ -547,7 +548,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 
 /* ---------- instalar pelo terminal ---------- */
 .install-slot:not(:empty) { margin-bottom: 20px; }
-.install { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); margin: 0 0 20px; }
+.install { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); margin: 0 0 20px; min-width: 0; max-width: 100%; }
 .install[open] { border-color: var(--border-strong); }
 .install > summary {
   display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; font-weight: 600;
@@ -558,7 +559,9 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .install > summary::after { content: "+"; margin-left: auto; color: var(--muted); font-weight: 500; font-size: 1.2rem; line-height: 1; }
 .install[open] > summary::after { content: "−"; }
 .install > summary:hover { background: var(--surface-2); }
-.install-body { padding: 4px 16px 16px; display: grid; gap: 12px; }
+/* minmax(0, 1fr): sem isso a coluna cresce até a linha mais longa do comando e a caixa estoura para fora do bloco */
+.install-body { padding: 4px 16px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.install-body > * { min-width: 0; }
 .install-hint { margin: 0; color: var(--muted); font-size: .92rem; max-width: 70ch; }
 .os-tabs { display: inline-flex; gap: 2px; padding: 3px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; justify-self: start; }
 .os-tab { border: 0; background: transparent; padding: 8px 16px; min-height: 36px; border-radius: 999px; cursor: pointer; color: var(--muted); font-weight: 500; font-size: .9rem; }
