@@ -19,6 +19,7 @@ Escrever o teste, **ver falhar pelo motivo certo** (se passar de primeira, o tes
 - No máximo **3 ao mesmo tempo**; **escopos de arquivo sem sobreposição**; enquanto um agente lê um arquivo, não editar esse arquivo.
 - **Quem implementou não revisa.** Depois de uma funcionalidade relevante, pedir revisão independente (somente leitura) e corrigir o que for real.
 - Escreva o pedido com escopo, pergunta, formato de entrega (`arquivo:linha`, fatos × suposições, severidade) e o que **ignorar** (decisões já tomadas).
+- **Severidade:** *bloqueante* = quebra o uso, perde dado ou abre falha de segurança; *importante* = comportamento errado visível ou lacuna de segurança sem exploração direta; *menor* = cosmético, latente ou melhoria. Rebaixe o que não conseguir reproduzir.
 - **Nunca confiar no relatório sem conferir.** Reproduzir o achado, ler o código, rodar. Exemplos reais: a revisão achou regressão nossa (filtros cobrindo o hero no celular, scanner que passava em silêncio por link simbólico) e relatórios trouxeram achados parcialmente errados.
 - Dados pessoais: um agente já copiou o e-mail real do usuário para um teste. Ao delegar, proibir explicitamente dado pessoal e exigir valores fictícios (e-mail no domínio reservado `example.com`, home de usuário inventado), só dentro de `tests/`.
 
@@ -28,7 +29,7 @@ Ver `qualidade.md`. Resumo: `npm test` (unitários, incluindo execução real do
 
 ## Git
 
-- Commits e pushes em `main` **autorizados** pelo usuário. Mensagem em português (`feat:`, `fix:`, `docs:`…) com corpo explicando o porquê, e as linhas de atribuição fornecidas pelo ambiente.
+- Commits e pushes em `main` **autorizados** pelo usuário. Os exemplos de `git commit -m` em `conteudo.md` são o mínimo manual; quando o Claude commita, usa corpo explicando o porquê e as linhas de atribuição. Rode `git status --short` antes de `git add -A`. Mensagem em português (`feat:`, `fix:`, `docs:`…) com corpo explicando o porquê, e as linhas de atribuição fornecidas pelo ambiente.
 - Nunca reescrever histórico nem fazer force-push sem pedir. O e-mail do autor está em todos os commits (metadado do git); o e-mail real apareceu uma vez em um teste (commit antigo) e foi trocado por valor fictício.
 - Antes de commitar: `npm test`, `npm run check` e (se mexeu na interface) `npm run qa`.
 
@@ -36,7 +37,8 @@ Ver `qualidade.md`. Resumo: `npm test` (unitários, incluindo execução real do
 
 - Pages publica o site para quem tiver a URL, mesmo com repositório privado; o plano gratuito nem permite Pages em repositório privado. Por isso: nada sensível em arquivo publicado, `npm run check` antes de publicar e publicação por lista de permissão.
 - **Deploy só com autorização explícita do usuário.** Senha em JS não é proteção.
-- Executar binário baixado da internet é bloqueado pelo ambiente; não contornar, explicar e deixar a decisão com o usuário (aconteceu com o PowerShell).
+- Executar binário baixado da internet é bloqueado pelo ambiente; não contornar, explicar e deixar a decisão com o usuário (aconteceu com o PowerShell). `npm run qa:install` **é permitido**: instala só as dependências de desenvolvimento fixadas no `tools/qa/package-lock.json`.
+- **Microinteração × animação decorativa:** microinteração responde a uma ação do usuário (hover, foco, clique, troca de aba), dura menos de ~0,5 s e roda uma vez por ação; decorativa anima sozinha, sem ação. Decorativa só se for uma passada na entrada. Loop nunca.
 
 ## Respostas ao usuário
 

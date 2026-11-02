@@ -35,24 +35,24 @@ Se o pedido for **adicionar um pacote**: diga o caminho da pasta (ex.: `~/Progra
 
 ```bash
 # Linux e macOS
-git clone <url-do-seu-repositorio>/claude-library.git && cd claude-library
+git clone <url-do-repositorio-no-github>/claude-library.git && cd claude-library
 npm test && npm run check
 npm run qa:install && npm run qa      # opcional: QA completo (baixa jsdom, eslint, css-tree)
 python3 -m http.server 8000
 ```
 ```powershell
 # Windows (PowerShell)
-git clone <url-do-seu-repositorio>/claude-library.git; cd claude-library
+git clone <url-do-repositorio-no-github>/claude-library.git; cd claude-library
 npm test; npm run check
 npm run qa:install; npm run qa        # opcional
 py -m http.server 8000
 ```
 
-Necessário: Node 22+, git e Python (só para servir localmente). No Windows e no macOS, `npm test` também executa os testes de PowerShell/zsh que na máquina anterior eram pulados.
+Necessário: Node 22 ou superior, git e Python (só para servir localmente). No Windows e no macOS, `npm test` também executa os testes de PowerShell/zsh que na máquina anterior eram pulados.
 
 ## 5. Estado na última atualização
 
 - Site completo e verde (`npm test`, `npm run check`, `npm run qa`).
 - Conteúdo: card **Estudos em Programação** (Tarefas Intermediárias), 11 peças.
-- **Pendente (depende do usuário):** deploy no GitHub Pages (autorização e plano), executar o PowerShell para confirmar os comandos do Windows, e novos pacotes para Básicas e Complexas.
+- **Pendente (depende do usuário):** escolher como publicar (o GitHub Pages foi autorizado, mas o plano gratuito não permite em repositório privado; ver `docs/decisoes.md`), conferir o resultado do CI nos 3 sistemas, e novos pacotes para Básicas e Complexas.
 - Detalhes e histórico: `docs/decisoes.md`.

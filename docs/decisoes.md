@@ -39,7 +39,7 @@ Mais recente no fim. Cada decisão: o quê, por quê. Itens que mudaram de ideia
 
 ## Em aberto
 
-- **Deploy no GitHub Pages:** aguardando autorização do usuário e confirmação do plano GitHub.
+- **Deploy no GitHub Pages: autorizado, mas bloqueado pelo plano.** O usuário mandou publicar; o GitHub respondeu que o plano gratuito não permite Pages em repositório privado (HTTP 422). Workflow pronto e inativo em `docs/deploy/pages.yml`. Caminhos possíveis, a escolher pelo usuário: (A) plano pago (GitHub Pro) mantendo o repositório privado; (B) tornar o repositório público (expõe código, documentos e o e-mail dos commits); (C) repositório público separado só com o site; (D) hospedagem com controle de acesso, como Cloudflare Pages com Access ou Netlify, que atende o desejo original de "só eu acesso". Nunca escolher sem o usuário.
 - **PowerShell (Windows) e zsh (macOS):** comandos testados por texto; execução real só onde existirem (o ambiente bloqueou executar o PowerShell baixado).
 - Cards de **Básicas** e **Complexas** (vazias) e de `CLAUDE.md`/arquitetura de outros pacotes, quando o usuário trouxer.
 - Link e imagem relativos dentro dos `.md` resolvem contra `index.html`, não contra `content/` (convenção a definir se algum pacote usar).

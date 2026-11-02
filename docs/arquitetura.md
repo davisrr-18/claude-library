@@ -24,7 +24,7 @@ CLAUDE.md             regras do projeto, lidas pelo Claude Code em todo chat
 
 ## Módulos de `js/`
 
-Regra: lógica em módulos **puros** (sem DOM, testáveis em Node); só `app.js` e `dom.js` tocam o DOM.
+Regra: lógica em módulos **puros** (sem DOM, testáveis em Node). Tocam o DOM: `app.js`, `dom.js`, `icons.js` (cria SVG) e `code-highlight.js`; os demais são puros.
 
 | Arquivo | Responsabilidade | Exporta (principais) | DOM |
 |---|---|---|---|
@@ -84,6 +84,9 @@ Cada `.md` pode ter front matter (subconjunto de YAML: `chave: valor`, aspas, bl
 
 Seções: tokens e temas · topo · layout · hero · filtros · faixas de nível e cards · botões · página do card · Markdown · animações · responsivo e acessibilidade · instalar pelo terminal. Detalhes de cores, breakpoints e movimento: `design.md`.
 
-## Publicação
+## Publicação e CI
 
-Planejada: GitHub Pages por lista de permissão (`index.html`, `css/`, `js/`, `vendor/`, `content/`), rodando antes `npm test` e `npm run check`. **Não implementada e não autorizada ainda.** O site publicado fica público para quem tiver a URL.
+- **CI** (`.github/workflows/ci.yml`, ativo): `npm test` e `npm run check` em Linux, macOS e Windows a cada push e pull request. É onde os comandos de instalação rodam de verdade no PowerShell e no zsh.
+- **Deploy** (`docs/deploy/pages.yml`, **inativo**): publica no GitHub Pages a cada push em `main`, depois de `npm test` e `npm run check`, copiando só `index.html`, `css/`, `js/`, `vendor/` e `content/` para `_site/` (com conferência de que nada além disso entra). Ações fixadas por hash de commit. Todos os caminhos do site são relativos, então funciona no subcaminho `/<repositório>/`.
+- **Bloqueio atual:** o plano gratuito do GitHub não permite Pages em repositório **privado** (a API responde 422). O usuário autorizou publicar; falta ele escolher como (ver `decisoes.md`). Para ativar: mover `docs/deploy/pages.yml` para `.github/workflows/`.
+- O site publicado fica **público para quem tiver a URL**.

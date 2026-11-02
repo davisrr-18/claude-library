@@ -14,12 +14,12 @@ Este arquivo complementa o `CLAUDE.md` global do usuário; em conflito, vale est
 | QA completo (uma vez: instalar) | `npm run qa:install` | `npm run qa:install` |
 | QA completo (lint, CSS, fuzz, fumaça, estresse) | `npm run qa` | `npm run qa` |
 
-Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Node 22 é o ambiente de testes.
+Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Node 22 ou superior é o ambiente de testes.
 
 ## Mapa
 
 - `index.html`, `css/style.css`: página única e todo o estilo.
-- `js/`: `app.js` (única tela com lógica de interface), `dom.js` (helpers de DOM), e módulos **puros** sem DOM: `content`, `router`, `search`, `tabs`, `install`, `markdown`, `sanitize`, `icons`, `code-highlight`.
+- `js/`: `app.js` (única tela com lógica de interface), `dom.js` (helpers de DOM), e módulos **puros** sem DOM: `content`, `router`, `search`, `tabs`, `install`, `markdown`, `sanitize`. Também tocam o DOM: `icons` (SVG) e `code-highlight`.
 - `content/`: `manifest.json` + um `.md` por peça. `vendor/`: marked e highlight.js (versão, licença e hash em `vendor/README.md`).
 - `scripts/check-content.mjs`, `tests/` (testes unitários), `tools/qa/` (QA com dependências isoladas), `docs/`.
 
@@ -32,7 +32,7 @@ Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Nod
 5. `localStorage` sempre em `try/catch`; a página funciona sem ele.
 6. **CSS:** cores só por tokens (`--bg`, `--accent`…); grids com texto de largura imprevisível usam `minmax(0, 1fr)` ou `min-width: 0`; **nada com `position: absolute` por cima de área rolável ou de texto** (o botão Copiar tem linha própria); `:hover` só dentro de `@media (hover: hover)`; alvos de toque ≥ 44px em `pointer: coarse`.
 7. **Animações:** só a entrada da página, a revelação ao rolar e microinterações; cada uma roda **uma vez**. **Nenhuma animação decorativa em loop** (só o esqueleto de carregamento pode repetir); tudo respeita `prefers-reduced-motion`. Há teste que trava isso.
-8. **Acessibilidade:** hierarquia de títulos sem saltos (h1 = página, h2 = peça, Markdown começa em h3), foco vai para o `h1` a cada rota, nomes acessíveis em tudo que é clicável, abas reais com setas/Home/End, foco visível, contraste ≥ 4,5:1 no texto.
+8. **Acessibilidade:** hierarquia de títulos sem saltos (h1 = página, h2 = peça, Markdown começa em h3), foco vai para o `h1` a cada rota, nomes acessíveis em tudo que é clicável, abas reais com setas/Home/End nas abas por tipo da faixa e nas de sistema operacional (as abas da página do card são links de navegação), foco visível, contraste ≥ 4,5:1 no texto.
 
 ## Conteúdo (regras do usuário)
 
@@ -46,12 +46,12 @@ Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Nod
 
 - O usuário **autorizou commits e pushes** neste projeto (branch `main`). Mensagens de commit em português, no formato `tipo: resumo`, terminando com as linhas de atribuição que o ambiente fornecer.
 - **Nunca** reescrever histórico nem fazer force-push sem pedir. Não commitar segredos.
-- **Deploy no GitHub Pages só com autorização explícita**, e por lista de permissão (`index.html`, `css/`, `js/`, `vendor/`, `content/`), nunca a raiz do repositório.
+- **Deploy no GitHub Pages só com autorização explícita** (o usuário dizer no chat que pode publicar), e por lista de permissão (`index.html`, `css/`, `js/`, `vendor/`, `content/`), nunca a raiz do repositório. Estado: o workflow está pronto e **inativo** em `docs/deploy/pages.yml`, porque o plano gratuito do GitHub não permite Pages em repositório privado; ver `docs/decisoes.md`. Nunca tornar o repositório público sem o usuário pedir (expõe código, documentos e o e-mail dos commits).
 
 ## Como trabalhar
 
-- Pedido pontual: executar direto (TDD, verificar, commitar e enviar). Mudança grande ou de arquitetura: mostrar o desenho e esperar o "sim" antes de codar, como fizemos com a vitrine de cards.
-- **Delegação:** subagentes Haiku em esforço alto para tarefas delimitadas (`investigator`, `implementer`, `reviewer`), no máximo 3 ao mesmo tempo, **escopos de arquivo sem sobreposição**. Quem implementou não revisa. Nunca subir para Sonnet/Opus sem pedir.
+- Pedido pontual (um ajuste ou bug, um pacote, até ~3 arquivos de lógica): executar direto (TDD, verificar, commitar e enviar). Mudança grande (tela ou módulo novo, muda o modelo de dados, mexe em segurança ou publicação): mostrar o desenho e esperar o "sim" antes de codar, como fizemos com a vitrine de cards.
+- **Delegação:** subagentes Haiku (`model: "haiku"`, `effort: "high"`) para tarefas delimitadas (`investigator`, `implementer`, `reviewer`), no máximo 3 ao mesmo tempo, **escopos de arquivo sem sobreposição**. Quem implementou não revisa. Nunca subir para Sonnet/Opus sem pedir.
 - **Confira o relatório de cada agente você mesmo** (rode, leia o código). Já houve relatório com achado errado e revisão que achou regressão minha: tratar como dado, não como verdade.
 - Depois de implementar algo relevante, pedir revisão independente e corrigir o que for real.
 - Detalhes: `docs/regras-de-trabalho.md`.

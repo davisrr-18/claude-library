@@ -231,10 +231,14 @@ export function authorNeedles(env = process.env) {
       // Chave ausente ou git indisponível: ignora.
     }
   }
-  try {
-    values.push(userInfo().username);
-  } catch {
-    // Usuário do sistema indisponível: ignora.
+  // Em CI (variável CI definida pelo servidor) o usuário do sistema é genérico ("runner") e não é o autor:
+  // procurá-lo geraria falsos positivos. A identidade real é verificada no computador do autor.
+  if (!env.CI) {
+    try {
+      values.push(userInfo().username);
+    } catch {
+      // Usuário do sistema indisponível: ignora.
+    }
   }
   return [...new Set(values.map((v) => String(v).trim()).filter((v) => v.length >= 4))];
 }

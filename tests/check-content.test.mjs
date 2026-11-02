@@ -466,6 +466,7 @@ test('authorNeedles: inclui e-mail e nome do git e o usuário do sistema, ignora
   // GIT_DIR inexistente impede que a configuração local do repositório do projeto interfira.
   const env = {
     ...process.env,
+    CI: '',
     GIT_CONFIG_GLOBAL: gitconfig,
     GIT_CONFIG_NOSYSTEM: '1',
     GIT_DIR: join(dir, 'sem-repositorio'),
@@ -484,6 +485,7 @@ test('authorNeedles: sem configuração de git devolve só o usuário do sistema
   writeFileSync(gitconfig, '');
   const env = {
     ...process.env,
+    CI: '', // o servidor de CI define CI=true; aqui o teste é sobre o ambiente local
     GIT_CONFIG_GLOBAL: gitconfig,
     GIT_CONFIG_NOSYSTEM: '1',
     GIT_DIR: join(dir, 'sem-repositorio'),
@@ -491,6 +493,17 @@ test('authorNeedles: sem configuração de git devolve só o usuário do sistema
   const username = userInfo().username;
   const expected = username.length >= 4 ? [username] : [];
   assert.deepEqual(authorNeedles(env), expected);
+});
+
+test('authorNeedles: em CI (CI=true) o usuario do sistema (ex.: "runner") nao e identidade do autor', () => {
+  const dir = makeRoot({});
+  const gitconfig = join(dir, 'vazio');
+  writeFileSync(gitconfig, '');
+  const base = { ...process.env, GIT_CONFIG_GLOBAL: gitconfig, GIT_CONFIG_NOSYSTEM: '1', GIT_DIR: join(dir, 'sem-repositorio') };
+  assert.deepEqual(authorNeedles({ ...base, CI: 'true' }), []);
+  assert.deepEqual(authorNeedles({ ...base, CI: '1' }), []);
+  const username = userInfo().username;
+  if (username.length >= 4) assert.deepEqual(authorNeedles({ ...base, CI: '' }), [username]); // fora de CI continua valendo
 });
 
 test('identidade do autor e procurada em TODO arquivo, inclusive binario (ex.: EXIF de imagem)', () => {

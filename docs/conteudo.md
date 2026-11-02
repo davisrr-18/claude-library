@@ -5,7 +5,7 @@ O site é do usuário: o conteúdo vem dos pacotes dele. Esta página é o passo
 ## Regras
 
 1. Os arquivos do usuário entram **sem alteração** em `content/<nível>/<id-do-card>/`. Quando o formato deles não encaixa, o **site** se adapta (foi assim com `destino` no front matter e com `install: "file"`), não os arquivos.
-2. Níveis: `basicas`, `intermediarias`, `complexas`. Se o front matter do pacote declara o nível (ex.: `nivel: intermediaria`), use o mesmo.
+2. Níveis: `basicas`, `intermediarias`, `complexas`. Vale o nível que o usuário pediu; se o front matter do pacote (`nivel:`) divergir, avise a divergência e siga o pedido. Sem pedido, use o do front matter.
 3. **Nada inventado:** nenhum card de exemplo. Se o usuário não trouxe, não existe.
 4. **Nunca** incluir trechos do `CLAUDE.md` global do usuário sem ele confirmar.
 5. O site fica público no Pages: ler o conteúdo antes e avisar se houver dado pessoal. `npm run check` procura (e-mail, caminhos pessoais, tokens, identidade do autor).
@@ -13,13 +13,13 @@ O site é do usuário: o conteúdo vem dos pacotes dele. Esta página é o passo
 ## Passo a passo
 
 1. **Ler todos os arquivos** do pacote (nunca publicar sem ler).
-2. Copiar para `content/<nível>/<id>/` e conferir que a cópia é idêntica (`cmp`).
+2. Copiar para `content/<nível>/<id>/` e conferir que a cópia é idêntica: `cmp origem destino` (Linux e macOS) ou `(Get-FileHash origem).Hash -eq (Get-FileHash destino).Hash` (PowerShell). Se houver subpastas ou arquivos que não são `.md`, pergunte ao usuário antes de decidir como organizar.
 3. Registrar o card em `content/manifest.json` (modelo em `arquitetura.md`). Escolhas:
    - `type` de cada peça: `skill`, `claude-md`, `arquitetura`, `agente`, `workflow` ou `prompt`. **Vários do mesmo tipo são permitidos** (ex.: 3 agentes); o `title` não repete dentro do tipo e o `file` não repete no card.
    - **`title` da peça igual ao primeiro `# Título` do arquivo**: assim o site não repete o título.
    - `icon` de `CARD_ICONS` (`folder`, `code`, `zap`, `layers`, `git-branch`, `bot`, `file-text`, `message-square`, `shield`, `bug`, `star`), `summary` e `tags` curtos.
    - Instalação pelo terminal: o arquivo precisa de `destino:` no front matter com um caminho `.md` (ex.: `.claude/agents/tutor.md`). Padrão: instala o bloco ` ```markdown ` do arquivo. Se o arquivo inteiro é o que se instala (ex.: `arquitetura.md`), marque `"install": "file"` na peça (o front matter da biblioteca não vai para o arquivo instalado).
-4. `npm run check` e `npm test`; para mudança de interface, `npm run qa`.
+4. `npm run check` e `npm test`. `npm run qa` quando mexer na interface; só trocar conteúdo não exige, mas rode se algum smoke de `tools/qa/` depender do conteúdo (os de `estudos` e `instalacao` leem o conteúdo real e precisam ser atualizados quando o card dele mudar).
 5. Atualizar `docs/decisoes.md` se houve decisão nova; commit e push.
 6. **Responder ao usuário com os comandos para Linux, macOS e Windows** (copiar arquivos, verificar, commitar).
 
@@ -30,21 +30,21 @@ O site é do usuário: o conteúdo vem dos pacotes dele. Esta página é o passo
 mkdir -p content/intermediarias/meu-pacote
 cp "$HOME/caminho/do/pacote"/*.md content/intermediarias/meu-pacote/
 npm run check && npm test
-git add -A && git commit -m "feat: adiciona meu-pacote" && git push
+git status --short && git add -A && git commit -m "feat: adiciona meu-pacote" && git push
 ```
 ```powershell
 # Windows (PowerShell)
 New-Item -ItemType Directory -Force content\intermediarias\meu-pacote | Out-Null
 Copy-Item "$HOME\caminho\do\pacote\*.md" content\intermediarias\meu-pacote\
 npm run check; npm test
-git add -A; git commit -m "feat: adiciona meu-pacote"; git push
+git status --short; git add -A; git commit -m "feat: adiciona meu-pacote"; git push
 ```
 
 ## Formatos de peça que já existem
 
 - **Peça com bloco ` ```markdown `** (agentes, skills, `CLAUDE.md` do pacote de estudos): o texto explica e o bloco é o arquivo de verdade; o site mostra "Salvar … pelo terminal" com esse bloco. Blocos de 4 crases que contêm blocos de 3 funcionam.
 - **Peça que é o próprio arquivo** (`arquitetura.md`): `install: "file"`.
-- **Peça de consulta** (índice, checklist, prompt): `destino` é uma instrução ("colar no início de cada sessão"), não um caminho, então não tem painel de instalação.
+- **Peça de consulta** (índice, checklist, prompt): `destino` é uma instrução ("colar no início de cada sessão"), não um caminho, então não tem painel de instalação. Peça **sem `destino`** também não tem painel, e não é erro.
 
 ## Estado atual do conteúdo
 
