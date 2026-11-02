@@ -2,6 +2,7 @@ import { parseFrontMatter, validateManifest, TIER_IDS } from './content.js';
 import { parseRoute, isAppHash, resolveView } from './router.js';
 import { renderMarkdown } from './markdown.js';
 import { buildIndex, search, collectTags, dedupeTags } from './search.js';
+import { typeCounts, filterByType, nextTabIndex } from './tabs.js';
 import { h, safeFragment, copyButton, addCopyButtons, wrapTables, initTheme } from './dom.js';
 import { icon, TYPE_ICON } from './icons.js';
 import { highlightCodeBlocks } from './code-highlight.js';
@@ -18,6 +19,10 @@ const TYPE_PLURAL = {
   skill: ['skill', 'skills'], 'claude-md': ['CLAUDE.md', 'CLAUDE.md'], arquitetura: ['arquitetura', 'arquiteturas'],
   agente: ['agente', 'agentes'], workflow: ['workflow', 'workflows'], prompt: ['prompt', 'prompts'],
 };
+const TYPE_TAB_LABELS = {
+  skill: 'Skills', 'claude-md': 'CLAUDE.md', arquitetura: 'Arquiteturas',
+  agente: 'Agentes', workflow: 'Workflows', prompt: 'Prompts',
+};
 const APP_TITLE = 'Claude Library';
 
 const main = document.getElementById('main');
@@ -29,6 +34,7 @@ const state = {
   index: [],
   bodiesPromise: null,
   filters: { q: '', tier: '', tags: new Set() },
+  tierTabs: {}, // aba (tipo de peça) escolhida em cada faixa de nível; '' = todas
   focusSearch: false,
 };
 const pieceCache = new Map();
@@ -113,34 +119,92 @@ function renderNav(activeTier) {
 
 /* ---------- cards e níveis ---------- */
 
-function cardTile(entry, i = 0, headingTag = 'h3') {
+/**
+ * Card da vitrine. Com `activeType` (aba de tipo escolhida), o link abre direto essa peça
+ * e o card mostra qual é a peça.
+ */
+function cardTile(entry, i = 0, headingTag = 'h3', activeType = '') {
   const { cardObj: card, tierObj: tier } = entry;
-  const titleId = `card-${tier.id}-${card.id}`;
+  const titleId = `card-${tier.id}-${card.id}${activeType ? `-${activeType}` : ''}`;
   const tags = dedupeTags(card.tags);
-  return h('a', { class: 'card', href: cardHref(tier.id, card.id), style: `--i:${Math.min(i, 12)}`, 'aria-labelledby': titleId },
+  const piece = activeType ? card.pieces.find((p) => p.type === activeType) : null;
+  const href = piece ? pieceHref(tier.id, card.id, piece.type) : cardHref(tier.id, card.id);
+  return h('a', { class: 'card', href, style: `--i:${Math.min(i, 12)}`, 'aria-labelledby': titleId },
     h('span', { class: 'card-icon' }, icon(card.icon || 'folder', 22)),
     h(headingTag, { id: titleId }, card.title),
     h('p', { class: 'card-summary' }, card.summary || ''),
+    piece ? h('p', { class: 'card-piece' }, icon(TYPE_ICON[piece.type], 15), h('span', {}, piece.title)) : null,
     h('ul', { class: 'chips', 'aria-label': 'Peças incluídas' },
-      card.pieces.map((p) => h('li', { class: 'chip' }, icon(TYPE_ICON[p.type], 13), TYPE_LABELS[p.type]))),
+      card.pieces.map((p) => h('li', { class: `chip${p.type === activeType ? ' is-active' : ''}` }, icon(TYPE_ICON[p.type], 13), TYPE_LABELS[p.type]))),
     tags.length
       ? h('ul', { class: 'tags', 'aria-label': 'Tags' }, tags.map((t) => h('li', { class: 'tag' }, `#${t}`)))
       : null,
     h('span', { class: 'card-go', 'aria-hidden': 'true' }, icon('arrow-right', 16)));
 }
 
+/**
+ * Faixa de um nível: cabeçalho e, ao lado/abaixo, abas por tipo de peça (Todos, Skills, Agentes…)
+ * que filtram os cards daquele nível. A aba escolhida fica em state.tierTabs.
+ */
 function tierSection(tier, entries, { heading = 'h2', cardHeading = 'h3', link = true } = {}) {
   const title = link ? h('a', { href: tierHref(tier.id) }, tier.title) : tier.title;
-  return h('section', { class: 'tier', 'aria-labelledby': `tier-${tier.id}` },
-    h('header', { class: 'tier-head' },
-      levelDots(tierLevel(tier.id)),
-      h('div', {},
-        h(heading, { id: `tier-${tier.id}` }, title),
-        tier.description ? h('p', {}, tier.description) : null),
-      h('span', { class: 'count' }, plural(entries.length, ['card', 'cards']))),
-    entries.length
-      ? h('div', { class: 'grid' }, entries.map((e, i) => cardTile(e, i, cardHeading)))
-      : message('Nenhum card neste nível ainda.'));
+  const head = h('header', { class: 'tier-head' },
+    levelDots(tierLevel(tier.id)),
+    h('div', {},
+      h(heading, { id: `tier-${tier.id}` }, title),
+      tier.description ? h('p', {}, tier.description) : null),
+    h('span', { class: 'count' }, plural(entries.length, ['card', 'cards'])));
+
+  const body = h('div', { class: 'tier-body' });
+  if (!entries.length) {
+    body.append(message('Nenhum card neste nível ainda.'));
+    return h('section', { class: 'tier', 'aria-labelledby': `tier-${tier.id}` }, head, body);
+  }
+
+  const available = typeCounts(entries);
+  const defs = [
+    { type: '', label: 'Todos', count: entries.length, iconName: 'folder' },
+    ...available.map(({ type, count }) => ({ type, label: TYPE_TAB_LABELS[type], count, iconName: TYPE_ICON[type] })),
+  ];
+  const tabId = (type) => `tab-${tier.id}-${type || 'todos'}`;
+  const panel = h('div', { class: 'tier-panel', id: `panel-${tier.id}`, role: 'tabpanel' });
+  const tabs = defs.map((d) => h('button', {
+    type: 'button', role: 'tab', class: 'type-tab', id: tabId(d.type), 'aria-controls': panel.id,
+    onclick: () => select(d.type),
+  }, icon(d.iconName, 16), h('span', {}, d.label), h('span', { class: 'type-count', 'aria-label': plural(d.count, ['card', 'cards']) }, d.count)));
+  const bar = h('div', { class: 'type-tabs', role: 'tablist', 'aria-label': `Tipo de peça em ${tier.title}` }, tabs);
+
+  // Se o tipo escolhido não existe nos cards filtrados, mostra todos (sem esquecer a escolha).
+  const current = () => (available.some((a) => a.type === state.tierTabs[tier.id]) ? state.tierTabs[tier.id] : '');
+
+  function paint(swap) {
+    const cur = current();
+    tabs.forEach((btn, i) => {
+      const on = defs[i].type === cur;
+      btn.setAttribute('aria-selected', String(on));
+      btn.setAttribute('tabindex', on ? '0' : '-1');
+    });
+    panel.setAttribute('aria-labelledby', tabId(cur));
+    panel.replaceChildren(h('div', { class: `grid${swap ? ' swap' : ''}` },
+      filterByType(entries, cur).map((e, i) => cardTile(e, i, cardHeading, cur))));
+  }
+  function select(type) {
+    state.tierTabs[tier.id] = type;
+    paint(true);
+  }
+
+  bar.addEventListener('keydown', (e) => {
+    const from = tabs.indexOf(e.target.closest?.('[role="tab"]'));
+    const to = from < 0 ? null : nextTabIndex(e.key, from, tabs.length);
+    if (to === null) return;
+    e.preventDefault();
+    tabs[to].focus();
+    select(defs[to].type);
+  });
+
+  paint(false);
+  body.append(bar, panel);
+  return h('section', { class: 'tier', 'aria-labelledby': `tier-${tier.id}` }, head, body);
 }
 
 /* ---------- home ---------- */
@@ -392,7 +456,7 @@ function playEntrance() {
   enterTimer = setTimeout(() => main.classList.remove('is-entering'), 1200);
   revealObserver?.disconnect();
   revealObserver = null;
-  revealOnScroll(main.querySelectorAll('.tier-head, .grid > .card, .tier > .callout, .pager, .card-aside'));
+  revealOnScroll(main.querySelectorAll('.tier-head, .type-tabs, .grid > .card, .tier-body > .callout, .pager, .card-aside'));
 }
 
 /** Números das estatísticas contam de 0 até o valor. */

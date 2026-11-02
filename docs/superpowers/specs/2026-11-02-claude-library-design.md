@@ -100,3 +100,9 @@ Aprovado pelo usuário após o Marco 2. Substitui o visual do Marco 1 e antecipa
 - **`package.json`:** tem os scripts `test` e `check` (o plano previa só `{"type":"module"}`).
 - **Verificação de conteúdo:** varre todos os arquivos de texto do projeto (exceto `tests/` e `vendor/`) e procura a identidade do autor em todos, inclusive `tests/`. Segredos são mascarados na saída.
 - **Deploy:** publicar por lista de permissão (`index.html`, `css/`, `js/`, `vendor/`, `content/`), nunca a raiz; só com autorização explícita do usuário.
+
+## Abas por tipo de peça nas faixas de nível (2026-11-02)
+Pedido do usuário após a revisão final. Em cada faixa de nível (Home e página do nível) há abas reais (`role="tablist"`, aba ativa com `tabindex=0`, setas/Home/End) para separar por tipo de peça: **Todos** e um tipo para cada um que exista nos cards daquele nível (Skills, CLAUDE.md, Arquiteturas, Agentes, Workflows, Prompts), com a contagem de cards.
+- Escolher um tipo mostra só os cards que têm uma peça desse tipo; o link do card abre direto essa peça e o card exibe o título da peça.
+- A escolha é independente por nível e fica em `state.tierTabs`; persiste ao filtrar e ao voltar à Home. Se, com os filtros atuais, o tipo escolhido não existir, a faixa mostra "Todos" (sem esquecer a escolha).
+- Lógica pura e testada em `js/tabs.js` (`typeCounts`, `filterByType`, `nextTabIndex`).

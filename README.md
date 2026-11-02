@@ -12,7 +12,7 @@ python3 -m http.server 8000
 
 Abra <http://localhost:8000>. Abrir `index.html` com duplo clique não funciona: módulos ES não carregam via `file://`.
 
-Atalho: `/` foca a busca.
+Atalho: `/` foca a busca. Dentro de cada faixa de tarefa há abas por tipo de peça (Todos, Skills, Agentes, Workflows, Prompts…), navegáveis com as setas, Home e End; só aparecem os tipos que existem naquele nível, e ao escolher um tipo o card abre direto a peça correspondente.
 
 ## Comandos (Node 22)
 
@@ -58,7 +58,7 @@ Segredos nunca são impressos por inteiro. Rode antes de cada publicação.
 ```
 index.html          página única (rotas por hash: #/, #/<nivel>, #/<nivel>/<card>, #/<nivel>/<card>/<tipo>)
 css/style.css       tema preto/laranja e branco/laranja
-js/                 app.js (interface), content.js, router.js, search.js, markdown.js, sanitize.js, dom.js, icons.js
+js/                 app.js (interface), content.js, router.js, search.js, tabs.js, markdown.js, sanitize.js, dom.js, icons.js
 content/            manifest.json e os .md de cada peça
 scripts/            check-content.mjs
 tests/              testes unitários
