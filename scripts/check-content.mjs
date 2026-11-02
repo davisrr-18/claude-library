@@ -4,7 +4,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { userInfo } from 'node:os';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateManifest } from '../js/content.js';
 
@@ -56,6 +56,13 @@ function displayMatch(rule, match) {
 }
 
 const EXCLUDED_DIRS = new Set(['node_modules', 'vendor']);
+// Imagens, fontes e outros binários conhecidos não passam pelas regras de segredo (evita falsos positivos em
+// bytes aleatórios), mas a identidade do autor é procurada neles também (ex.: metadados EXIF).
+// É uma lista de exceções, não de inclusão: um arquivo desconhecido SEMPRE é varrido.
+const BINARY_EXTENSIONS = new Set([
+  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico', '.bmp', '.woff', '.woff2', '.ttf', '.otf', '.eot',
+  '.pdf', '.zip', '.gz', '.tgz', '.mp3', '.mp4', '.mov', '.webm', '.wasm',
+]);
 
 function isInside(base, target) {
   const rel = relative(base, target);
@@ -86,6 +93,38 @@ function* pieceEntries(manifest) {
 }
 
 /**
+ * Em repositório git, lista o que o git conhece (rastreados + não rastreados que não estão no .gitignore):
+ * é o que pode ser commitado e publicado, e `npm test` não passa a depender de arquivos locais ignorados
+ * (ex.: .claude/). Devolve null se a pasta não for um repositório git ou o git falhar.
+ */
+function listViaGit(root) {
+  if (!existsSync(join(root, '.git'))) return null;
+  let raw;
+  try {
+    raw = execFileSync('git', ['-C', root, 'ls-files', '-z', '--cached', '--others', '--exclude-standard'], {
+      encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024,
+    });
+  } catch {
+    return null;
+  }
+  const out = [];
+  for (const rel of new Set(raw.split('\0').filter(Boolean))) {
+    const parts = rel.split('/');
+    if (parts.some((p) => EXCLUDED_DIRS.has(p) || p === '.git')) continue;
+    const abs = join(root, rel);
+    let info;
+    try {
+      info = lstatSync(abs);
+    } catch {
+      continue; // rastreado mas apagado no disco
+    }
+    if (info.isSymbolicLink()) out.push({ abs, rel, symlink: true });
+    else if (info.isFile()) out.push({ abs, rel, symlink: false });
+  }
+  return out;
+}
+
+/**
  * Lista os arquivos da raiz, recursivamente, sem entrar em .git, node_modules e vendor.
  * Symlinks não são seguidos: aparecem com `symlink: true`.
  */
@@ -103,11 +142,6 @@ function listProjectEntries(root, dir = root, out = []) {
     }
   }
   return out;
-}
-
-/** Arquivo binário = byte NUL nos primeiros 8 KB. Qualquer outro é varrido, seja qual for a extensão. */
-function isBinary(buffer) {
-  return buffer.subarray(0, 8192).includes(0);
 }
 
 /** Regras genéricas: todo arquivo de texto do projeto. tests/ fica de fora (fixtures sintéticas). */
@@ -156,15 +190,21 @@ export function checkContent(rootDir, { needles = [] } = {}) {
   }
 
   const identity = [...new Set(needles.map((n) => String(n)).filter((n) => n.length > 0).map((n) => n.toLowerCase()))];
-  for (const entry of listProjectEntries(root)) {
+  for (const entry of listViaGit(root) ?? listProjectEntries(root)) {
     if (entry.symlink) {
       errors.push(`${entry.rel}: symlink não permitido`);
       continue;
     }
-    const buffer = readFileSync(entry.abs);
-    if (isBinary(buffer)) continue;
+    let buffer;
+    try {
+      buffer = readFileSync(entry.abs);
+    } catch (err) {
+      errors.push(`${entry.rel}: não foi possível ler (${err.code ?? err.message})`); // nunca passa em silêncio
+      continue;
+    }
+    // Byte NUL não desliga a varredura: um arquivo de texto com NUL seria um jeito de esconder dados.
     const text = buffer.toString('utf8');
-    if (passesGenericRules(entry.rel)) {
+    if (passesGenericRules(entry.rel) && !BINARY_EXTENSIONS.has(extname(entry.rel).toLowerCase())) {
       for (const { rule, match } of findSensitive(text)) {
         errors.push(`${entry.rel}: ${rule}: ${displayMatch(rule, match)}`);
       }
@@ -202,14 +242,16 @@ export function authorNeedles(env = process.env) {
 /**
  * Foi chamado como script? Compara caminhos reais: se o projeto for acessado por link simbólico,
  * argv[1] não é o caminho real e uma comparação direta daria false, saindo com 0 sem verificar nada
- * (falha aberta). Em caso de erro ao resolver, assume que é script para nunca passar em silêncio.
+ * (falha aberta).
  */
 function runsAsScript() {
   if (process.argv[1] === undefined) return false;
   try {
     return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
   } catch {
-    return true;
+    // Não deu para resolver os caminhos reais: compara os caminhos como estão. Nunca assume "é script",
+    // senão importar o módulo executaria a verificação.
+    return resolve(process.argv[1]) === fileURLToPath(import.meta.url);
   }
 }
 const isMain = runsAsScript();

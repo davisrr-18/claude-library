@@ -93,13 +93,22 @@ test('collectTags: unicas, ordenadas, com contagem', () => {
   ]);
 });
 
-test('sameTitle: ignora caixa, acento, espacos e pontuacao nas pontas', () => {
+test('sameTitle: ignora caixa, acento, espacos e pontuacao so nas pontas', () => {
   assert.equal(sameTitle('Skill de exemplo', 'skill  de EXEMPLO'), true);
-  assert.equal(sameTitle('Fluxo: investigar, implementar', 'Fluxo investigar implementar'), true);
+  assert.equal(sameTitle('Fluxo investigar', 'Fluxo investigar:'), true);
+  assert.equal(sameTitle('  Fluxo investigar. ', 'fluxo investigar'), true);
   assert.equal(sameTitle('Investigação', 'investigacao'), true);
   assert.equal(sameTitle('Skill de exemplo', 'Skill de exemplo 2'), false);
   assert.equal(sameTitle('', ''), false); // vazio nunca e "igual": nao remove titulo nenhum
   assert.equal(sameTitle(undefined, 'x'), false);
+});
+
+test('sameTitle: pontuacao interna ou simbolos fazem diferenca (C != C++ != C#)', () => {
+  assert.equal(sameTitle('C', 'C++'), false);
+  assert.equal(sameTitle('C#', 'C'), false);
+  assert.equal(sameTitle('C++', 'c++'), true);
+  assert.equal(sameTitle('Fluxo: investigar, implementar', 'Fluxo investigar implementar'), false);
+  assert.equal(sameTitle('Node.js', 'Node js'), false);
 });
 
 test('ç e ñ sao normalizados; letras sem decomposicao (ø, ß) viram separador sem quebrar', () => {
@@ -118,7 +127,6 @@ test('letras sem decomposicao (ø, ß, æ, ł) formam palavras e sao buscaveis p
   assert.deepEqual(ids(search(i, 'stra')), ['a']);
   assert.deepEqual(ids(search(i, 'straße')), ['a']);
   assert.deepEqual(ids(search(i, 'æble')), ['b']);
-  assert.deepEqual(ids(search(i, 'lodz')), []); // ł nao decompoe: nao vira l (limitacao conhecida)
   assert.deepEqual(ids(search(i, 'len')), []); // "Ølen" e UMA palavra: o Ø nao pode virar separador
   assert.deepEqual(ids(search(i, 'e')), []); // nem "Straße" pode virar "stra" + "e"
 });
@@ -128,4 +136,19 @@ test('numeros, cirilico e CJK tambem formam palavras', () => {
     { tier: 'basicas', card: 'a', title: 'Versão 2024 Привет 日本語', summary: '', tags: [], text: '' },
   ]);
   for (const q of ['2024', 'привет', '日本語', 'versao']) assert.deepEqual(ids(search(i, q)), ['a'], q);
+});
+
+test('marcas combinantes (japones, devanagari) nao quebram a palavra', () => {
+  const i = buildIndex([
+    { tier: 'basicas', card: 'jp', title: 'がっこう', summary: '', tags: [], text: '' },
+    { tier: 'basicas', card: 'hi', title: 'नमस्ते हिन्दी', summary: '', tags: [], text: '' },
+  ]);
+  assert.deepEqual(ids(search(i, 'がっこう')), ['jp']);
+  assert.deepEqual(ids(search(i, 'がっ')), ['jp']);
+  assert.deepEqual(ids(search(i, 'नमस्ते')), ['hi']);
+  assert.deepEqual(ids(search(i, 'हिन्दी')), ['hi']);
+  assert.deepEqual(ids(search(i, 'こう')), []); // meio da palavra nao casa
+  assert.deepEqual(ids(search(i, 'かっこう')), []); // sem o dakuten e outra palavra (か != が): nao pode casar por fragmento
+  assert.deepEqual(ids(search(i, 'っこう')), []); // parte de dentro da palavra: a marca combinante nao e separador
+  assert.deepEqual(ids(search(i, 'त')), []); // consoante solta nao e o comeco de 'नमस्ते'
 });

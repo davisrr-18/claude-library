@@ -341,7 +341,7 @@ test('checkContent: varre arquivos de texto da raiz fora de content/ (extensão 
 });
 
 test('checkContent: texto de qualquer extensão é varrido, em qualquer pasta (exceto tests/ e vendor/)', () => {
-  for (const nome of ['script.sh', 'dados.csv', 'config.toml', 'app.py', '.env', 'LEIA-ME', 'imagem.png']) {
+  for (const nome of ['script.sh', 'dados.csv', 'config.toml', 'app.py', '.env', 'LEIA-ME', 'dados.bin']) {
     const root = makeRoot({
       'content/manifest.json': json(manifest([cardWith()])),
       'content/basicas/exemplo/skill.md': CLEAN,
@@ -491,4 +491,35 @@ test('authorNeedles: sem configuração de git devolve só o usuário do sistema
   const username = userInfo().username;
   const expected = username.length >= 4 ? [username] : [];
   assert.deepEqual(authorNeedles(env), expected);
+});
+
+test('identidade do autor e procurada em TODO arquivo, inclusive binario (ex.: EXIF de imagem)', () => {
+  const root = makeRoot({
+    'content/manifest.json': json(manifest([cardWith()])),
+    'content/basicas/exemplo/skill.md': CLEAN,
+    'foto.png': 'cabecalho\0Artist: Fulano de Tal\0fim',
+  });
+  assert.deepEqual(checkContent(root, { needles: ['fulano de tal'] }).errors, ['foto.png: identidade-do-autor: ***']);
+});
+
+test('byte NUL num arquivo de texto nao desliga a varredura (nao pode ser usado para esconder dados)', () => {
+  const root = makeRoot({
+    'content/manifest.json': json(manifest([cardWith()])),
+    'content/basicas/exemplo/skill.md': CLEAN,
+    'content/basicas/exemplo/extra.md': '\0 fale com fulano@example.com',
+    'notas.txt': '\0 fale com outro@example.org',
+  });
+  const errors = checkContent(root).errors;
+  assert.ok(errors.includes('content/basicas/exemplo/extra.md: email: fulano@example.com'), errors.join('|'));
+  assert.ok(errors.includes('notas.txt: email: outro@example.org'), errors.join('|'));
+});
+
+test('imagens e fontes (extensao binaria conhecida) nao passam pelas regras de segredo, so pela identidade', () => {
+  const root = makeRoot({
+    'content/manifest.json': json(manifest([cardWith()])),
+    'content/basicas/exemplo/skill.md': CLEAN,
+    'logo.png': 'xx fulano@example.com xx',
+    'fonte.woff2': 'ghp_' + 'A'.repeat(36),
+  });
+  assert.deepEqual(checkContent(root).errors, []);
 });

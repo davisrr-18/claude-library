@@ -285,7 +285,7 @@ function renderHome() {
     status.textContent = active() ? `${plural(found.length, ['card encontrado', 'cards encontrados'])}.` : '';
     clearBtn.hidden = !active();
     // A faixa foi recriada (ex.: corpos das peças terminaram de carregar): devolve o foco à mesma aba.
-    if (focusedTabId) document.getElementById(focusedTabId)?.focus({ preventScroll: true });
+    if (focusedTabId) (document.getElementById(focusedTabId) ?? input).focus({ preventScroll: true });
   }
 
   function clearAll() {
@@ -296,13 +296,17 @@ function renderHome() {
   clearBtn.addEventListener('click', clearAll);
 
   let typingTimer;
-  input.addEventListener('input', () => {
-    f.q = input.value;
-    ensureBodies().then(() => { if (input.isConnected) paintResults(); });
-    // Com muitos cards, espera uma pausa na digitação em vez de reconstruir a lista a cada tecla.
+  // Com muitos cards, espera uma pausa na digitação em vez de reconstruir a lista a cada tecla
+  // (inclusive quando os corpos das peças terminam de carregar).
+  const schedulePaint = () => {
     clearTimeout(typingTimer);
     if (state.entries.length > 60) typingTimer = setTimeout(() => { if (input.isConnected) paintResults(); }, 90);
     else paintResults();
+  };
+  input.addEventListener('input', () => {
+    f.q = input.value;
+    ensureBodies().then(() => { if (input.isConnected) schedulePaint(); });
+    schedulePaint();
   });
   input.addEventListener('keydown', (e) => { if (e.key === 'Escape') clearAll(); });
 

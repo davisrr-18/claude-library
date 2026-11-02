@@ -1,6 +1,6 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawnSync, execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -60,4 +60,31 @@ test('CLI via link simbolico com conteudo limpo -> OK e codigo 0', () => {
   const r = run(join(link, 'scripts/check-content.mjs'));
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /OK/);
+});
+
+test('importar o modulo nao executa a CLI, mesmo com argv[1] invalido (nao falha aberto nem roda sem querer)', () => {
+  const root = makeProject('importado', 'fale com fulano@example.com\n');
+  const wrapper = join(base, 'wrapper.mjs');
+  writeFileSync(wrapper, `process.argv[1] = '/caminho/que/nao/existe.mjs';\nawait import(${JSON.stringify('file://' + join(root, 'scripts/check-content.mjs'))});\n`);
+  const r = run(wrapper);
+  assert.equal(r.stdout, '', 'a CLI rodou ao importar: ' + r.stdout);
+  assert.equal(r.stderr, '');
+  assert.equal(r.status, 0);
+});
+
+const hasGit = (() => { try { execFileSync('git', ['--version'], { stdio: 'ignore' }); return true; } catch { return false; } })();
+
+test('em repositorio git, arquivos ignorados (.gitignore) nao sao varridos; os rastreados sao', { skip: !hasGit }, () => {
+  const root = makeProject('com-git', '# ok\n');
+  mkdirSync(join(root, '.claude'), { recursive: true });
+  writeFileSync(join(root, '.gitignore'), '.claude/\n*.local\n');
+  writeFileSync(join(root, '.claude/settings.md'), 'fale com fulano@example.com\n'); // ignorado
+  writeFileSync(join(root, 'notas.local'), 'fale com fulano@example.com\n'); // ignorado
+  writeFileSync(join(root, 'publico.md'), 'fale com outro@example.org\n'); // nao ignorado
+  const env = { ...process.env, GIT_CONFIG_GLOBAL: '/nonexistent', GIT_CONFIG_NOSYSTEM: '1' };
+  execFileSync('git', ['init', '-q'], { cwd: root, env });
+  const r = spawnSync(process.execPath, [join(root, 'scripts/check-content.mjs')], { encoding: 'utf8', env });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /publico\.md: email: outro@example\.org/);
+  assert.doesNotMatch(r.stderr, /settings\.md|notas\.local/);
 });

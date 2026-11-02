@@ -214,3 +214,11 @@ test('parseFrontMatter: chaves com ponto sao aceitas; item de lista sem chave an
   assert.deepEqual(parseFrontMatter(text).meta, {});
   assert.equal(parseFrontMatter(text).body, text);
 });
+
+test('parseFrontMatter: "Obs.: texto" (ponto antes dos dois pontos) nao vira front matter', () => {
+  const text = '---\nObs.: texto importante\n---\ncorpo';
+  assert.deepEqual(parseFrontMatter(text).meta, {});
+  assert.equal(parseFrontMatter(text).body, text);
+  assert.equal(parseFrontMatter('---\nallowed.tools: Read\n---\n').meta['allowed.tools'], 'Read');
+  assert.equal(parseFrontMatter('---\na.b.c: x\n---\n').meta['a.b.c'], 'x');
+});

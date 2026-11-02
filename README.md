@@ -23,7 +23,8 @@ npm run check     # valida o manifest e procura dados sensíveis nos arquivos do
 
 `npm run check` sai com código 1 se encontrar problema. Ele confere:
 - o `content/manifest.json` (estrutura, ids, tipos de peça, caminhos) e se cada arquivo citado existe;
-- e-mails, caminhos pessoais, tokens e chaves (GitHub, AWS, Slack, Google, Stripe, JWT, chave privada), credenciais em URL e CPF, em todos os arquivos de texto do projeto, exceto `tests/` e `vendor/`;
+- e-mails, caminhos pessoais, tokens e chaves (GitHub, AWS, Slack, Google, Stripe, JWT, chave privada), credenciais em URL e CPF, em todos os arquivos do projeto, de qualquer extensão, exceto `tests/` e `vendor/` (imagens e fontes só passam pela checagem de identidade);
+- em repositório git, só os arquivos que o git conhece (rastreados e não ignorados): o que está no `.gitignore` não é varrido, então arquivos locais como `.claude/` não afetam o resultado;
 - a identidade do autor (e-mail e nome do `git config` e usuário do sistema) em **todos** os arquivos, inclusive `tests/`.
 
 Segredos nunca são impressos por inteiro. Rode antes de cada publicação.

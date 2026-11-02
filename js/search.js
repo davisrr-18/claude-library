@@ -6,9 +6,9 @@ export function normalize(s) {
     .toLowerCase();
 }
 
-/** Palavras normalizadas (letras e dígitos de qualquer alfabeto); hífen e pontuação separam palavras. */
+/** Palavras normalizadas (letras, marcas combinantes e dígitos de qualquer alfabeto); hífen e pontuação separam palavras. */
 function tokenize(s) {
-  return normalize(s).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+  return normalize(s).split(/[^\p{L}\p{M}\p{N}]+/u).filter(Boolean);
 }
 
 /**
@@ -84,9 +84,13 @@ export function collectTags(entries) {
   return [...groups.values()].sort((a, b) => a.tag.localeCompare(b.tag));
 }
 
-/** Dois títulos são "o mesmo" ignorando caixa, acentos e pontuação (para não repetir o título da peça). Vazio nunca casa. */
+/**
+ * Dois títulos são "o mesmo" ignorando caixa, acentos, espaços repetidos e pontuação nas PONTAS
+ * (`Fluxo` = `fluxo:`). Pontuação e símbolos no meio fazem diferença (`C` ≠ `C++`, `Node.js` ≠ `Node js`),
+ * para não remover um título que não é repetido. Vazio nunca casa.
+ */
 export function sameTitle(a, b) {
-  const clean = (v) => normalize(v).replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  const clean = (v) => normalize(v).replace(/\s+/g, ' ').replace(/^[\s.:;,!?\-–—…]+|[\s.:;,!?\-–—…]+$/g, '');
   const x = clean(a);
   return x !== '' && x === clean(b);
 }

@@ -7,7 +7,7 @@ export const CARD_ICONS = [
 
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-const KEY_LINE = /^([A-Za-z0-9_.-]+)[ \t]*:(.*)$/;
+const KEY_LINE = /^([A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*)[ \t]*:(.*)$/; // `a.b` pode; `Obs.:` não é chave
 
 /**
  * Separa o front matter (`chave: valor`, entre `---`) do corpo.
