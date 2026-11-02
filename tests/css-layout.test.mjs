@@ -64,3 +64,20 @@ test('o bloco de codigo e a caixa (borda/fundo no .code-wrap) e o <pre> rola por
   assert.match(declarations('.code-wrap pre'), /border:\s*0/);
   assert.match(declarations('.code-wrap pre'), /overflow-x:\s*auto/);
 });
+
+// Regressão: as barras de rolagem do <pre> ficavam coladas no botão "Copiar" e rente à borda da caixa.
+// A caixa tem margem interna: as barras ficam recuadas das bordas e há espaço entre o botão e o <pre>.
+test('bloco de codigo: margem interna na caixa e espaco entre o botao Copiar e o <pre> (barras nao colam no botao)', () => {
+  const wrap = declarations('.code-wrap');
+  const m = wrap.match(/padding:\s*(\d+)px/);
+  assert.ok(m && Number(m[1]) >= 8, `.code-wrap precisa de padding >= 8px (achou: ${m?.[0]})`);
+  const btn = declarations('.code-wrap .code-copy');
+  const mb = btn.match(/margin:\s*0\s+0\s+(\d+)px/);
+  assert.ok(mb && Number(mb[1]) >= 8, `o botao precisa de margem inferior >= 8px (achou: ${mb?.[0]})`);
+});
+
+test('barras de rolagem do bloco de codigo sao finas e discretas', () => {
+  const pre = declarations('.code-wrap pre');
+  assert.match(pre, /scrollbar-width:\s*thin/);
+  assert.match(pre, /scrollbar-color:/);
+});

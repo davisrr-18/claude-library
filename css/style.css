@@ -362,15 +362,16 @@ main:focus, main:focus-visible, h1:focus, h1:focus-visible { outline: none; } /*
 .md :not(pre) > code { font-family: var(--mono); font-size: .88em; background: var(--surface-2); border: 1px solid var(--border); padding: 1px 6px; border-radius: 6px; }
 /* O bloco é a caixa; o botão Copiar tem uma linha própria no topo (não flutua sobre o código nem sobre a barra de rolagem). */
 .code-wrap {
-  display: flex; flex-direction: column; min-width: 0; margin: 1.2rem 0; overflow: hidden;
+  display: flex; flex-direction: column; min-width: 0; margin: 1.2rem 0; overflow: hidden; padding: 10px;
   background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius);
 }
 .code-wrap pre {
-  margin: 0; padding: 8px 18px 16px; background: transparent; border: 0;
+  margin: 0; padding: 4px 8px 12px; background: transparent; border: 0;
   border-radius: 0; overflow-x: auto; tab-size: 2;
+  scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; /* barras finas, recuadas pelo padding da caixa */
 }
 .code-wrap pre code { font-family: var(--mono); font-size: .88rem; line-height: 1.65; background: none; border: 0; padding: 0; }
-.code-wrap .code-copy { align-self: flex-end; margin: 8px 8px 0; flex: none; }
+.code-wrap .code-copy { align-self: flex-end; margin: 0 0 8px; flex: none; }
 
 /* sintaxe (highlight.js) */
 .hljs { color: var(--text); }
