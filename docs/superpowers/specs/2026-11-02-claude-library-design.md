@@ -79,3 +79,12 @@ Edição pela página, backend, login, comentários, framework, build.
 3. Busca e conteúdo inicial dos 3 níveis.
 4. `check-content`, testes, revisão independente, responsividade.
 5. Deploy (somente com autorização).
+
+## Addendum (2026-11-02): redesenho "vitrine de cards"
+Aprovado pelo usuário após o Marco 2. Substitui o visual do Marco 1 e antecipa a busca.
+- **Paleta:** escuro = preto + laranja (`#0b0b0b` / `#ff7a1a`); claro = branco + laranja (`#ffffff` / `#ff7a1a`, texto laranja `#c2410c` para contraste).
+- **Home:** hero com busca (atalho `/`), estatísticas, filtro por nível e por tag (AND), faixas de nível com cards ricos (ícone, resumo, chips de peças, tags).
+- **Card:** cabeçalho com ícone e nível, abas com ícone por tipo de peça, leitura em ~74 caracteres, destaque de sintaxe (highlight.js vendorizado), anterior/próximo.
+- **Manifest:** `tiers[].description` e `cards[].icon` opcionais (`CARD_ICONS` em `js/content.js`).
+- **Busca:** um registro por card (título, tags, resumo e corpo de todas as peças); todas as palavras devem casar; ordem: título > tags/resumo > corpo.
+- **Convenção pendente:** links e imagens relativos dentro dos `.md` ainda resolvem contra a página, não contra `content/`; definir antes de usar imagens.

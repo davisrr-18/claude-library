@@ -1,6 +1,10 @@
 export const TIER_IDS = ['basicas', 'intermediarias', 'complexas'];
 export const PIECE_TYPES = ['skill', 'claude-md', 'arquitetura', 'agente', 'workflow', 'prompt'];
 
+export const CARD_ICONS = [
+  'folder', 'code', 'zap', 'layers', 'git-branch', 'bot', 'file-text', 'message-square', 'shield', 'bug', 'star',
+];
+
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /** Separa front matter `chave: valor` (entre `---`) do corpo. */
@@ -44,6 +48,9 @@ export function validateManifest(m) {
     if (seenTiers.has(tier.id)) errors.push(`nível duplicado: ${tier.id}`);
     seenTiers.add(tier.id);
     if (!isNonEmptyString(tier.title)) errors.push(`${tier.id}: falta title`);
+    if (tier.description !== undefined && typeof tier.description !== 'string') {
+      errors.push(`${tier.id}: "description" deve ser texto`);
+    }
     if (!Array.isArray(tier.cards)) {
       errors.push(`${tier.id}: "cards" deve ser uma lista`);
       continue;
@@ -60,6 +67,9 @@ export function validateManifest(m) {
       if (!isNonEmptyString(card.title)) errors.push(`${where}: falta title`);
       if (card.summary !== undefined && typeof card.summary !== 'string') {
         errors.push(`${where}: "summary" deve ser texto`);
+      }
+      if (card.icon !== undefined && !CARD_ICONS.includes(card.icon)) {
+        errors.push(`${where}: icon inválido: ${JSON.stringify(card.icon)}`);
       }
       if (card.tags !== undefined && !(Array.isArray(card.tags) && card.tags.every((t) => typeof t === 'string'))) {
         errors.push(`${where}: "tags" deve ser uma lista de textos`);

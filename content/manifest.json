@@ -3,11 +3,13 @@
     {
       "id": "basicas",
       "title": "Tarefas Básicas",
+      "description": "Ajustes rápidos e rotinas do dia a dia: um arquivo, um objetivo claro.",
       "cards": [
         {
           "id": "exemplo",
           "title": "Card de exemplo",
-          "summary": "Modelo para copiar ao criar um novo card.",
+          "summary": "Modelo para copiar ao criar um novo card: manifest, front matter e peças.",
+          "icon": "star",
           "tags": ["modelo"],
           "pieces": [
             { "type": "skill", "title": "Skill de exemplo", "file": "basicas/exemplo/skill.md" }
@@ -15,7 +17,17 @@
         }
       ]
     },
-    { "id": "intermediarias", "title": "Tarefas Intermediárias", "cards": [] },
-    { "id": "complexas", "title": "Tarefas Complexas", "cards": [] }
+    {
+      "id": "intermediarias",
+      "title": "Tarefas Intermediárias",
+      "description": "Funcionalidades e correções que atravessam vários arquivos e pedem testes.",
+      "cards": []
+    },
+    {
+      "id": "complexas",
+      "title": "Tarefas Complexas",
+      "description": "Mudanças arquiteturais, migrações e trabalho em marcos com revisão independente.",
+      "cards": []
+    }
   ]
 }

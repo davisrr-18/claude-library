@@ -15,3 +15,13 @@ Descreva o gatilho da skill em uma ou duas frases.
 
 1. Primeiro passo.
 2. Segundo passo.
+
+## Exemplo de comando
+
+```bash
+# copie a skill para a pasta de skills do Claude Code
+mkdir -p ~/.claude/skills/exemplo
+cp skill.md ~/.claude/skills/exemplo/SKILL.md
+```
+
+> Dica: use o botão **Copiar** no canto do bloco.

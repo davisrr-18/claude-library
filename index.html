@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="dark light">
   <title>Claude Library</title>
   <script>
     // Aplica o tema salvo antes do primeiro paint (evita o flash do tema errado).
@@ -14,17 +15,18 @@
 <body>
   <a class="skip" href="#main">Pular para o conteúdo</a>
   <header class="topbar">
-    <a class="brand" href="#/">Claude Library</a>
+    <a class="brand" href="#/" aria-label="Claude Library, início"><span class="brand-mark" aria-hidden="true">&gt;_</span><span>Claude Library</span></a>
     <nav class="tiers" id="tier-nav" aria-label="Níveis"></nav>
-    <button id="theme-toggle" type="button" class="icon-btn" aria-label="Alternar tema" hidden>◐</button>
+    <button id="theme-toggle" type="button" class="icon-btn" aria-label="Alternar tema" hidden></button>
   </header>
   <main id="main" tabindex="-1"></main>
-  <noscript><p class="notice">Esta página precisa de JavaScript.</p></noscript>
+  <footer class="footer"><span>Claude Library</span><span>Uso pessoal · tecle <kbd>/</kbd> para buscar</span></footer>
+  <noscript><p class="callout">Esta página precisa de JavaScript.</p></noscript>
   <script>
     // Módulos ES não carregam via file://; avisa antes, com script clássico.
     if (location.protocol === 'file:') {
       var p = document.createElement('p');
-      p.className = 'notice error';
+      p.className = 'callout is-error';
       p.textContent = 'Abra via servidor local: rode "python3 -m http.server 8000" nesta pasta e acesse http://localhost:8000.';
       document.getElementById('main').appendChild(p);
     }

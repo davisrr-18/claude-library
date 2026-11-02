@@ -135,3 +135,23 @@ test('validateManifest: estruturas nao-lista, nulos e caminhos estranhos', () =>
   dup.tiers.push({ id: 'basicas', title: 'x', cards: [] });
   assert.equal(validateManifest(dup).ok, false);
 });
+
+test('CARD_ICONS: lista fechada com padrao folder', async () => {
+  const { CARD_ICONS } = await import('../js/content.js');
+  assert.ok(CARD_ICONS.includes('folder'));
+  assert.ok(CARD_ICONS.length >= 8);
+});
+
+test('validateManifest: icon opcional, mas restrito a lista', () => {
+  assert.equal(validateManifest(manifest([card({ icon: 'bot' })])).ok, true);
+  assert.equal(validateManifest(manifest([card({ icon: 'nao-existe' })])).ok, false);
+  assert.equal(validateManifest(manifest([card({ icon: 5 })])).ok, false);
+});
+
+test('validateManifest: description de nivel e texto opcional', () => {
+  const m = manifest();
+  m.tiers[0].description = 'Tarefas rapidas';
+  assert.equal(validateManifest(m).ok, true);
+  m.tiers[0].description = 5;
+  assert.equal(validateManifest(m).ok, false);
+});
