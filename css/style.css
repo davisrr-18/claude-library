@@ -315,6 +315,7 @@ main:focus, main:focus-visible, h1:focus, h1:focus-visible { outline: none; } /*
 @media (hover: hover) { .card-aside a:hover { background: var(--surface-2); color: var(--text); } }
 .card-aside a[aria-current="page"] { background: var(--glow); color: var(--text); box-shadow: inset 2px 0 0 var(--accent); font-weight: 600; }
 .panel { padding: 28px 0 8px; }
+.piece + .piece { margin-top: 56px; padding-top: 40px; border-top: 1px solid var(--border); }
 .piece-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
 .piece-head h2 { margin: 0; font-size: 1.3rem; }
 .piece-name { display: inline-block; margin-top: 4px; font: 500 .8rem var(--mono); color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); padding: 1px 8px; border-radius: 6px; }
@@ -406,7 +407,7 @@ main:focus, main:focus-visible, h1:focus, h1:focus-visible { outline: none; } /*
   animation: rise .6s cubic-bezier(.22, 1, .36, 1) backwards;
   animation-delay: calc(.2s + var(--i, 0) * 70ms);
 }
-.panel > .piece-head { animation: rise .45s cubic-bezier(.22, 1, .36, 1) backwards; }
+.panel .piece-head { animation: rise .45s cubic-bezier(.22, 1, .36, 1) backwards; }
 .md > * { animation: rise .55s cubic-bezier(.22, 1, .36, 1) backwards; animation-delay: calc(.08s + min(var(--i, 0), 10) * 45ms); }
 .card-aside li { animation: rise .5s cubic-bezier(.22, 1, .36, 1) backwards; animation-delay: calc(.2s + min(var(--i, 0), 8) * 50ms); }
 .callout { animation: fade .4s ease backwards; }

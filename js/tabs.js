@@ -49,3 +49,13 @@ export const TYPE_TAB_LABELS = {
 export function resolveTypeTab(stored, available) {
   return stored && available.some((a) => a.type === stored) ? stored : '';
 }
+
+/**
+ * Peças de um card agrupadas por tipo, na ordem canônica de PIECE_TYPES (a mesma das abas da faixa);
+ * dentro de cada tipo mantém a ordem do manifest. Um card pode ter várias peças do mesmo tipo.
+ */
+export function groupPiecesByType(pieces) {
+  return PIECE_TYPES
+    .map((type) => ({ type, pieces: (pieces || []).filter((p) => p.type === type) }))
+    .filter((g) => g.pieces.length > 0);
+}

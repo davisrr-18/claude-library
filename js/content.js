@@ -97,15 +97,25 @@ export function validateManifest(m) {
         errors.push(`${where}: "pieces" deve ser uma lista`);
         continue;
       }
-      const seenTypes = new Set();
+      // Um card pode ter várias peças do mesmo tipo (ex.: 3 agentes). O mesmo arquivo duas vezes no card é
+      // quase sempre cópia e cola; título repetido no mesmo tipo deixaria as peças indistinguíveis na página.
+      const seenFiles = new Set();
+      const seenTitles = new Set();
       for (const piece of card.pieces) {
         if (!PIECE_TYPES.includes(piece?.type)) {
           errors.push(`${where}: tipo de peça inválido: ${JSON.stringify(piece?.type)}`);
           continue;
         }
         if (!isNonEmptyString(piece.title)) errors.push(`${where}/${piece.type}: falta title`);
-        if (seenTypes.has(piece.type)) errors.push(`${where}: tipo de peça repetido: ${piece.type}`);
-        seenTypes.add(piece.type);
+        else {
+          const key = `${piece.type}\0${piece.title.trim().toLowerCase()}`;
+          if (seenTitles.has(key)) errors.push(`${where}: título repetido entre peças do tipo ${piece.type}: ${piece.title}`);
+          seenTitles.add(key);
+        }
+        if (typeof piece.file === 'string') {
+          if (seenFiles.has(piece.file)) errors.push(`${where}: arquivo repetido no card: ${piece.file}`);
+          seenFiles.add(piece.file);
+        }
         if (!isSafeRelativePath(piece.file)) {
           errors.push(`${where}/${piece.type}: caminho de arquivo inválido: ${JSON.stringify(piece.file)}`);
         }
@@ -116,4 +126,14 @@ export function validateManifest(m) {
     if (!seenTiers.has(id)) errors.push(`falta o nível: ${id}`);
   }
   return { ok: errors.length === 0, errors };
+}
+
+/**
+ * Texto de apoio de uma peça: `description` do front matter; senão, no formato do pacote de estudos,
+ * "Destino: <destino>" (onde o arquivo deve ser salvo); senão vazio.
+ */
+export function pieceDescription(meta) {
+  if (meta?.description) return meta.description;
+  const destino = meta?.destino?.trim();
+  return destino ? `Destino: ${destino}` : '';
 }

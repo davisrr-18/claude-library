@@ -4,29 +4,7 @@
       "id": "basicas",
       "title": "Tarefas Básicas",
       "description": "Ajustes rápidos e rotinas do dia a dia: um arquivo, um objetivo claro.",
-      "cards": [
-        {
-          "id": "exemplo",
-          "title": "Card de exemplo",
-          "summary": "Modelo para copiar ao criar um novo card: manifest, front matter e peças.",
-          "icon": "star",
-          "tags": ["modelo"],
-          "pieces": [
-            { "type": "skill", "title": "Skill de exemplo", "file": "basicas/exemplo/skill.md" }
-          ]
-        },
-        {
-          "id": "investigacao-rapida",
-          "title": "Investigação rápida",
-          "summary": "Investigar código sem alterar nada: o agente investigator devolve achados com caminho e linha, fatos separados de suposições e recomendações.",
-          "icon": "bug",
-          "tags": ["investigação", "somente-leitura"],
-          "pieces": [
-            { "type": "agente", "title": "Agente investigator", "file": "basicas/investigacao-rapida/agente.md" },
-            { "type": "prompt", "title": "Prompt de investigação somente leitura", "file": "basicas/investigacao-rapida/prompt.md" }
-          ]
-        }
-      ]
+      "cards": []
     },
     {
       "id": "intermediarias",
@@ -34,14 +12,67 @@
       "description": "Funcionalidades e correções que atravessam vários arquivos e pedem testes.",
       "cards": [
         {
-          "id": "implementar-com-testes",
-          "title": "Implementar com testes",
-          "summary": "Fluxo de uma mudança isolada: investigar, implementar com testes de regressão e revisar de forma independente, com os agentes investigator, implementer e reviewer.",
-          "icon": "code",
-          "tags": ["implementação", "testes"],
+          "id": "estudos-em-programacao",
+          "title": "Estudos em Programação",
+          "summary": "Pacote que transforma o Claude em um tutor de programação com método: diagnostica, ensina em passos curtos, passa exercício, corrige com feedback e registra o progresso para você retomar depois.",
+          "icon": "bot",
+          "tags": [
+            "estudos",
+            "tutor",
+            "exercícios",
+            "revisão espaçada"
+          ],
           "pieces": [
-            { "type": "agente", "title": "Agente implementer", "file": "intermediarias/implementar-com-testes/agente.md" },
-            { "type": "workflow", "title": "Fluxo: investigar, implementar, revisar", "file": "intermediarias/implementar-com-testes/workflow.md" }
+            {
+              "type": "arquitetura",
+              "title": "Pacote geral de estudos em programação",
+              "file": "intermediarias/estudos-em-programacao/00-indice.md"
+            },
+            {
+              "type": "prompt",
+              "title": "Prompt principal de sessão de estudo",
+              "file": "intermediarias/estudos-em-programacao/01-prompt-principal.md"
+            },
+            {
+              "type": "claude-md",
+              "title": "CLAUDE.md da pasta de estudos",
+              "file": "intermediarias/estudos-em-programacao/02-claude-md.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Tutor",
+              "file": "intermediarias/estudos-em-programacao/03-agent-tutor.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Revisor de código",
+              "file": "intermediarias/estudos-em-programacao/04-agent-revisor-de-codigo.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Gerador de exercícios",
+              "file": "intermediarias/estudos-em-programacao/05-agent-gerador-de-exercicios.md"
+            },
+            {
+              "type": "skill",
+              "title": "Skill: Sessão de estudo",
+              "file": "intermediarias/estudos-em-programacao/06-skill-sessao-de-estudo.md"
+            },
+            {
+              "type": "skill",
+              "title": "Skill: Revisão espaçada",
+              "file": "intermediarias/estudos-em-programacao/07-skill-revisao-espacada.md"
+            },
+            {
+              "type": "skill",
+              "title": "Skill: Explicar código",
+              "file": "intermediarias/estudos-em-programacao/08-skill-explicar-codigo.md"
+            },
+            {
+              "type": "workflow",
+              "title": "Checklist de verificação",
+              "file": "intermediarias/estudos-em-programacao/09-checklist-de-verificacao.md"
+            }
           ]
         }
       ]
@@ -50,20 +81,7 @@
       "id": "complexas",
       "title": "Tarefas Complexas",
       "description": "Mudanças arquiteturais, migrações e trabalho em marcos com revisão independente.",
-      "cards": [
-        {
-          "id": "planejar-em-marcos",
-          "title": "Planejar em marcos",
-          "summary": "Planeja uma mudança grande em marcos verificáveis, com aprovações explícitas do usuário e revisão independente antes do encerramento.",
-          "icon": "layers",
-          "tags": ["planejamento", "marcos", "revisão"],
-          "pieces": [
-            { "type": "skill", "title": "Skill plan-update", "file": "complexas/planejar-em-marcos/skill.md" },
-            { "type": "agente", "title": "Agente reviewer", "file": "complexas/planejar-em-marcos/agente.md" },
-            { "type": "workflow", "title": "Fluxo em marcos", "file": "complexas/planejar-em-marcos/workflow.md" }
-          ]
-        }
-      ]
+      "cards": []
     }
   ]
 }

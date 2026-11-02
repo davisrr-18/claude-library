@@ -1,8 +1,8 @@
-import { parseFrontMatter, validateManifest, TIER_IDS } from './content.js';
+import { parseFrontMatter, validateManifest, pieceDescription, TIER_IDS } from './content.js';
 import { parseRoute, isAppHash, resolveView } from './router.js';
 import { renderMarkdown } from './markdown.js';
 import { buildIndex, search, collectTags, dedupeTags, sameTitle } from './search.js';
-import { typeCounts, filterByType, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS } from './tabs.js';
+import { typeCounts, filterByType, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS, groupPiecesByType } from './tabs.js';
 import { h, safeFragment, copyButton, addCopyButtons, wrapTables, initTheme } from './dom.js';
 import { icon, TYPE_ICON } from './icons.js';
 import { highlightCodeBlocks } from './code-highlight.js';
@@ -128,15 +128,18 @@ function cardTile(entry, i = 0, headingTag = 'h3', activeType = '') {
   const { cardObj: card, tierObj: tier } = entry;
   const titleId = `card-${tier.id}-${card.id}${activeType ? `-${activeType}` : ''}`;
   const tags = dedupeTags(card.tags);
-  const piece = activeType ? card.pieces.find((p) => p.type === activeType) : null;
+  const typePieces = activeType ? card.pieces.filter((p) => p.type === activeType) : [];
+  const piece = typePieces[0] ?? null;
+  const pieceLine = !piece ? '' : typePieces.length === 1 ? piece.title : `${typePieces.length} ${TYPE_TAB_LABELS[activeType].toLowerCase()}`;
   const href = piece ? pieceHref(tier.id, card.id, piece.type) : cardHref(tier.id, card.id);
   return h('a', { class: 'card', href, style: `--i:${Math.min(i, 8)}`, 'aria-labelledby': piece ? `${titleId} ${titleId}-piece` : titleId },
     h('span', { class: 'card-icon' }, icon(card.icon || 'folder', 22)),
     h(headingTag, { id: titleId }, card.title),
     h('p', { class: 'card-summary' }, card.summary || ''),
-    piece ? h('p', { class: 'card-piece', id: `${titleId}-piece` }, icon(TYPE_ICON[piece.type], 15), h('span', {}, piece.title)) : null,
+    piece ? h('p', { class: 'card-piece', id: `${titleId}-piece` }, icon(TYPE_ICON[piece.type], 15), h('span', { title: typePieces.map((p) => p.title).join(', ') }, pieceLine)) : null,
     h('ul', { class: 'chips', 'aria-label': 'Peças incluídas' },
-      card.pieces.map((p) => h('li', { class: `chip${p.type === activeType ? ' is-active' : ''}` }, icon(TYPE_ICON[p.type], 13), TYPE_LABELS[p.type]))),
+      groupPiecesByType(card.pieces).map((g) => h('li', { class: `chip${g.type === activeType ? ' is-active' : ''}` },
+        icon(TYPE_ICON[g.type], 13), TYPE_LABELS[g.type], g.pieces.length > 1 ? ` ×${g.pieces.length}` : ''))),
     tags.length
       ? h('ul', { class: 'tags', 'aria-label': 'Tags' }, tags.map((t) => h('li', { class: 'tag' }, `#${t}`)))
       : null,
@@ -352,8 +355,9 @@ function skeleton() {
     h('i', { style: 'width:40%' }), h('i', {}), h('i', {}), h('i', { style: 'width:70%' }));
 }
 
-async function loadPiece(panel, piece) {
-  panel.replaceChildren(skeleton());
+/** Monta uma peça (cabeçalho + texto). Falha de uma peça vira aviso nela, sem derrubar as outras. */
+async function buildPiece(piece, index) {
+  const headId = `piece-${index}-title`;
   try {
     const raw = await fetchText(piece.file);
     const { meta, body } = parseFrontMatter(raw);
@@ -363,27 +367,40 @@ async function loadPiece(panel, piece) {
     if (first && /^H[1-6]$/.test(first.tagName) && (sameTitle(first.textContent, piece.title) || sameTitle(first.textContent, meta.name))) first.remove();
     addCopyButtons(article);
     wrapTables(article);
-    panel.replaceChildren(
+    const description = pieceDescription(meta);
+    const node = h('section', { class: 'piece', 'aria-labelledby': headId },
       h('div', { class: 'piece-head' },
         h('div', {},
-          h('h2', {}, piece.title),
+          h('h2', { id: headId }, piece.title),
           meta.name && meta.name !== piece.title ? h('code', { class: 'piece-name' }, meta.name) : null,
-          meta.description ? h('p', {}, meta.description) : null),
-        copyButton('Copiar peça', () => raw)),
+          description ? h('p', {}, description) : null),
+        copyButton('Copiar peça', () => raw, '', `Copiar peça: ${piece.title}`)),
       article);
+    return { node, article };
+  } catch (err) {
+    return { node: h('section', { class: 'piece' }, message(`Não foi possível carregar "${piece.file}": ${err.message}`, 'error')), article: null };
+  }
+}
+
+/** Carrega todas as peças do tipo escolhido, em paralelo, e as exibe na ordem do manifest. */
+async function loadPieces(panel, pieces) {
+  panel.replaceChildren(skeleton());
+  const built = await Promise.all(pieces.map((p, i) => buildPiece(p, i)));
+  panel.replaceChildren(...built.map((b) => b.node));
+  for (const { article } of built) {
+    if (!article) continue;
     [...article.children].forEach((el, i) => el.style.setProperty('--i', String(i)));
     revealOnScroll(article.children);
-    await highlightCodeBlocks(article);
-  } catch (err) {
-    panel.replaceChildren(message(`Não foi possível carregar "${piece.file}": ${err.message}`, 'error'));
   }
+  await Promise.all(built.filter((b) => b.article).map((b) => highlightCodeBlocks(b.article)));
 }
 
 function renderCard(tier, card, activeType) {
   renderNav(tier.id);
   setTitle(card.title);
   const pieces = card.pieces;
-  const current = pieces.find((p) => p.type === activeType) || pieces[0];
+  const groups = groupPiecesByType(pieces);
+  const current = groups.find((g) => g.type === activeType) || groups[0];
   const panel = h('div', { class: 'panel', id: 'piece-panel' });
 
   const siblings = tier.cards;
@@ -413,12 +430,13 @@ function renderCard(tier, card, activeType) {
           : null)),
     h('div', { class: `card-layout${aside ? ' has-aside' : ''}` },
       h('div', { class: 'card-main' },
-        pieces.length
+        groups.length
           ? h('nav', { class: 'tabs', 'aria-label': 'Peças do card' },
-              pieces.map((p) => h('a', {
-                href: pieceHref(tier.id, card.id, p.type),
-                'aria-current': p === current ? 'page' : null,
-              }, icon(TYPE_ICON[p.type], 16), TYPE_LABELS[p.type])))
+              groups.map((g) => h('a', {
+                href: pieceHref(tier.id, card.id, g.type),
+                'aria-current': g === current ? 'page' : null,
+              }, icon(TYPE_ICON[g.type], 16), TYPE_LABELS[g.type],
+              g.pieces.length > 1 ? h('span', { class: 'type-count' }, g.pieces.length, h('span', { class: 'sr-only' }, ' peças')) : null)))
           : null,
         pieces.length ? panel : message('Este card ainda não tem peças.'),
         prev || next
@@ -430,7 +448,7 @@ function renderCard(tier, card, activeType) {
           : null),
       aside));
 
-  if (current) loadPiece(panel, current);
+  if (current) loadPieces(panel, current.pieces);
 }
 
 function renderNotFound() {

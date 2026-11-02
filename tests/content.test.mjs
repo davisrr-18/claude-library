@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseFrontMatter, validateManifest, PIECE_TYPES, TIER_IDS } from '../js/content.js';
+import { parseFrontMatter, validateManifest, pieceDescription, PIECE_TYPES, TIER_IDS } from '../js/content.js';
 
 test('parseFrontMatter: front matter simples', () => {
   const { meta, body } = parseFrontMatter('---\nname: x\ndescription: y\n---\n# Titulo\n');
@@ -67,10 +67,35 @@ test('validateManifest: tipo invalido', () => {
   assert.match(r.errors.join('\n'), /tipo/i);
 });
 
-test('validateManifest: tipo repetido no mesmo card', () => {
-  const r = validateManifest(manifest([card({ pieces: [piece(), piece({ file: 'basicas/a/b.md' })] })]));
+test('validateManifest: varias pecas do MESMO tipo no card sao permitidas (ex.: 3 agentes)', () => {
+  const pieces = [
+    piece({ type: 'agente', title: 'Tutor', file: 'basicas/a/tutor.md' }),
+    piece({ type: 'agente', title: 'Revisor', file: 'basicas/a/revisor.md' }),
+    piece({ type: 'agente', title: 'Gerador', file: 'basicas/a/gerador.md' }),
+    piece({ type: 'skill', title: 'Skill', file: 'basicas/a/skill.md' }),
+  ];
+  assert.deepEqual(validateManifest(manifest([card({ pieces })])), { ok: true, errors: [] });
+});
+
+test('validateManifest: o mesmo arquivo duas vezes no mesmo card e erro (copia e cola)', () => {
+  const r = validateManifest(manifest([card({ pieces: [piece(), piece({ type: 'agente', title: 'Outro' })] })]));
   assert.equal(r.ok, false);
-  assert.match(r.errors.join('\n'), /repetid/i);
+  assert.match(r.errors.join('\n'), /arquivo repetido no card: basicas\/a\/skill\.md/);
+});
+
+test('validateManifest: o mesmo arquivo em cards diferentes e permitido', () => {
+  const m = manifest([card(), card({ id: 'b' })]);
+  assert.equal(validateManifest(m).ok, true);
+});
+
+test('validateManifest: titulo repetido entre pecas do mesmo tipo e erro (abas e links ficariam ambiguos)', () => {
+  const pieces = [
+    piece({ type: 'agente', title: 'Tutor', file: 'basicas/a/1.md' }),
+    piece({ type: 'agente', title: 'tutor', file: 'basicas/a/2.md' }),
+  ];
+  const r = validateManifest(manifest([card({ pieces })]));
+  assert.equal(r.ok, false);
+  assert.match(r.errors.join('\n'), /título repetido entre peças do tipo agente: tutor/i);
 });
 
 test('validateManifest: file com .. ou barra inicial', () => {
@@ -196,8 +221,8 @@ test('validateManifest: file com espaco nas pontas ou caractere de controle', ()
 test('validateManifest: mensagens dizem o que esta errado', () => {
   const dup = validateManifest(manifest([card(), card()])).errors.join('\n');
   assert.match(dup, /basicas\/a: id de card duplicado/);
-  const rep = validateManifest(manifest([card({ pieces: [piece(), piece({ file: 'basicas/a/b.md' })] })])).errors.join('\n');
-  assert.match(rep, /tipo de peça repetido: skill/);
+  const rep = validateManifest(manifest([card({ pieces: [piece(), piece({ type: 'agente' })] })])).errors.join('\n');
+  assert.match(rep, /basicas\/a: arquivo repetido no card: basicas\/a\/skill\.md/);
 });
 
 test('parseFrontMatter: lista com "- item" (indentada ou nao) vira texto separado por virgulas', () => {
@@ -221,4 +246,12 @@ test('parseFrontMatter: "Obs.: texto" (ponto antes dos dois pontos) nao vira fro
   assert.equal(parseFrontMatter(text).body, text);
   assert.equal(parseFrontMatter('---\nallowed.tools: Read\n---\n').meta['allowed.tools'], 'Read');
   assert.equal(parseFrontMatter('---\na.b.c: x\n---\n').meta['a.b.c'], 'x');
+});
+
+test('pieceDescription: usa description; senao "Destino: ..." (formato do pacote de estudos); senao vazio', () => {
+  assert.equal(pieceDescription({ description: 'Faz X', destino: 'y' }), 'Faz X');
+  assert.equal(pieceDescription({ destino: '.claude/agents/tutor.md' }), 'Destino: .claude/agents/tutor.md');
+  assert.equal(pieceDescription({ destino: '   ' }), '');
+  assert.equal(pieceDescription({}), '');
+  assert.equal(pieceDescription(undefined), '');
 });

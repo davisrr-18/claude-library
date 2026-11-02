@@ -48,7 +48,8 @@ Segredos nunca são impressos por inteiro. Rode antes de cada publicação.
 ```
 
 - Níveis: `basicas`, `intermediarias`, `complexas`.
-- Tipos de peça (um por card): `skill`, `claude-md`, `arquitetura`, `agente`, `workflow`, `prompt`.
+- Tipos de peça: `skill`, `claude-md`, `arquitetura`, `agente`, `workflow`, `prompt`. Um card pode ter **várias peças do mesmo tipo** (ex.: 3 agentes); elas aparecem empilhadas na aba do tipo. O `title` não pode repetir entre peças do mesmo tipo, e o mesmo `file` não pode aparecer duas vezes no card.
+- Front matter do `.md`: `name` e `description` aparecem no cabeçalho da peça. Se não houver `description`, o campo `destino` (onde salvar o arquivo) é mostrado como "Destino: ...".
 - Ícones: veja `CARD_ICONS` em `js/content.js`.
 - `file` é relativo a `content/`, sem `..` nem `/` inicial. `id` em kebab-case.
 

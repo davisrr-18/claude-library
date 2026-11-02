@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { typeCounts, filterByType, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS } from '../js/tabs.js';
+import { typeCounts, filterByType, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS, groupPiecesByType } from '../js/tabs.js';
 import { PIECE_TYPES } from '../js/content.js';
 
 const entry = (id, ...types) => ({ id, cardObj: { pieces: types.map((type) => ({ type })) } });
@@ -74,4 +74,26 @@ test('nextTabIndex: indice atual invalido (nao inteiro) nunca devolve NaN', () =
       assert.ok(r === null || (Number.isInteger(r) && r >= 0 && r < 3), `${key}/${String(cur)} -> ${r}`);
     }
   }
+});
+
+test('groupPiecesByType: agrupa por tipo, ordem canonica, mantem a ordem das pecas dentro do tipo', () => {
+  const pieces = [
+    { type: 'prompt', title: 'P', file: 'p.md' },
+    { type: 'agente', title: 'A1', file: 'a1.md' },
+    { type: 'skill', title: 'S1', file: 's1.md' },
+    { type: 'agente', title: 'A2', file: 'a2.md' },
+    { type: 'agente', title: 'A3', file: 'a3.md' },
+    { type: 'skill', title: 'S2', file: 's2.md' },
+  ];
+  const groups = groupPiecesByType(pieces);
+  assert.deepEqual(groups.map((g) => g.type), ['skill', 'agente', 'prompt']);
+  assert.deepEqual(groups[0].pieces.map((p) => p.title), ['S1', 'S2']);
+  assert.deepEqual(groups[1].pieces.map((p) => p.title), ['A1', 'A2', 'A3']);
+  assert.deepEqual(groups[2].pieces.map((p) => p.title), ['P']);
+});
+
+test('groupPiecesByType: vazio, e tipo desconhecido e ignorado', () => {
+  assert.deepEqual(groupPiecesByType([]), []);
+  assert.deepEqual(groupPiecesByType(undefined), []);
+  assert.deepEqual(groupPiecesByType([{ type: 'nada', title: 'x', file: 'x.md' }]), []);
 });

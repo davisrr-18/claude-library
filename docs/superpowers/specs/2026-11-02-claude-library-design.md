@@ -106,3 +106,10 @@ Pedido do usuário após a revisão final. Em cada faixa de nível (Home e pági
 - Escolher um tipo mostra só os cards que têm uma peça desse tipo; o link do card abre direto essa peça e o card exibe o título da peça.
 - A escolha é independente por nível e fica em `state.tierTabs`; persiste ao filtrar e ao voltar à Home. Se, com os filtros atuais, o tipo escolhido não existir, a faixa mostra "Todos" (sem esquecer a escolha).
 - Lógica pura e testada em `js/tabs.js` (`typeCounts`, `filterByType`, `nextTabIndex`).
+
+## Pacote "Estudos em Programação" e várias peças por tipo (2026-11-02)
+- **Conteúdo:** os cards de exemplo criados no início (exemplo, investigação rápida, implementar com testes, planejar em marcos) foram removidos a pedido do usuário; continuam no histórico do git (commit `6905305`). O site passa a ter o pacote do usuário, "Estudos em Programação" (10 arquivos Markdown, copiados sem alteração), como um único card em Tarefas Intermediárias, que é o nível declarado no front matter dos arquivos.
+- **Modelo:** um card pode ter várias peças do mesmo tipo (o pacote tem 3 agentes e 3 skills). Regras de validação: título único por tipo dentro do card e o mesmo arquivo não pode se repetir no card. Substitui a regra anterior de "um tipo por card".
+- **Interface:** a aba do tipo mostra todas as peças do tipo, empilhadas na ordem do manifest, cada uma com cabeçalho, botão de copiar e blocos de código próprios; o card da Home mostra os chips agrupados com contagem (`Agente ×3`) e, com uma aba de tipo escolhida, "3 agentes". Lógica pura em `groupPiecesByType` (`js/tabs.js`).
+- **Front matter do pacote:** usa `titulo`, `destino`, `tipo`, `nivel`, `stack`, `slug`. O site entende `destino` como texto de apoio ("Destino: .claude/agents/tutor.md") quando não há `description` (`pieceDescription` em `js/content.js`), sem editar os arquivos do usuário.
+- Os títulos das peças no manifest foram escolhidos iguais ao primeiro título (H1) de cada arquivo, para a interface não repetir o título no topo do texto.
