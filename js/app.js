@@ -149,7 +149,7 @@ function heroStats() {
   const pills = [[state.entries.length, ['card', 'cards']]];
   for (const type of Object.keys(TYPE_PLURAL)) if (counts[type]) pills.push([counts[type], TYPE_PLURAL[type]]);
   return h('ul', { class: 'stats', 'aria-label': 'Resumo do conteúdo' },
-    pills.map(([n, words]) => h('li', {}, h('strong', {}, n), ` ${n === 1 ? words[0] : words[1]}`)));
+    pills.map(([n, words]) => h('li', {}, h('strong', { 'data-n': String(n) }, n), ` ${n === 1 ? words[0] : words[1]}`)));
 }
 
 function renderHome() {
@@ -246,6 +246,7 @@ function renderHome() {
     results);
 
   trackFiltersHeight(document.querySelector('.filters'));
+  countUp(main);
   if (state.focusSearch) { state.focusSearch = false; input.focus(); }
 }
 
@@ -282,6 +283,8 @@ async function loadPiece(panel, piece) {
           meta.description ? h('p', {}, meta.description) : null),
         copyButton('Copiar peça', () => raw)),
       article);
+    [...article.children].forEach((el, i) => el.style.setProperty('--i', String(i)));
+    revealOnScroll(article.children);
     await highlightCodeBlocks(article);
   } catch (err) {
     panel.replaceChildren(message(`Não foi possível carregar "${piece.file}": ${err.message}`, 'error'));
@@ -303,7 +306,7 @@ function renderCard(tier, card, activeType) {
   const aside = siblings.length > 1
     ? h('aside', { class: 'card-aside', 'aria-label': `Cards em ${tier.title}` },
         h('h2', {}, tier.title),
-        h('ul', {}, siblings.map((c) => h('li', {},
+        h('ul', {}, siblings.map((c, i) => h('li', { style: `--i:${i}` },
           h('a', { href: cardHref(tier.id, c.id), 'aria-current': c.id === card.id ? 'page' : null },
             icon(c.icon || 'folder', 16), h('span', {}, c.title))))))
     : null;
@@ -356,27 +359,92 @@ function renderNotFound() {
 
 let enterTimer;
 let revealObserver;
+const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/** Anima a entrada da página (CSS `.is-entering`) e revela as faixas de nível ao rolar. */
+/** Esconde o que está abaixo da dobra e revela (com transição) quando entra na tela. */
+function revealOnScroll(candidates) {
+  if (!('IntersectionObserver' in window) || reducedMotion()) return;
+  const fold = window.innerHeight * 0.92;
+  const targets = [...candidates].filter((el) => el.getBoundingClientRect().top > fold);
+  if (!targets.length) return;
+  revealObserver ??= new IntersectionObserver((items) => {
+    for (const it of items) {
+      if (!it.isIntersecting) continue;
+      const el = it.target;
+      revealObserver.unobserve(el);
+      el.classList.add('in');
+      setTimeout(() => el.classList.remove('reveal', 'in'), 1000); // volta ao estilo normal (hover etc.)
+    }
+  }, { rootMargin: '0px 0px -6% 0px', threshold: 0.05 });
+  for (const el of targets) { el.classList.add('reveal'); revealObserver.observe(el); }
+}
+
+/** Anima a entrada da página (CSS `.is-entering`) e prepara a revelação ao rolar. */
 function playEntrance() {
   main.classList.add('is-entering');
   clearTimeout(enterTimer);
-  enterTimer = setTimeout(() => main.classList.remove('is-entering'), 1100);
-
+  enterTimer = setTimeout(() => main.classList.remove('is-entering'), 1200);
   revealObserver?.disconnect();
-  if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const targets = [...main.querySelectorAll('.tier')].slice(1);
-  if (!targets.length) return;
-  revealObserver = new IntersectionObserver((items) => {
-    for (const it of items) {
-      if (!it.isIntersecting) continue;
-      it.target.classList.add('in');
-      revealObserver.unobserve(it.target);
+  revealObserver = null;
+  revealOnScroll(main.querySelectorAll('.tier-head, .grid > .card, .tier > .callout, .pager, .card-aside'));
+}
+
+/** Números das estatísticas contam de 0 até o valor. */
+function countUp(root) {
+  const raf = window.requestAnimationFrame?.bind(window);
+  if (!raf || reducedMotion()) return;
+  for (const el of root.querySelectorAll('[data-n]')) {
+    const target = Number(el.dataset.n);
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / 800);
+      el.textContent = String(Math.round(target * (1 - (1 - t) ** 3)));
+      if (t < 1 && el.isConnected) raf(step);
+    };
+    el.textContent = '0';
+    raf(step);
+  }
+}
+
+let updateScrollFx = () => {};
+
+/** Sombra no topo ao rolar e barra de progresso de leitura. */
+function initScrollFx() {
+  const topbar = document.querySelector('.topbar');
+  const bar = document.querySelector('.progress');
+  if (!topbar || !bar) return;
+  const raf = window.requestAnimationFrame?.bind(window) ?? ((fn) => fn());
+  let pending = false;
+  updateScrollFx = () => {
+    pending = false;
+    const y = window.scrollY || 0;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    topbar.classList.toggle('is-scrolled', y > 8);
+    bar.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
+  };
+  window.addEventListener('scroll', () => { if (!pending) { pending = true; raf(updateScrollFx); } }, { passive: true });
+  window.addEventListener('resize', () => raf(updateScrollFx), { passive: true });
+  updateScrollFx();
+}
+
+/** Brilho que segue o ponteiro nos cards e no hero. */
+function initPointerFx() {
+  main.addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'touch') return;
+    const card = e.target.closest?.('.card');
+    if (card) {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', `${Math.round(e.clientX - r.left)}px`);
+      card.style.setProperty('--my', `${Math.round(e.clientY - r.top)}px`);
     }
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
-  for (const t of targets) { t.classList.add('reveal'); revealObserver.observe(t); }
-  // Rede de segurança: nada fica escondido se o observador não disparar.
-  setTimeout(() => targets.forEach((t) => t.classList.add('in')), 2500);
+    const hero = e.target.closest?.('.hero');
+    if (hero) {
+      const r = hero.getBoundingClientRect();
+      const pct = (v) => `${Math.max(0, Math.min(100, Math.round(v)))}%`;
+      hero.style.setProperty('--hx', pct((e.clientX / window.innerWidth) * 100));
+      hero.style.setProperty('--hy', pct(((e.clientY - r.top) / r.height) * 100));
+    }
+  }, { passive: true });
 }
 
 let lastCardKey = '';
@@ -407,6 +475,7 @@ function route() {
   else main.focus({ preventScroll: true });
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   playEntrance();
+  updateScrollFx();
 }
 
 function isTyping(el) {
@@ -446,6 +515,8 @@ function trackTopbarHeight() {
 async function init() {
   initTheme(document.getElementById('theme-toggle'));
   trackTopbarHeight();
+  initScrollFx();
+  initPointerFx();
   setView(skeleton());
   try {
     const res = await fetch('content/manifest.json');
