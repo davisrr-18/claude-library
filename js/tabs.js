@@ -31,3 +31,21 @@ export function nextTabIndex(key, current, length) {
     default: return null;
   }
 }
+
+/** Rótulo de cada aba de tipo (plural). Um teste garante que todo tipo de PIECE_TYPES tem rótulo. */
+export const TYPE_TAB_LABELS = {
+  skill: 'Skills',
+  'claude-md': 'CLAUDE.md',
+  arquitetura: 'Arquiteturas',
+  agente: 'Agentes',
+  workflow: 'Workflows',
+  prompt: 'Prompts',
+};
+
+/**
+ * Aba efetiva: a guardada, se ainda existir entre as disponíveis ({ type, count }[]); senão '' (Todos).
+ * Quem chama mantém a escolha guardada, para que ela volte quando os filtros forem limpos.
+ */
+export function resolveTypeTab(stored, available) {
+  return stored && available.some((a) => a.type === stored) ? stored : '';
+}

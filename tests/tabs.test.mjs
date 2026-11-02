@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { typeCounts, filterByType, nextTabIndex } from '../js/tabs.js';
+import { typeCounts, filterByType, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS } from '../js/tabs.js';
+import { PIECE_TYPES } from '../js/content.js';
 
 const entry = (id, ...types) => ({ id, cardObj: { pieces: types.map((type) => ({ type })) } });
 const entries = [
@@ -50,4 +51,18 @@ test('nextTabIndex: setas dao a volta; Home e End; outras teclas ignoradas', () 
 test('nextTabIndex: uma unica aba e lista vazia', () => {
   assert.equal(nextTabIndex('ArrowRight', 0, 1), 0);
   assert.equal(nextTabIndex('ArrowRight', 0, 0), null);
+});
+
+test('TYPE_TAB_LABELS: todo tipo de peca tem rotulo de aba (tipo novo sem rotulo faria aba vazia)', () => {
+  for (const type of PIECE_TYPES) assert.ok(TYPE_TAB_LABELS[type], `falta rotulo para ${type}`);
+  assert.deepEqual(Object.keys(TYPE_TAB_LABELS).sort(), [...PIECE_TYPES].sort());
+});
+
+test('resolveTypeTab: guardado valido fica; ausente ou inexistente volta para Todos (\'\')', () => {
+  const available = [{ type: 'skill', count: 1 }, { type: 'agente', count: 2 }];
+  assert.equal(resolveTypeTab('agente', available), 'agente');
+  assert.equal(resolveTypeTab('prompt', available), '');
+  assert.equal(resolveTypeTab(undefined, available), '');
+  assert.equal(resolveTypeTab('', available), '');
+  assert.equal(resolveTypeTab('skill', []), '');
 });

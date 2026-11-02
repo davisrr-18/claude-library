@@ -83,3 +83,10 @@ export function collectTags(entries) {
   }
   return [...groups.values()].sort((a, b) => a.tag.localeCompare(b.tag));
 }
+
+/** Dois títulos são "o mesmo" ignorando caixa, acentos e pontuação (para não repetir o título da peça). Vazio nunca casa. */
+export function sameTitle(a, b) {
+  const clean = (v) => normalize(v).replace(/[^a-z0-9]+/g, ' ').trim();
+  const x = clean(a);
+  return x !== '' && x === clean(b);
+}

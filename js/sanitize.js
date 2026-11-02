@@ -33,8 +33,8 @@ export function isAttrAllowed(tagName, name, value) {
       return tag === 'INPUT' && v === 'checkbox';
     case 'target':
       return v === '_blank';
-    case 'class':
-      return /^[\w -]+$/.test(v);
+    case 'class': // inclui `language-c++`, `language-c#`, `language-vb.net`
+      return /^[\w +#.-]+$/.test(v);
     case 'align':
       return ['left', 'center', 'right'].includes(v);
     default:

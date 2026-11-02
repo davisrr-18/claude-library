@@ -47,3 +47,12 @@ test('type so em checkbox; target so _blank; class restrita; align restrito', ()
   assert.equal(isAttrAllowed('TD', 'align', 'center'), true);
   assert.equal(isAttrAllowed('TD', 'align', 'javascript:x'), false);
 });
+
+test('class de linguagem de codigo: c++, c#, objective-c e .net passam; aspas e outros atributos nao', () => {
+  for (const cls of ['language-c++', 'language-c#', 'language-objective-c', 'language-f#', 'language-vb.net', 'language-js hljs']) {
+    assert.equal(isAttrAllowed('CODE', 'class', cls), true, cls);
+  }
+  for (const cls of ['language-js" onclick="x', 'a<b', "x'y", 'a;b', 'a=b', 'a/b']) {
+    assert.equal(isAttrAllowed('CODE', 'class', cls), false, cls);
+  }
+});

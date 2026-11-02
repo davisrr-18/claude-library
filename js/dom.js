@@ -63,10 +63,12 @@ export async function copyText(text) {
 export function copyButton(label, getText, extraClass = '', ariaLabel = null) {
   const content = (name, text) => [icon(name, 15), h('span', {}, text)];
   const btn = h('button', { type: 'button', class: `btn btn-ghost btn-sm ${extraClass}`.trim(), 'aria-live': 'polite', 'aria-label': ariaLabel }, content('copy', label));
+  let resetTimer;
   btn.addEventListener('click', async () => {
     const ok = await copyText(getText());
     btn.replaceChildren(...(ok ? content('check', 'Copiado!') : content('x', 'Não foi possível copiar')));
-    setTimeout(() => btn.replaceChildren(...content('copy', label)), 1800);
+    clearTimeout(resetTimer); // clique duplo não encurta o aviso
+    resetTimer = setTimeout(() => btn.replaceChildren(...content('copy', label)), 1800);
   });
   return btn;
 }

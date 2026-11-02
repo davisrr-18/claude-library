@@ -1,8 +1,8 @@
 import { parseFrontMatter, validateManifest, TIER_IDS } from './content.js';
 import { parseRoute, isAppHash, resolveView } from './router.js';
 import { renderMarkdown } from './markdown.js';
-import { buildIndex, search, collectTags, dedupeTags } from './search.js';
-import { typeCounts, filterByType, nextTabIndex } from './tabs.js';
+import { buildIndex, search, collectTags, dedupeTags, sameTitle } from './search.js';
+import { typeCounts, filterByType, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS } from './tabs.js';
 import { h, safeFragment, copyButton, addCopyButtons, wrapTables, initTheme } from './dom.js';
 import { icon, TYPE_ICON } from './icons.js';
 import { highlightCodeBlocks } from './code-highlight.js';
@@ -19,10 +19,6 @@ const TYPE_PLURAL = {
   skill: ['skill', 'skills'], 'claude-md': ['CLAUDE.md', 'CLAUDE.md'], arquitetura: ['arquitetura', 'arquiteturas'],
   agente: ['agente', 'agentes'], workflow: ['workflow', 'workflows'], prompt: ['prompt', 'prompts'],
 };
-const TYPE_TAB_LABELS = {
-  skill: 'Skills', 'claude-md': 'CLAUDE.md', arquitetura: 'Arquiteturas',
-  agente: 'Agentes', workflow: 'Workflows', prompt: 'Prompts',
-};
 const APP_TITLE = 'Claude Library';
 
 const main = document.getElementById('main');
@@ -34,6 +30,7 @@ const state = {
   index: [],
   bodiesPromise: null,
   filters: { q: '', tier: '', tags: new Set() },
+  bodiesRetryAt: 0, // após falha de rede na busca, só tenta de novo depois desse instante
   tierTabs: {}, // aba (tipo de peça) escolhida em cada faixa de nível; '' = todas
   focusSearch: false,
 };
@@ -95,6 +92,7 @@ function fetchText(file) {
 
 /** Carrega o corpo de todas as peças uma vez, para a busca no texto. Se alguma falhar, a próxima busca tenta de novo. */
 function ensureBodies() {
+  if (!state.bodiesPromise && Date.now() < state.bodiesRetryAt) return Promise.resolve();
   state.bodiesPromise ??= (async () => {
     let incomplete = false;
     await Promise.all(state.entries.map(async (entry) => {
@@ -103,7 +101,10 @@ function ensureBodies() {
       entry.text = parts.join('\n');
     }));
     state.index = buildIndex(state.entries);
-    if (incomplete) state.bodiesPromise = null; // não guarda o resultado parcial
+    if (incomplete) { // não guarda o resultado parcial; nova tentativa só após 5 s
+      state.bodiesPromise = null;
+      state.bodiesRetryAt = Date.now() + 5000;
+    }
   })();
   return state.bodiesPromise;
 }
@@ -129,11 +130,11 @@ function cardTile(entry, i = 0, headingTag = 'h3', activeType = '') {
   const tags = dedupeTags(card.tags);
   const piece = activeType ? card.pieces.find((p) => p.type === activeType) : null;
   const href = piece ? pieceHref(tier.id, card.id, piece.type) : cardHref(tier.id, card.id);
-  return h('a', { class: 'card', href, style: `--i:${Math.min(i, 12)}`, 'aria-labelledby': titleId },
+  return h('a', { class: 'card', href, style: `--i:${Math.min(i, 8)}`, 'aria-labelledby': piece ? `${titleId} ${titleId}-piece` : titleId },
     h('span', { class: 'card-icon' }, icon(card.icon || 'folder', 22)),
     h(headingTag, { id: titleId }, card.title),
     h('p', { class: 'card-summary' }, card.summary || ''),
-    piece ? h('p', { class: 'card-piece' }, icon(TYPE_ICON[piece.type], 15), h('span', {}, piece.title)) : null,
+    piece ? h('p', { class: 'card-piece', id: `${titleId}-piece` }, icon(TYPE_ICON[piece.type], 15), h('span', {}, piece.title)) : null,
     h('ul', { class: 'chips', 'aria-label': 'Peças incluídas' },
       card.pieces.map((p) => h('li', { class: `chip${p.type === activeType ? ' is-active' : ''}` }, icon(TYPE_ICON[p.type], 13), TYPE_LABELS[p.type]))),
     tags.length
@@ -171,11 +172,11 @@ function tierSection(tier, entries, { heading = 'h2', cardHeading = 'h3', link =
   const tabs = defs.map((d) => h('button', {
     type: 'button', role: 'tab', class: 'type-tab', id: tabId(d.type), 'aria-controls': panel.id,
     onclick: () => select(d.type),
-  }, icon(d.iconName, 16), h('span', {}, d.label), h('span', { class: 'type-count', 'aria-label': plural(d.count, ['card', 'cards']) }, d.count)));
+  }, icon(d.iconName, 16), h('span', {}, d.label), h('span', { class: 'type-count' }, d.count, h('span', { class: 'sr-only' }, d.count === 1 ? ' card' : ' cards'))));
   const bar = h('div', { class: 'type-tabs', role: 'tablist', 'aria-label': `Tipo de peça em ${tier.title}` }, tabs);
 
   // Se o tipo escolhido não existe nos cards filtrados, mostra todos (sem esquecer a escolha).
-  const current = () => (available.some((a) => a.type === state.tierTabs[tier.id]) ? state.tierTabs[tier.id] : '');
+  const current = () => resolveTypeTab(state.tierTabs[tier.id], available);
 
   function paint(swap) {
     const cur = current();
@@ -194,6 +195,7 @@ function tierSection(tier, entries, { heading = 'h2', cardHeading = 'h3', link =
   }
 
   bar.addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return; // não rouba Alt+← (voltar), Ctrl+setas etc.
     const from = tabs.indexOf(e.target.closest?.('[role="tab"]'));
     const to = from < 0 ? null : nextTabIndex(e.key, from, tabs.length);
     if (to === null) return;
@@ -262,6 +264,7 @@ function renderHome() {
   }
 
   function paintResults() {
+    const focusedTabId = results.contains(document.activeElement) && document.activeElement.getAttribute('role') === 'tab' ? document.activeElement.id : '';
     const found = search(state.index, f.q, { tier: f.tier || undefined, tags: [...f.tags] });
     const byTier = new Map(state.manifest.tiers.map((t) => [t.id, []]));
     for (const e of found) byTier.get(e.tier).push(e);
@@ -281,6 +284,8 @@ function renderHome() {
     }
     status.textContent = active() ? `${plural(found.length, ['card encontrado', 'cards encontrados'])}.` : '';
     clearBtn.hidden = !active();
+    // A faixa foi recriada (ex.: corpos das peças terminaram de carregar): devolve o foco à mesma aba.
+    if (focusedTabId) document.getElementById(focusedTabId)?.focus({ preventScroll: true });
   }
 
   function clearAll() {
@@ -343,6 +348,9 @@ async function loadPiece(panel, piece) {
     const raw = await fetchText(piece.file);
     const { meta, body } = parseFrontMatter(raw);
     const article = h('article', { class: 'md' }, safeFragment(renderMarkdown(body)));
+    // O título da peça já está no cabeçalho: remove o primeiro título do corpo se for o mesmo.
+    const first = article.firstElementChild;
+    if (first && /^H[1-6]$/.test(first.tagName) && (sameTitle(first.textContent, piece.title) || sameTitle(first.textContent, meta.name))) first.remove();
     addCopyButtons(article);
     wrapTables(article);
     panel.replaceChildren(
@@ -453,7 +461,7 @@ function revealOnScroll(candidates) {
 function playEntrance() {
   main.classList.add('is-entering');
   clearTimeout(enterTimer);
-  enterTimer = setTimeout(() => main.classList.remove('is-entering'), 1200);
+  enterTimer = setTimeout(() => main.classList.remove('is-entering'), 1800);
   revealObserver?.disconnect();
   revealObserver = null;
   revealOnScroll(main.querySelectorAll('.tier-head, .type-tabs, .grid > .card, .tier-body > .callout, .pager, .card-aside'));
@@ -572,15 +580,20 @@ document.addEventListener('keydown', (e) => {
 });
 
 let filtersObserver;
+let filtersOnResize;
 
 /** Expõe a altura da barra de filtros (quando fixa) em --filters-h, para o scroll-padding não deixar o foco atrás dela. */
 function trackFiltersHeight(el) {
   filtersObserver?.disconnect();
+  if (filtersOnResize) window.removeEventListener('resize', filtersOnResize);
+  filtersOnResize = null;
   const root = document.documentElement;
   if (!el || !('ResizeObserver' in window)) { root.style.setProperty('--filters-h', '0px'); return; }
   const set = () => root.style.setProperty('--filters-h', getComputedStyle(el).position === 'sticky' ? `${el.offsetHeight}px` : '0px');
   filtersObserver = new ResizeObserver(set);
   filtersObserver.observe(el);
+  filtersOnResize = set; // a posição (sticky/static) muda por media query sem mudar o tamanho
+  window.addEventListener('resize', set, { passive: true });
   set();
 }
 

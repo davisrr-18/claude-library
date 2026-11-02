@@ -91,3 +91,16 @@ test('titulo com formatacao inline e HTML escapado', () => {
   const html = renderMarkdown('# **forte** e `codigo` <b>x</b>');
   assert.match(html, /<h3><strong>forte<\/strong> e <code>codigo<\/code> &lt;b&gt;x&lt;\/b&gt;<\/h3>/);
 });
+
+test('bloco de codigo com linguagem c++ mantem a classe emitida (e escapa aspas na info string)', () => {
+  assert.match(renderMarkdown('```c++\nint x;\n```'), /<code class="language-c\+\+">/);
+  const evil = renderMarkdown('```js" onclick="x\nok\n```');
+  assert.doesNotMatch(evil, /"\s*onclick=/);
+});
+
+test('tabela, lista de tarefas e imagem com titulo sobrevivem ao renderizador', () => {
+  const html = renderMarkdown('| a | b |\n|---|---|\n| 1 | 2 |\n\n- [x] feito\n- [ ] falta\n\n![alt](img/a.png "titulo")');
+  assert.match(html, /<table>[\s\S]*<th>a<\/th>[\s\S]*<td>1<\/td>/);
+  assert.match(html, /<input checked="" disabled="" type="checkbox">/);
+  assert.match(html, /<img src="img\/a\.png" alt="alt" title="titulo">/);
+});

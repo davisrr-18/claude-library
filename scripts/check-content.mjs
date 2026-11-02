@@ -2,9 +2,9 @@
 // Verificação do projeto: manifest válido, arquivos das peças presentes, nenhum dado sensível
 // nos arquivos de texto (e em todo o conteúdo) e nenhuma identidade do autor em nenhum arquivo.
 import { execFileSync } from 'node:child_process';
-import { existsSync, lstatSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { userInfo } from 'node:os';
-import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateManifest } from '../js/content.js';
 
@@ -54,7 +54,6 @@ function displayMatch(rule, match) {
 }
 
 const EXCLUDED_DIRS = new Set(['node_modules', 'vendor']);
-const TEXT_EXTENSIONS = new Set(['.md', '.json', '.js', '.mjs', '.cjs', '.css', '.html', '.yml', '.yaml', '.txt', '.svg']);
 
 function isInside(base, target) {
   const rel = relative(base, target);
@@ -104,12 +103,14 @@ function listProjectEntries(root, dir = root, out = []) {
   return out;
 }
 
-/** Regras genéricas: arquivos de texto da raiz e todo arquivo de content/. tests/ fica de fora (fixtures sintéticas). */
+/** Arquivo binário = byte NUL nos primeiros 8 KB. Qualquer outro é varrido, seja qual for a extensão. */
+function isBinary(buffer) {
+  return buffer.subarray(0, 8192).includes(0);
+}
+
+/** Regras genéricas: todo arquivo de texto do projeto. tests/ fica de fora (fixtures sintéticas). */
 function passesGenericRules(rel) {
-  const [first] = rel.split('/');
-  if (first === 'tests') return false;
-  if (first === 'content') return true;
-  return TEXT_EXTENSIONS.has(extname(rel).toLowerCase());
+  return rel.split('/')[0] !== 'tests';
 }
 
 /**
@@ -158,7 +159,9 @@ export function checkContent(rootDir, { needles = [] } = {}) {
       errors.push(`${entry.rel}: symlink não permitido`);
       continue;
     }
-    const text = readFileSync(entry.abs, 'utf8');
+    const buffer = readFileSync(entry.abs);
+    if (isBinary(buffer)) continue;
+    const text = buffer.toString('utf8');
     if (passesGenericRules(entry.rel)) {
       for (const { rule, match } of findSensitive(text)) {
         errors.push(`${entry.rel}: ${rule}: ${displayMatch(rule, match)}`);
@@ -194,7 +197,20 @@ export function authorNeedles(env = process.env) {
   return [...new Set(values.map((v) => String(v).trim()).filter((v) => v.length >= 4))];
 }
 
-const isMain = process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+/**
+ * Foi chamado como script? Compara caminhos reais: se o projeto for acessado por link simbólico,
+ * argv[1] não é o caminho real e uma comparação direta daria false, saindo com 0 sem verificar nada
+ * (falha aberta). Em caso de erro ao resolver, assume que é script para nunca passar em silêncio.
+ */
+function runsAsScript() {
+  if (process.argv[1] === undefined) return false;
+  try {
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return true;
+  }
+}
+const isMain = runsAsScript();
 if (isMain) {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
   const { errors } = checkContent(root, { needles: authorNeedles() });

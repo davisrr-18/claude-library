@@ -340,12 +340,22 @@ test('checkContent: varre arquivos de texto da raiz fora de content/ (extensão 
   ]);
 });
 
-test('checkContent: arquivos de outras extensões fora de content/ não são varridos', () => {
+test('checkContent: texto de qualquer extensão é varrido, em qualquer pasta (exceto tests/ e vendor/)', () => {
+  for (const nome of ['script.sh', 'dados.csv', 'config.toml', 'app.py', '.env', 'LEIA-ME', 'imagem.png']) {
+    const root = makeRoot({
+      'content/manifest.json': json(manifest([cardWith()])),
+      'content/basicas/exemplo/skill.md': CLEAN,
+      [nome]: 'contato fulano@example.com',
+    });
+    assert.deepEqual(checkContent(root).errors, [`${nome}: email: fulano@example.com`], nome);
+  }
+});
+
+test('checkContent: arquivo binário (byte NUL) é ignorado, mesmo com texto dentro', () => {
   const root = makeRoot({
     'content/manifest.json': json(manifest([cardWith()])),
     'content/basicas/exemplo/skill.md': CLEAN,
-    'imagem.png': 'fulano@example.com',
-    'dados.bin': 'fulano@example.com',
+    'imagem.png': 'cabecalho\0fulano@example.com',
   });
   assert.deepEqual(checkContent(root).errors, []);
 });

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalize, buildIndex, search, collectTags, dedupeTags } from '../js/search.js';
+import { normalize, buildIndex, search, collectTags, dedupeTags, sameTitle } from '../js/search.js';
 
 const entries = [
   { tier: 'basicas', card: 'commit', title: 'Commits limpos', summary: 'Mensagens de commit', tags: ['git'], text: 'Use conventional commits e revisão.' },
@@ -91,4 +91,20 @@ test('collectTags: unicas, ordenadas, com contagem', () => {
   assert.deepEqual(collectTags(entries), [
     { tag: 'arquitetura', count: 1 }, { tag: 'git', count: 2 }, { tag: 'review', count: 1 },
   ]);
+});
+
+test('sameTitle: ignora caixa, acento, espacos e pontuacao nas pontas', () => {
+  assert.equal(sameTitle('Skill de exemplo', 'skill  de EXEMPLO'), true);
+  assert.equal(sameTitle('Fluxo: investigar, implementar', 'Fluxo investigar implementar'), true);
+  assert.equal(sameTitle('Investigação', 'investigacao'), true);
+  assert.equal(sameTitle('Skill de exemplo', 'Skill de exemplo 2'), false);
+  assert.equal(sameTitle('', ''), false); // vazio nunca e "igual": nao remove titulo nenhum
+  assert.equal(sameTitle(undefined, 'x'), false);
+});
+
+test('ç e ñ sao normalizados; letras sem decomposicao (ø, ß) viram separador sem quebrar', () => {
+  assert.equal(normalize('Ação coração piñata'), 'acao coracao pinata');
+  const i = buildIndex([{ tier: 'basicas', card: 'a', title: 'Coração', summary: '', tags: [], text: '' }]);
+  assert.deepEqual(search(i, 'coracao').map((e) => e.card), ['a']);
+  assert.doesNotThrow(() => search(i, 'straße ø'));
 });
