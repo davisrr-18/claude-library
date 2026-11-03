@@ -8,7 +8,7 @@ Este arquivo complementa o `CLAUDE.md` global do usuário e usa o modelo dev_web
 
 ## Migração em andamento
 
-O projeto está migrando do site de HTML/JS puros (sem build) para o modelo dev_web (React + Vite em `client/`). Plano, marcos e dependências em `docs/decisions/0001-migracao-para-o-modelo-dev-web.md`. **Cada marco só começa com o "sim" do usuário.** Até o marco 4 acabar, o código real é o de `js/` e `css/` (ver `docs/arquitetura.md`); depois dele, `docs/arquitetura.md` é substituído pelo `arquitetura.md` da raiz. Atualize este arquivo ao fim de cada marco.
+O projeto está migrando do site de HTML/JS puros (sem build) para o modelo dev_web (React + Vite em `client/`). Plano, marcos e dependências em `docs/decisions/0001-migracao-para-o-modelo-dev-web.md`. **Cada marco só começa com o "sim" do usuário.** Até o marco 4 acabar, o site publicado usa `js/` e `css/` (ver `docs/arquitetura.md`). Os módulos puros já existem copiados em `client/src/utils/` e `services/` (marco 3); **`js/` está congelado** (só correção de bug, aplicada também na cópia) até o marco 5 apagá-lo, quando `docs/arquitetura.md` também é substituído pelo `arquitetura.md` da raiz. Atualize este arquivo ao fim de cada marco.
 
 ## Stack
 

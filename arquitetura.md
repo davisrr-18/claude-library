@@ -43,7 +43,9 @@ claude-library/
         ├── styles/
         │   ├── tokens.css        cores, espaços, tipografia (custom properties)
         │   └── global.css        reset e estilos base
-        └── utils/                funções puras (router, search, tabs, install, markdown, sanitize)
+        └── utils/                funções puras: content (front matter e validação do manifest), router, search,
+                                  tabs, install, markdown, sanitize. Em `services/`: content (fetch do manifest e das peças).
+                                  icons, dom e code-highlight (tocam o DOM) viram componentes no marco 4.
 ```
 
 `server/` não existe. Se um dia existir, segue o modelo (`routes → controllers → services`) e o deploy deixa de ser só Pages; isso é decisão a registrar.
@@ -67,6 +69,7 @@ O repositório e o site são públicos e o Markdown vem de arquivos, então vale
 - Markdown: HTML bruto escapado e URLs filtradas por `isSafeUrl`.
 - Segunda camada: `sanitize` com lista de permissões.
 - Texto do conteúdo entra no React como texto. `dangerouslySetInnerHTML` só em um componente, e só com a saída do `sanitize`; fora disso é proibido.
+- Exceção registrada: `utils/markdown.js` importa `marked` de `vendor/`, na raiz do repositório (fora de `client/`). No marco 4, decidir entre alias do Vite ou copiar o `vendor/` para dentro de `client/`.
 - Nada de segredo no `client/`; só variáveis `VITE_` e nunca com segredo.
 
 ## Estilo e design (CSS)
@@ -85,7 +88,7 @@ O repositório e o site são públicos e o Markdown vem de arquivos, então vale
 | Onde | Ferramenta | O que cobre |
 |---|---|---|
 | `client/src/**/*.test.jsx` | Vitest + Testing Library | Comportamento do componente visto pelo usuário |
-| `client/src/utils/*.test.js` | Vitest | Funções puras |
+| `client/src/utils/*.test.js` | Vitest (ambiente Node) | Funções puras; `install-exec.test.js` também roda bash (e zsh/PowerShell, se existirem) de verdade |
 | `tests/` | `node:test` | Conteúdo, documentação, `.gitignore`, build do site, scripts |
 | `tools/qa/` | Playwright e afins (isolado) | Lint, CSS, fuzz, fumaça, estresse |
 

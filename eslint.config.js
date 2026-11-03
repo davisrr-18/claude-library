@@ -16,6 +16,9 @@ export default [
         fetch: 'readonly',
         console: 'readonly',
         process: 'readonly',
+        URL: 'readonly',
+        TextEncoder: 'readonly',
+        btoa: 'readonly',
       },
     },
     rules: {
@@ -27,4 +30,6 @@ export default [
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z]' }],
     },
   },
+  // Testes rodam em Node (Vitest).
+  { files: ['client/**/*.test.{js,jsx}'], languageOptions: { globals: { Buffer: 'readonly' } } },
 ];

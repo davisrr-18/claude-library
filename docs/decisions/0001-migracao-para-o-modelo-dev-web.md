@@ -1,6 +1,6 @@
 # 0001 — Migração para o modelo dev_web
 
-Data: 2026-11-03. Status: em andamento (marcos 1 e 2 concluídos).
+Data: 2026-11-03. Status: em andamento (marcos 1 a 3 concluídos).
 
 ## Decisão
 
@@ -30,7 +30,7 @@ Conteúdo público e sem dado pessoal, `npm run check`, as duas camadas de sanit
 
 1. **Base:** CLAUDE.md fundido, `arquitetura.md` novo, esta decisão. Sem código. (concluído)
 2. **Esqueleto:** `client/` com Vite, tokens, página vazia; dependências aprovadas; CI com lint, testes e build. (concluído) No workflow do Pages só o portão de verificação muda (`npm ci` e `npm run lint` antes dos testes); a publicação continua sendo o site antigo, para um push no meio da migração não colocar uma página vazia no ar. A troca para `client/dist` é do marco 5.
-3. **Lógica:** módulos puros para `utils/` e `services/`, testes para Vitest, mantendo TDD.
+3. **Lógica:** módulos puros para `utils/` e `services/`, testes para Vitest, mantendo TDD. (concluído) Os módulos foram **copiados**, não movidos, porque o site publicado ainda usa `js/`. `js/` fica **congelado** até o marco 5, quando é apagado junto com os testes legados dos módulos copiados e o `check-content` passa a importar de `client/src/utils/content.js`. Correção em módulo copiado vale nos dois lugares até lá.
 4. **Interface:** `app.js` e `style.css` viram componentes e CSS Modules.
 5. **Fechamento:** `npm run check`, QA, revisão independente, deploy.
 
@@ -56,6 +56,9 @@ Instaladas com o OK do usuário: `react`, `react-dom` (execução); `vite`, `@vi
 Fora da lista aprovada, **ainda não instaladas** (pedem aprovação): `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y` e `eslint-plugin-react`. Sem elas o lint não confere hooks nem acessibilidade em JSX; está anotado como `shortcut` em `eslint.config.js`. Também falta `@testing-library/jest-dom` (asserções como `toHaveAttribute`); por ora os testes usam asserções simples.
 
 ## Pontos em aberto
+
+- **Cópias sem guarda automática:** nada confere que `js/` e `client/src/utils/` continuam equivalentes; o risco é aceito até o marco 5 (curto, `js/` congelado). A revisão do marco 3 comparou as sete cópias: só diferem em formatação e no caminho do `vendor/`.
+- **HTML do Markdown:** `renderMarkdown` devolve HTML para inserir; no marco 4 ele só pode entrar pelo único componente com `dangerouslySetInnerHTML`, depois do `sanitize` (regra 3 do `CLAUDE.md`).
 
 - `.claude/` é ignorado pelo git (pessoal e local) e aqui aponta por links simbólicos para o `.claude` do modelo em `dev_web/`. Versionar agents e skills no repositório exigiria mudar `.gitignore` e o teste que o confere; fica para decidir.
 - Mapa dos tokens atuais (`--bg`, `--accent`…) para `--cor-*`, `--espaco-*`: definido no marco 2.
