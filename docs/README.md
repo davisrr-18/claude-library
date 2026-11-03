@@ -12,6 +12,7 @@ Comece por `../CLAUDE.md` (regras que o Claude Code lê em todo chat) e por `nov
 | [`conteudo.md`](conteudo.md) | Como adicionar pacotes e cards (com comandos para os 3 sistemas), formatos de peça, estado do conteúdo |
 | [`qualidade.md`](qualidade.md) | `npm test`, `npm run check`, `npm run qa`: o que cada um cobre e o que não cobre |
 | [`decisoes.md`](decisoes.md) | Registro de decisões, o que mudou de ideia e o que está em aberto |
+| [`decisions/`](decisions/0001-migracao-para-o-modelo-dev-web.md) | Registros de decisão do modelo dev_web (um por arquivo); a 0001 é a migração para React + Vite |
 | [`superpowers/`](superpowers/) | Histórico: spec e plano de implementação originais, com os addenda de cada rodada |
 
 ## Regra de manutenção
