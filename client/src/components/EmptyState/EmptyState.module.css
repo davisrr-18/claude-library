@@ -1,8 +1,8 @@
 .empty {
   display: grid;
-  gap: 6px;
+  gap: var(--espaco-15);
   justify-items: center;
-  padding: 64px var(--espaco-4);
+  padding: var(--espaco-8) var(--espaco-4);
   color: var(--cor-texto-suave);
   text-align: center;
 }

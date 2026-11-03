@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { copyText } from '../../dom/copyText.js';
 import Button from '../Button/Button.jsx';
 import Icon from '../Icon/Icon.jsx';
-import { copyText } from './copyText.js';
 
 const RESULT_MS = 1800;
 

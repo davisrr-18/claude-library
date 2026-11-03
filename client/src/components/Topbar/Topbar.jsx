@@ -10,7 +10,8 @@ import styles from './Topbar.module.css';
 /** Topo: marca, níveis, tema, sombra ao rolar e barra de progresso de leitura. */
 export default function Topbar({ tiers, activeTier }) {
   const ref = useRef(null);
-  const { scrolled, progress } = useScrollFx();
+  const bar = useRef(null);
+  const scrolled = useScrollFx(bar);
   const { isDark, toggle } = useTheme();
   useHeightVar(ref, '--altura-topo');
 
@@ -40,7 +41,7 @@ export default function Topbar({ tiers, activeTier }) {
           <Icon name={isDark ? 'sun' : 'moon'} size={18} />
         </button>
       </header>
-      <div className={styles.progress} aria-hidden="true" style={{ transform: `scaleX(${progress})` }} />
+      <div ref={bar} className={styles.progress} aria-hidden="true" />
     </>
   );
 }

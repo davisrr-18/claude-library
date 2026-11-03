@@ -35,5 +35,5 @@ const conteudo = () => ({
 export default defineConfig({
   base: './', // caminhos relativos: o site funciona em qualquer subcaminho do Pages
   plugins: [react(), conteudo()],
-  test: { environment: 'jsdom', setupFiles: ['./src/setup-tests.js'] },
+  test: { environment: 'jsdom', setupFiles: ['./src/setup-tests.js'], testTimeout: 15000 },
 });

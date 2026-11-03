@@ -3,27 +3,27 @@
 }
 
 .aside h2 {
-  margin: 0 0 10px;
+  margin: 0 0 var(--espaco-25);
   color: var(--cor-texto-suave);
-  font-size: 0.78rem;
+  font-size: var(--fonte-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .aside ul {
   display: grid;
-  gap: 2px;
+  gap: var(--espaco-0);
   grid-template-columns: minmax(0, 1fr);
 }
 
 .aside a {
   display: flex;
-  gap: 10px;
+  gap: var(--espaco-25);
   align-items: center;
-  padding: 9px var(--espaco-3);
+  padding: var(--espaco-2) var(--espaco-3);
   border-radius: var(--raio-sm);
   color: var(--cor-texto-suave);
-  font-size: 0.93rem;
+  font-size: var(--fonte-lg);
   font-weight: 500;
   text-decoration: none;
 }

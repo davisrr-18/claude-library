@@ -1,6 +1,6 @@
 .hero {
   position: relative;
-  padding: 64px 0 28px;
+  padding: var(--espaco-8) 0 var(--espaco-55);
   text-align: center;
   isolation: isolate;
 }
@@ -23,18 +23,18 @@
   margin: 0 0 var(--espaco-4);
   padding: var(--espaco-1) var(--espaco-3);
   border: 1px solid var(--cor-borda-forte);
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   background: var(--cor-superficie);
   color: var(--cor-texto-suave);
-  font-size: 0.78rem;
+  font-size: var(--fonte-xs);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .hero h1 {
-  margin: 0 0 14px;
-  font-size: clamp(2rem, 1.2rem + 4vw, 4rem);
+  margin: 0 0 var(--espaco-35);
+  font-size: var(--fonte-hero);
   letter-spacing: -0.03em;
   text-wrap: balance;
 }
@@ -58,7 +58,7 @@
   max-width: 60ch;
   margin: 0 auto var(--espaco-5);
   color: var(--cor-texto-suave);
-  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem);
+  font-size: var(--fonte-lead);
   text-wrap: pretty;
 }
 
@@ -68,11 +68,11 @@
   align-items: center;
   max-width: 720px;
   min-height: 56px;
-  margin: 0 auto 20px;
+  margin: 0 auto var(--espaco-45);
   padding: 0 var(--espaco-4);
   border: 1px solid var(--cor-borda-forte);
   border-color: var(--cor-borda-campo);
-  border-radius: 16px;
+  border-radius: var(--raio-lg);
   background: var(--cor-superficie);
   box-shadow: var(--sombra);
   color: var(--cor-texto-suave);
@@ -92,12 +92,12 @@
 .input {
   flex: 1;
   min-width: 0;
-  padding: 14px 0;
+  padding: var(--espaco-35) 0;
   border: 0;
   outline: 0;
   background: transparent;
   color: var(--cor-texto);
-  font-size: 1.05rem;
+  font-size: var(--fonte-base);
 }
 
 .input::placeholder {
@@ -117,11 +117,11 @@
 }
 
 .stats li {
-  padding: 5px var(--espaco-3);
-  border-radius: 999px;
+  padding: var(--espaco-15) var(--espaco-3);
+  border-radius: var(--raio-pill);
   background: var(--cor-superficie-2);
   color: var(--cor-texto-suave);
-  font-size: 0.88rem;
+  font-size: var(--fonte-md);
 }
 
 .stats strong {
@@ -173,13 +173,13 @@
 
 @media (max-width: 640px) {
   .hero {
-    padding-top: 40px;
-    padding-bottom: 20px;
+    padding-top: var(--espaco-65);
+    padding-bottom: var(--espaco-45);
   }
 
   .searchbox {
     min-height: 52px;
-    border-radius: 14px;
+    border-radius: var(--raio-md);
   }
 
   .searchbox kbd {
@@ -189,8 +189,8 @@
 
 @media (max-width: 380px) {
   .stats li {
-    padding: var(--espaco-1) 10px;
-    font-size: 0.82rem;
+    padding: var(--espaco-1) var(--espaco-25);
+    font-size: var(--fonte-xs);
   }
 }
 

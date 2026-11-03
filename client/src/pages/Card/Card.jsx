@@ -1,5 +1,5 @@
 import { useInstallFiles } from '../../hooks/useInstallFiles.js';
-import { tierHref, tierLevel } from '../../utils/format.js';
+import { plural, tierHref, tierLevel } from '../../utils/format.js';
 import { groupPiecesByType } from '../../utils/tabs.js';
 import Callout from '../../components/Callout/Callout.jsx';
 import CardAside from '../../components/CardAside/CardAside.jsx';
@@ -13,7 +13,7 @@ import styles from './Card.module.css';
 
 /** Página de um card: cabeçalho, abas por tipo de peça, as peças do tipo escolhido e a navegação entre cards. */
 export default function Card({ tier, card, activeType }) {
-  const installFiles = useInstallFiles(card);
+  const { files: installFiles, failed: installFailed } = useInstallFiles(card);
   const groups = groupPiecesByType(card.pieces);
   const current = groups.find((g) => g.type === activeType) || groups[0];
   const siblings = tier.cards;
@@ -42,6 +42,9 @@ export default function Card({ tier, card, activeType }) {
                 files={installFiles}
               />
             </div>
+          )}
+          {installFailed > 0 && (
+            <Callout kind="error">{`${plural(installFailed, ['peça do pacote não carregou', 'peças do pacote não carregaram'])}: a instalação pelo terminal pode estar incompleta.`}</Callout>
           )}
           {groups.length > 0 && <PieceTabs tier={tier} card={card} groups={groups} current={current} />}
           {card.pieces.length ? (

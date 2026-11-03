@@ -7,7 +7,7 @@
 
 .skip:focus {
   left: var(--espaco-margem);
-  padding: var(--espaco-2) 14px;
+  padding: var(--espaco-2) var(--espaco-35);
   border-radius: var(--raio-sm);
   background: var(--cor-destaque);
   color: var(--cor-sobre-destaque);
@@ -18,7 +18,7 @@
   width: 100%;
   max-width: var(--largura-max);
   margin: 0 auto;
-  padding: 0 max(var(--espaco-margem), env(safe-area-inset-right)) 72px
+  padding: 0 max(var(--espaco-margem), env(safe-area-inset-right)) var(--espaco-85)
     max(var(--espaco-margem), env(safe-area-inset-left));
   outline: none; /* o foco vai para o <main> ou o h1 a cada rota; sem contorno */
 }

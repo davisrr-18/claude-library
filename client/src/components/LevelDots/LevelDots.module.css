@@ -1,6 +1,6 @@
 .level {
   display: inline-flex;
-  gap: 3px;
+  gap: var(--espaco-1);
   align-items: center;
 }
 

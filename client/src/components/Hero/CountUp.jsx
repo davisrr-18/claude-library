@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { reducedMotion } from '../../hooks/useReducedMotion.js';
+import { reducedMotion } from '../../dom/reducedMotion.js';
 
 const DURATION_MS = 800;
 

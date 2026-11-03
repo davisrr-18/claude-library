@@ -1,4 +1,4 @@
-import { reducedMotion } from './useReducedMotion.js';
+import { reducedMotion } from './reducedMotion.js';
 
 let observer;
 

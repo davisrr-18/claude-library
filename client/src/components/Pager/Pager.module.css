@@ -2,7 +2,7 @@
   display: flex;
   gap: var(--espaco-3);
   justify-content: space-between;
-  margin-top: 48px;
+  margin-top: var(--espaco-7);
   padding-top: var(--espaco-5);
   border-top: 1px solid var(--cor-borda);
 }
@@ -12,7 +12,7 @@
   gap: var(--espaco-3);
   align-items: center;
   max-width: 48%;
-  padding: var(--espaco-3) 18px;
+  padding: var(--espaco-3) var(--espaco-45);
   border: 1px solid var(--cor-borda);
   border-radius: var(--raio-md);
   color: var(--cor-texto);
@@ -23,7 +23,7 @@
 .link small {
   display: block;
   color: var(--cor-texto-suave);
-  font-size: 0.75rem;
+  font-size: var(--fonte-2xs);
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;

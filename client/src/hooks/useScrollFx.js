@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
 
-/** Quanto a página rolou: `scrolled` (passou de 8px) e `progress` de 0 a 1, no máximo uma atualização por frame. */
-export function useScrollFx() {
-  const [fx, setFx] = useState({ scrolled: false, progress: 0 });
+/**
+ * Rolagem da página. Devolve `scrolled` (passou de 8px, muda raramente) e escreve o progresso de leitura (0 a 1) direto
+ * na custom property --progresso do elemento de `barRef`, no máximo uma vez por frame e sem re-render do React.
+ */
+export function useScrollFx(barRef) {
+  const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     let pending = false;
     const update = () => {
       pending = false;
-      const y = window.scrollY || 0;
+      const y = Math.max(0, window.scrollY || 0); // o overscroll do iOS dá rolagem negativa
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      setFx((old) => {
-        const next = { scrolled: y > 8, progress: max > 0 ? Math.min(1, y / max) : 0 };
-        return old.scrolled === next.scrolled && old.progress === next.progress ? old : next;
-      });
+      barRef.current?.style.setProperty('--progresso', String(max > 0 ? Math.min(1, y / max) : 0));
+      setScrolled(y > 8);
     };
     const schedule = () => {
       if (!pending) {
@@ -27,6 +28,6 @@ export function useScrollFx() {
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
     };
-  }, []);
-  return fx;
+  }, [barRef]);
+  return scrolled;
 }

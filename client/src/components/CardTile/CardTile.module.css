@@ -2,8 +2,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 20px;
+  gap: var(--espaco-25);
+  padding: var(--espaco-45);
   overflow: hidden;
   border: 1px solid var(--cor-borda);
   border-radius: var(--raio-md);
@@ -38,7 +38,7 @@
 .card h2,
 .card h3 {
   margin: var(--espaco-1) 0 0;
-  font-size: 1.12rem;
+  font-size: var(--fonte-xl);
 }
 
 .card h2,
@@ -54,7 +54,7 @@
   margin: 0;
   overflow: hidden;
   color: var(--cor-texto-suave);
-  font-size: 0.94rem;
+  font-size: var(--fonte-lg);
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -66,7 +66,7 @@
   width: 44px;
   height: 44px;
   border: 1px solid color-mix(in srgb, var(--cor-destaque) 35%, transparent);
-  border-radius: 12px;
+  border-radius: var(--raio-md);
   background: var(--cor-brilho);
   color: var(--cor-destaque-texto);
 }
@@ -82,18 +82,18 @@
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--espaco-15);
 }
 
 .chip {
   display: inline-flex;
-  gap: 5px;
+  gap: var(--espaco-15);
   align-items: center;
-  padding: 3px 9px;
+  padding: var(--espaco-1) var(--espaco-2);
   border: 1px solid var(--cor-borda);
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   background: var(--cor-superficie-2);
-  font-size: 0.78rem;
+  font-size: var(--fonte-xs);
   font-weight: 500;
 }
 
@@ -103,7 +103,7 @@
 
 .tag {
   color: var(--cor-texto-suave);
-  font-size: 0.78rem;
+  font-size: var(--fonte-xs);
 }
 
 @media (hover: hover) {

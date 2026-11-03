@@ -2,5 +2,5 @@
   min-height: 1.5em;
   margin: var(--espaco-3) 0 0;
   color: var(--cor-texto-suave);
-  font-size: 0.9rem;
+  font-size: var(--fonte-md);
 }

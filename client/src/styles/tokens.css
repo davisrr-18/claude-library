@@ -24,19 +24,50 @@
   --sombra: 0 1px 2px rgba(23, 18, 13, 0.06), 0 8px 24px rgba(23, 18, 13, 0.06);
   --sombra-topo: 0 8px 28px rgba(0, 0, 0, 0.12);
 
+  /* escala de espaço: 0 a 8 e meios-passos (15 = 1,5; 25 = 2,5…) para os valores que o desenho já usava */
+  --espaco-0: 0.125rem;
   --espaco-1: 0.25rem;
+  --espaco-15: 0.375rem;
   --espaco-2: 0.5rem;
+  --espaco-25: 0.625rem;
   --espaco-3: 0.75rem;
+  --espaco-35: 0.875rem;
   --espaco-4: 1rem;
+  --espaco-45: 1.25rem;
   --espaco-5: 1.5rem;
+  --espaco-55: 1.75rem;
   --espaco-6: 2rem;
+  --espaco-65: 2.5rem;
   --espaco-7: 3rem;
+  --espaco-75: 3.5rem;
+  --espaco-8: 4rem;
+  --espaco-85: 4.5rem;
   --espaco-margem: clamp(16px, 4.5vw, 80px);
   --largura-max: 2560px;
   --altura-topo: 58px;
 
+  --raio-2xs: 4px;
+  --raio-xs: 6px;
   --raio-sm: 8px;
   --raio-md: 14px;
+  --raio-lg: 16px;
+  --raio-xl: 18px;
+  --raio-pill: 999px;
+
+  /* escala de tipografia */
+  --fonte-2xs: 0.75rem;
+  --fonte-xs: 0.8rem;
+  --fonte-sm: 0.85rem;
+  --fonte-md: 0.9rem;
+  --fonte-lg: 0.95rem;
+  --fonte-base: 1rem;
+  --fonte-xl: 1.1rem;
+  --fonte-2xl: 1.25rem;
+  --fonte-3xl: 1.5rem;
+  --fonte-raiz-larga: 17px; /* tamanho-base do html em telas de 1800px ou mais */
+  --fonte-hero: clamp(2rem, 1.2rem + 4vw, 4rem);
+  --fonte-titulo-card: clamp(1.7rem, 4vw, 2.4rem);
+  --fonte-lead: clamp(1rem, 0.95rem + 0.3vw, 1.2rem);
 
   --fonte-texto: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --fonte-codigo: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;

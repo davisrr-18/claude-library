@@ -1,6 +1,6 @@
 .layout {
   display: grid;
-  gap: 32px 48px;
+  gap: var(--espaco-6) var(--espaco-7);
   align-items: start;
   grid-template-columns: minmax(0, 1fr);
 }
@@ -10,11 +10,11 @@
 }
 
 .install {
-  margin-bottom: 20px;
+  margin-bottom: var(--espaco-45);
 }
 
 .panel {
-  padding: 28px 0 var(--espaco-2);
+  padding: var(--espaco-55) 0 var(--espaco-2);
 }
 
 /* desktop: página do card com coluna lateral */

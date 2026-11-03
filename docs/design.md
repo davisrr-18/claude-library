@@ -37,7 +37,7 @@ Mesmos valores, nomes do modelo dev_web. Quem migra um trecho de `css/style.css`
 | `--accent` / `--accent-ink` / `--on-accent` | `--cor-destaque` / `--cor-destaque-texto` / `--cor-sobre-destaque` | `--radius` / `--radius-sm` | `--raio-md` / `--raio-sm` |
 | `--gutter` / `--maxw` / `--topbar-h` | `--espaco-margem` / `--largura-max` / `--altura-topo` | `--font` / `--mono` | `--fonte-texto` / `--fonte-codigo` |
 
-Espaços novos: `--espaco-1` a `--espaco-7` (0,25 rem a 3 rem). O CSS antigo usa `!important` em animações e em `prefers-reduced-motion`; o modelo proíbe. Ao migrar (marco 4), reescrever sem `!important` e manter o teste de movimento.
+Escalas novas no `client` (valores soltos não são aceitos, há teste): espaço `--espaco-0` a `--espaco-8` (2px a 64px, com meios-passos como `--espaco-25` = 10px), fonte `--fonte-2xs` a `--fonte-3xl` (0,75 a 1,5 rem, mais `--fonte-hero`, `--fonte-titulo-card` e `--fonte-lead`, que são fluidas) e raio `--raio-2xs` a `--raio-xl` e `--raio-pill`. O CSS antigo usa `!important` em animações e em `prefers-reduced-motion`; o modelo proíbe. Ao migrar (marco 4), reescrever sem `!important` e manter o teste de movimento.
 
 Regras: laranja `#ff7a1a` só em preenchimentos (texto sobre ele é escuro); para texto/links no claro usa-se `--accent-ink`, que tem contraste suficiente. O tema segue o sistema (`prefers-color-scheme`) e o botão guarda a escolha (`data-theme`, aplicado antes do primeiro paint). Cores de sintaxe (highlight.js) são escritas no CSS na mesma paleta.
 

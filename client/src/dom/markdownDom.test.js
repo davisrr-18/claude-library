@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { safeFragment } from './dom.js';
+import { safeFragment } from './markdownDom.js';
 
 // Segunda camada de defesa: o walker precisa limpar HTML cru mesmo se a primeira camada (renderMarkdown) falhar.
 const html = (s) => {

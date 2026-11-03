@@ -4,7 +4,7 @@
   z-index: 30;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--espaco-2) 20px;
+  gap: var(--espaco-2) var(--espaco-45);
   align-items: center;
   min-height: 58px;
   padding: var(--espaco-2)
@@ -33,7 +33,7 @@
 
 .brand {
   display: inline-flex;
-  gap: 10px;
+  gap: var(--espaco-25);
   align-items: center;
   color: var(--cor-texto);
   font-weight: 700;
@@ -46,10 +46,10 @@
   place-items: center;
   width: 30px;
   height: 30px;
-  border-radius: 9px;
+  border-radius: var(--raio-sm);
   background: var(--cor-destaque);
   color: var(--cor-sobre-destaque);
-  font: 800 0.8rem/1 var(--fonte-codigo);
+  font: 800 var(--fonte-xs)/1 var(--fonte-codigo);
   box-shadow: 0 0 0 4px var(--cor-brilho);
 }
 
@@ -57,7 +57,7 @@
   display: flex;
   flex: 1;
   flex-wrap: wrap;
-  gap: 2px 4px;
+  gap: var(--espaco-0) var(--espaco-1);
 }
 
 .tiers a {
@@ -65,9 +65,9 @@
   gap: var(--espaco-2);
   align-items: center;
   padding: var(--espaco-2) var(--espaco-3);
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   color: var(--cor-texto-suave);
-  font-size: 0.93rem;
+  font-size: var(--fonte-lg);
   font-weight: 500;
   text-decoration: none;
 }
@@ -88,7 +88,7 @@
   width: 38px;
   height: 38px;
   border: 1px solid var(--cor-borda);
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   background: var(--cor-superficie);
   color: var(--cor-texto);
   cursor: pointer;
@@ -102,9 +102,10 @@
   z-index: 60;
   height: 2px;
   background: linear-gradient(90deg, var(--cor-destaque), var(--cor-destaque-claro));
-  box-shadow: 0 0 10px var(--cor-brilho);
-  transform: scaleX(0);
+  /* Sem box-shadow (o scaleX o esticaria e borraria) e sem transition (o frame já é suave e a transição atrasava a barra). */
+  transform: scaleX(var(--progresso, 0));
   transform-origin: 0 50%;
+  will-change: transform;
   pointer-events: none;
 }
 
@@ -141,10 +142,6 @@
       transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .progress {
-    transition: transform 0.12s linear;
-  }
-
   .iconBtn:active {
     transform: scale(0.96);
   }
@@ -170,8 +167,8 @@
   }
 
   .tiers a {
-    padding: 6px 10px;
-    font-size: 0.88rem;
+    padding: var(--espaco-15) var(--espaco-25);
+    font-size: var(--fonte-md);
   }
 }
 

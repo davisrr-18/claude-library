@@ -5,7 +5,7 @@
   align-items: center;
   margin: var(--espaco-5) 0 var(--espaco-2);
   color: var(--cor-texto-suave);
-  font-size: 0.88rem;
+  font-size: var(--fonte-md);
 }
 
 .crumbs a {

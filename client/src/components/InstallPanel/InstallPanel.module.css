@@ -13,7 +13,7 @@
 
 .install > summary {
   display: flex;
-  gap: 10px;
+  gap: var(--espaco-25);
   align-items: center;
   min-height: 44px;
   padding: var(--espaco-3) var(--espaco-4);
@@ -36,7 +36,7 @@
   content: '+';
   margin-left: auto;
   color: var(--cor-texto-suave);
-  font-size: 1.2rem;
+  font-size: var(--fonte-2xl);
   font-weight: 500;
   line-height: 1;
 }
@@ -61,16 +61,16 @@
   max-width: 70ch;
   margin: 0;
   color: var(--cor-texto-suave);
-  font-size: 0.92rem;
+  font-size: var(--fonte-md);
 }
 
 .osTabs {
   display: inline-flex;
-  gap: 2px;
+  gap: var(--espaco-0);
   justify-self: start;
-  padding: 3px;
+  padding: var(--espaco-1);
   border: 1px solid var(--cor-borda);
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   background: var(--cor-superficie-2);
 }
 
@@ -78,10 +78,10 @@
   min-height: 36px;
   padding: var(--espaco-2) var(--espaco-4);
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   background: transparent;
   color: var(--cor-texto-suave);
-  font-size: 0.9rem;
+  font-size: var(--fonte-md);
   font-weight: 500;
   cursor: pointer;
 }

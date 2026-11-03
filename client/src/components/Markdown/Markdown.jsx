@@ -1,11 +1,11 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { revealOnScroll } from '../../hooks/reveal.js';
+import { highlightCodeBlocks } from '../../dom/highlight.js';
+import { removeDuplicateTitle, safeFragment, wrapCodeBlocks, wrapTables } from '../../dom/markdownDom.js';
+import { revealOnScroll } from '../../dom/reveal.js';
 import { renderMarkdown } from '../../utils/markdown.js';
 import { codeBlockStyles } from '../CodeBlock/CodeBlock.jsx';
 import CopyButton from '../CopyButton/CopyButton.jsx';
-import { removeDuplicateTitle, safeFragment, wrapCodeBlocks, wrapTables } from './dom.js';
-import { highlightCodeBlocks } from './highlight.js';
 import styles from './Markdown.module.css';
 
 /**

@@ -3,7 +3,7 @@
   top: var(--altura-topo);
   z-index: 20;
   display: grid;
-  gap: 10px;
+  gap: var(--espaco-25);
   margin: var(--espaco-3) calc(var(--espaco-margem) * -1) 0;
   padding: var(--espaco-3) var(--espaco-margem);
   isolation: isolate;
@@ -34,21 +34,21 @@
 .seg {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 2px;
-  padding: 3px;
+  gap: var(--espaco-0);
+  padding: var(--espaco-1);
   border: 1px solid var(--cor-borda);
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   background: var(--cor-superficie-2);
 }
 
 .segBtn {
   min-height: 36px;
-  padding: var(--espaco-2) 14px;
+  padding: var(--espaco-2) var(--espaco-35);
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   background: transparent;
   color: var(--cor-texto-suave);
-  font-size: 0.9rem;
+  font-size: var(--fonte-md);
   font-weight: 500;
   cursor: pointer;
 }
@@ -61,8 +61,8 @@
 
 .tagbar {
   display: flex;
-  gap: 6px;
-  padding: 2px 0;
+  gap: var(--espaco-15);
+  padding: var(--espaco-0) 0;
   overflow-x: auto;
   scrollbar-width: thin;
 }
@@ -70,15 +70,15 @@
 .tagBtn {
   display: inline-flex;
   flex: none;
-  gap: 6px;
+  gap: var(--espaco-15);
   align-items: center;
   min-height: 32px;
-  padding: 5px var(--espaco-3);
+  padding: var(--espaco-15) var(--espaco-3);
   border: 1px solid var(--cor-borda);
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   background: var(--cor-superficie);
   color: var(--cor-texto-suave);
-  font-size: 0.84rem;
+  font-size: var(--fonte-sm);
   cursor: pointer;
 }
 
@@ -87,7 +87,7 @@
 }
 
 .tagBtn span {
-  font-size: 0.74rem;
+  font-size: var(--fonte-2xs);
   font-variant-numeric: tabular-nums;
   opacity: 0.9;
 }
@@ -135,8 +135,8 @@
 
 @media (max-width: 380px) {
   .segBtn {
-    padding: 6px 10px;
-    font-size: 0.84rem;
+    padding: var(--espaco-15) var(--espaco-25);
+    font-size: var(--fonte-sm);
   }
 }
 

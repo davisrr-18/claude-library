@@ -3,13 +3,13 @@
   flex-wrap: wrap;
   gap: var(--espaco-2);
   justify-content: space-between;
-  padding: 20px
+  padding: var(--espaco-45)
     max(
       var(--espaco-margem),
       env(safe-area-inset-right),
       calc((100% - var(--largura-max)) / 2 + var(--espaco-margem))
     )
-    calc(20px + env(safe-area-inset-bottom))
+    calc(var(--espaco-45) + env(safe-area-inset-bottom))
     max(
       var(--espaco-margem),
       env(safe-area-inset-left),
@@ -17,7 +17,7 @@
     );
   border-top: 1px solid var(--cor-borda);
   color: var(--cor-texto-suave);
-  font-size: 0.85rem;
+  font-size: var(--fonte-sm);
 }
 
 @media (prefers-reduced-motion: no-preference) {

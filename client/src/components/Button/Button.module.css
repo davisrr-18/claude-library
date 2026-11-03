@@ -4,9 +4,9 @@
   justify-content: center;
   gap: var(--espaco-2);
   min-height: 42px;
-  padding: var(--espaco-2) 18px;
+  padding: var(--espaco-2) var(--espaco-45);
   border: 1px solid var(--cor-destaque);
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   background: var(--cor-destaque);
   color: var(--cor-sobre-destaque);
   font-weight: 600;
@@ -28,7 +28,7 @@
 .sm {
   min-height: 36px;
   padding: var(--espaco-1) var(--espaco-3);
-  font-size: 0.85rem;
+  font-size: var(--fonte-sm);
 }
 
 @media (hover: hover) {

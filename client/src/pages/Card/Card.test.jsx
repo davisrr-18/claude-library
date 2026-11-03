@@ -76,3 +76,27 @@ test('card sem peças mostra o aviso', () => {
   expect(screen.getByText('Este card ainda não tem peças.')).toBeInTheDocument();
   expect(screen.queryByRole('navigation', { name: 'Peças do card' })).toBeNull();
 });
+
+test('se uma peça do pacote não carrega, avisa que a instalação pode estar incompleta', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (url) =>
+      url === 'content/p/revisor.md'
+        ? { ok: false, status: 404 }
+        : { ok: true, status: 200, text: async () => arquivos[url] },
+    ),
+  );
+  render(<Card tier={tier} card={card} />);
+  await waitFor(() =>
+    expect(
+      screen.getByText(/1 peça do pacote não carregou: a instalação pelo terminal pode estar incompleta/),
+    ).toBeInTheDocument(),
+  );
+});
+
+test('sem falhas, não mostra aviso de instalação incompleta', async () => {
+  stubFetch();
+  render(<Card tier={tier} card={card} />);
+  await screen.findByText('Instalar o pacote inteiro pelo terminal (2 arquivos)');
+  expect(screen.queryByText(/pode estar incompleta/)).toBeNull();
+});

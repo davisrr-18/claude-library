@@ -152,3 +152,19 @@ test('grids que recebem texto de largura imprevisível têm coluna que encolhe',
     /overflow-wrap:\s*anywhere/,
   );
 });
+
+test('espaço, tipografia e raio só por tokens: nenhum px ou rem solto em padding, margin, gap, font-size, font e border-radius', () => {
+  const ruins = [];
+  for (const f of files.filter((x) => x.name !== 'styles/tokens.css')) {
+    for (const r of f.rules) {
+      if (r.prelude.includes('.sr-only')) continue; // utilitário de acessibilidade: margin: -1px é parte da técnica
+      for (const d of r.body.matchAll(
+        /(?:^|;)\s*((?:padding|margin)(?:-[a-z]+)?|(?:row-|column-)?gap|font-size|font|border-radius)\s*:\s*([^;]+)/g,
+      )) {
+        if (/(?<![\w.-])\d+(?:\.\d+)?(?:px|rem)\b/.test(d[2]))
+          ruins.push(`${f.name}: ${r.prelude} { ${d[1]}: ${d[2].trim()} }`);
+      }
+    }
+  }
+  expect(ruins).toEqual([]);
+});

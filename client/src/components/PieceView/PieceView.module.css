@@ -1,6 +1,6 @@
 .piece + .piece {
-  margin-top: 56px;
-  padding-top: 40px;
+  margin-top: var(--espaco-75);
+  padding-top: var(--espaco-65);
   border-top: 1px solid var(--cor-borda);
 }
 
@@ -10,14 +10,14 @@
   gap: var(--espaco-3);
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: var(--espaco-45);
 }
 
 .head h2,
 .head h3,
 .head h4 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: var(--fonte-2xl);
 }
 
 .head p {
@@ -29,12 +29,12 @@
 .name {
   display: inline-block;
   margin-top: var(--espaco-1);
-  padding: 1px var(--espaco-2);
+  padding: var(--espaco-0) var(--espaco-2);
   border: 1px solid var(--cor-borda);
-  border-radius: 6px;
+  border-radius: var(--raio-xs);
   background: var(--cor-superficie-2);
   color: var(--cor-texto-suave);
-  font: 500 0.8rem var(--fonte-codigo);
+  font: 500 var(--fonte-xs) var(--fonte-codigo);
 }
 
 @media (max-width: 640px) {

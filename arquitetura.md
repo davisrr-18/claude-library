@@ -42,7 +42,9 @@ claude-library/
         │                         InstallPanel, CodeBlock, CopyButton, Tabs, Button, Icon, LevelDots, Callout,
         │                         Skeleton, Crumbs, Pager, EmptyState
         ├── hooks/                useLibrary, useHash, usePieceText, useInstallFiles, useTheme, useOs, useScrollFx,
-        │                         useHeightVar, usePointerGlow, reveal (revelação ao rolar), useEntrance
+        │                         useHeightVar, usePointerGlow, useEntrance
+        ├── dom/                  helpers imperativos de DOM: reveal (revelação ao rolar), reducedMotion, copyText,
+        │                         highlight, markdownDom (safeFragment e afins)
         ├── services/             leitura do conteúdo (único lugar que faz fetch)
         ├── styles/
         │   ├── tokens.css        cores, espaços, tipografia (custom properties)
@@ -59,8 +61,9 @@ claude-library/
 | Camada | Responsabilidade | Pode importar de |
 |---|---|---|
 | `pages/` | Montar a tela de uma rota, buscar dados via hooks | `components`, `hooks`, `services` |
-| `components/` | UI reutilizável, sem saber de rotas nem de fetch | `components`, `hooks`, `utils`, `styles` |
-| `hooks/` | Estado e efeitos compartilhados | `services`, `utils` |
+| `components/` | UI reutilizável, sem saber de rotas nem de fetch | `components`, `hooks`, `dom`, `utils`, `styles` |
+| `hooks/` | Estado e efeitos compartilhados | `services`, `utils`, `dom` |
+| `dom/` | Helpers imperativos de DOM (sem React) | `utils` |
 | `services/` | Único lugar que lê `content/` por `fetch` | `utils` |
 | `utils/` | Funções puras, sem DOM e sem React | nada do projeto |
 
@@ -72,13 +75,13 @@ O repositório e o site são públicos e o Markdown vem de arquivos, então vale
 
 - Markdown: HTML bruto escapado e URLs filtradas por `isSafeUrl`.
 - Segunda camada: `sanitize` com lista de permissões.
-- Texto do conteúdo entra no React como texto. O único lugar que insere HTML do conteúdo é `components/Markdown` (`safeFragment`, template inerte e lista de permissões de `sanitize`), sem `dangerouslySetInnerHTML`; fora dele, injetar HTML é proibido.
-- Exceção registrada: `utils/markdown.js` importa `marked` de `vendor/`, na raiz do repositório (fora de `client/`). No marco 4, decidir entre alias do Vite ou copiar o `vendor/` para dentro de `client/`.
+- Texto do conteúdo entra no React como texto. O único lugar que insere HTML do conteúdo é `components/Markdown` (com `safeFragment`, de `dom/markdownDom.js`, template inerte e lista de permissões de `sanitize`), sem `dangerouslySetInnerHTML`; fora dele, injetar HTML é proibido.
+- Exceção registrada: `utils/markdown.js` e `dom/highlight.js` importam `marked` e `highlight.js` de `vendor/`, na raiz do repositório (fora de `client/`), enquanto `js/` ainda existe. No marco 5 o `vendor/` vai para dentro de `client/`.
 - Nada de segredo no `client/`; só variáveis `VITE_` e nunca com segredo.
 
 ## Estilo e design (CSS)
 
-- `styles/tokens.css` define `--cor-*`, `--espaco-*`, `--fonte-*`, `--raio-*` em `:root`; o modo escuro redefine os mesmos tokens em `@media (prefers-color-scheme: dark)`. O mapa dos tokens antigos (`--bg`, `--accent`…) para esses nomes está em `docs/design.md`.
+- `styles/tokens.css` define `--cor-*`, `--espaco-*` (0 a 8, com meios-passos), `--fonte-*` (escala e títulos fluidos), `--raio-*` em `:root`; o CSS não usa `px` nem `rem` soltos em espaço, fonte e raio (há teste); o modo escuro redefine os mesmos tokens em `@media (prefers-color-scheme: dark)`. O mapa dos tokens antigos (`--bg`, `--accent`…) para esses nomes está em `docs/design.md`.
 - Cada componente tem o próprio `.module.css`; estilo global só em `global.css`.
 - Mobile-first, `@media (min-width: ...)` para ampliar. Flexbox e Grid, unidades relativas antes de `px`.
 - Regras do projeto que continuam: grids com texto imprevisível usam `minmax(0, 1fr)` ou `min-width: 0`; nada com `position: absolute` sobre área rolável ou texto; `:hover` só em `@media (hover: hover)`; alvos de toque ≥ 44px em `pointer: coarse`; animações só de entrada, uma vez, e respeitando `prefers-reduced-motion`.

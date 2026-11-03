@@ -7,7 +7,7 @@
 .skeleton i {
   display: block;
   height: 14px;
-  border-radius: 6px;
+  border-radius: var(--raio-xs);
   background: linear-gradient(
       90deg,
       var(--cor-superficie-2) 25%,

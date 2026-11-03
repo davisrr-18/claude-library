@@ -11,7 +11,7 @@
   flex: none;
   gap: var(--espaco-2);
   align-items: center;
-  padding: 10px var(--espaco-4);
+  padding: var(--espaco-25) var(--espaco-4);
   border-bottom: 2px solid transparent;
   color: var(--cor-texto-suave);
   font-weight: 500;
@@ -30,11 +30,11 @@
 
 .count {
   min-width: 22px;
-  padding: 1px 7px;
-  border-radius: 999px;
+  padding: var(--espaco-0) var(--espaco-2);
+  border-radius: var(--raio-pill);
   background: var(--cor-superficie-2);
   color: var(--cor-texto-suave);
-  font-size: 0.74rem;
+  font-size: var(--fonte-2xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   text-align: center;

@@ -42,6 +42,9 @@ const go = (hash) =>
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   });
 
+// A tela aparece antes de os efeitos (como o ouvinte do atalho "/") rodarem; sob carga isso gerava teste instável.
+const efeitosAplicados = () => act(async () => {});
+
 beforeEach(() => {
   window.scrollTo = vi.fn();
   window.history.replaceState(null, '', '#/');
@@ -104,6 +107,7 @@ test('a tecla "/" foca a busca na Home', async () => {
   stubFetch();
   render(<App />);
   const box = await screen.findByRole('searchbox');
+  await efeitosAplicados();
   fireEvent.keyDown(document.body, { key: '/' });
   expect(document.activeElement).toBe(box);
 });
@@ -113,9 +117,10 @@ test('a tecla "/" fora da Home vai para a Home e foca a busca', async () => {
   window.history.replaceState(null, '', '#/basicas');
   render(<App />);
   await screen.findByRole('heading', { level: 1, name: 'Tarefas Básicas' });
+  await efeitosAplicados();
   fireEvent.keyDown(document.body, { key: '/' });
   go(window.location.hash); // jsdom já mudou o hash; só entrega o evento
-  const box = await screen.findByRole('searchbox', {}, { timeout: 4000 });
+  const box = await screen.findByRole('searchbox');
   await waitFor(() => expect(document.activeElement).toBe(box));
 });
 

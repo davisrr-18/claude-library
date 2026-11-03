@@ -1,5 +1,5 @@
-import { sameTitle } from '../../utils/search.js';
-import { isAttrAllowed, isTagAllowed } from '../../utils/sanitize.js';
+import { sameTitle } from '../utils/search.js';
+import { isAttrAllowed, isTagAllowed } from '../utils/sanitize.js';
 
 /**
  * Segunda camada de defesa: o HTML de renderMarkdown já escapa HTML bruto e filtra URLs. Aqui ele é parseado em

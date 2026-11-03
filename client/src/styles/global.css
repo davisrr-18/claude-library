@@ -27,7 +27,7 @@ html {
 
 @media (min-width: 1800px) {
   html {
-    font-size: 17px;
+    font-size: var(--fonte-raiz-larga);
   }
 }
 
@@ -47,7 +47,7 @@ body {
   touch-action: pan-y pinch-zoom; /* a página não é arrastada para o lado; faixas com rolagem própria continuam rolando */
   background: var(--cor-fundo);
   color: var(--cor-texto);
-  font: 1rem/1.6 var(--fonte-texto);
+  font: var(--fonte-base)/1.6 var(--fonte-texto);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -86,7 +86,7 @@ input {
   /* :where tem especificidade zero: o border-radius e o outline de cada componente vencem, em qualquer ordem de CSS */
   outline: 2px solid var(--cor-destaque-texto);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--raio-2xs);
 }
 
 h1:focus,
@@ -95,13 +95,13 @@ h1:focus-visible {
 }
 
 kbd {
-  padding: 3px 7px;
+  padding: var(--espaco-1) var(--espaco-2);
   border: 1px solid var(--cor-borda-forte);
   border-bottom-width: 2px;
-  border-radius: 6px;
+  border-radius: var(--raio-xs);
   background: var(--cor-superficie-2);
   color: var(--cor-texto-suave);
-  font: 600 0.75rem/1 var(--fonte-codigo);
+  font: 600 var(--fonte-2xs)/1 var(--fonte-codigo);
 }
 
 /* texto só para leitores de tela */
@@ -226,20 +226,6 @@ kbd {
   .reveal.reveal,
   .revealed.revealed {
     animation: none;
-  }
-
-  /* troca de tema: transição de cores só enquanto a classe existe (adicionada por useTheme) */
-  html.theme-anim,
-  html.theme-anim *,
-  html.theme-anim *::before,
-  html.theme-anim *::after {
-    transition:
-      background-color 0.4s ease,
-      color 0.4s ease,
-      border-color 0.4s ease,
-      box-shadow 0.4s ease,
-      fill 0.4s ease,
-      stroke 0.4s ease;
   }
 }
 

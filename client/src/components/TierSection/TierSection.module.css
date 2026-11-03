@@ -1,10 +1,10 @@
 .tier {
-  margin-top: 36px;
+  margin-top: var(--espaco-65);
 }
 
 .head {
   display: flex;
-  gap: 14px;
+  gap: var(--espaco-35);
   align-items: flex-start;
   margin-bottom: var(--espaco-4);
 }
@@ -12,7 +12,7 @@
 .dots {
   margin-top: var(--espaco-3);
   padding: var(--espaco-1) var(--espaco-2);
-  border-radius: 999px;
+  border-radius: var(--raio-pill);
   background: var(--cor-superficie-2);
 }
 
@@ -24,7 +24,7 @@
 .head h1,
 .head h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: var(--fonte-3xl);
   overflow-wrap: anywhere;
 }
 
@@ -42,7 +42,7 @@
 .count {
   margin-top: var(--espaco-2);
   color: var(--cor-texto-suave);
-  font-size: 0.82rem;
+  font-size: var(--fonte-xs);
   white-space: nowrap;
 }
 
@@ -54,7 +54,7 @@
 .tabs {
   display: flex;
   gap: var(--espaco-1);
-  margin: 0 0 18px;
+  margin: 0 0 var(--espaco-45);
   padding: 0;
   overflow-x: auto;
   border-bottom: 1px solid var(--cor-borda);
@@ -66,12 +66,12 @@
   flex: none;
   gap: var(--espaco-2);
   align-items: center;
-  padding: 10px 14px;
+  padding: var(--espaco-25) var(--espaco-35);
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
   color: var(--cor-texto-suave);
-  font-size: 0.93rem;
+  font-size: var(--fonte-lg);
   font-weight: 500;
   cursor: pointer;
 }
@@ -92,11 +92,11 @@
 
 .typeCount {
   min-width: 22px;
-  padding: 1px 7px;
-  border-radius: 999px;
+  padding: var(--espaco-0) var(--espaco-2);
+  border-radius: var(--raio-pill);
   background: var(--cor-superficie-2);
   color: var(--cor-texto-suave);
-  font-size: 0.74rem;
+  font-size: var(--fonte-2xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -119,14 +119,14 @@
 }
 
 .group + .group {
-  margin-top: 48px;
+  margin-top: var(--espaco-7);
   padding-top: var(--espaco-6);
   border-top: 1px solid var(--cor-borda);
 }
 
 .origin {
-  margin: 0 0 20px;
-  font-size: 1rem;
+  margin: 0 0 var(--espaco-45);
+  font-size: var(--fonte-base);
 }
 
 .origin a {
@@ -173,14 +173,14 @@
 @media (min-width: 900px) {
   .tier {
     display: grid;
-    gap: 0 40px;
+    gap: 0 var(--espaco-65);
     align-items: start;
     grid-template-columns: 240px minmax(0, 1fr);
   }
 
   .head {
     flex-direction: column;
-    gap: 10px;
+    gap: var(--espaco-25);
     margin-bottom: 0;
   }
 
@@ -199,14 +199,14 @@
 
 @media (min-width: 1280px) {
   .tier {
-    gap: 0 56px;
+    gap: 0 var(--espaco-75);
     grid-template-columns: 280px minmax(0, 1fr);
   }
 }
 
 @media (max-width: 640px) {
   .tier {
-    margin-top: 28px;
+    margin-top: var(--espaco-55);
   }
 
   .head {
@@ -218,7 +218,7 @@
   }
 
   .tab {
-    padding: 10px var(--espaco-3);
+    padding: var(--espaco-25) var(--espaco-3);
   }
 }
 

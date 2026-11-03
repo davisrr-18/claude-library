@@ -1,6 +1,6 @@
 .callout {
   margin: var(--espaco-4) 0;
-  padding: 14px var(--espaco-4);
+  padding: var(--espaco-35) var(--espaco-4);
   border: 1px dashed var(--cor-borda-forte);
   border-radius: var(--raio-md);
   color: var(--cor-texto-suave);

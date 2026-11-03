@@ -8,26 +8,26 @@
 }
 
 .md h3 {
-  margin: 2rem 0 0.6rem;
-  font-size: 1.5rem;
+  margin: var(--espaco-6) 0 var(--espaco-25);
+  font-size: var(--fonte-3xl);
 }
 
 .md h4 {
-  margin: 2rem 0 0.5rem;
-  padding-bottom: 6px;
+  margin: var(--espaco-6) 0 var(--espaco-2);
+  padding-bottom: var(--espaco-15);
   border-bottom: 1px solid var(--cor-borda);
-  font-size: 1.25rem;
+  font-size: var(--fonte-2xl);
 }
 
 .md h5 {
-  margin: 1.6rem 0 0.4rem;
-  font-size: 1.1rem;
+  margin: var(--espaco-5) 0 var(--espaco-15);
+  font-size: var(--fonte-xl);
 }
 
 .md h6 {
-  margin: 1.4rem 0 0.4rem;
+  margin: var(--espaco-5) 0 var(--espaco-15);
   color: var(--cor-texto-suave);
-  font-size: 1rem;
+  font-size: var(--fonte-base);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -35,20 +35,20 @@
 .md p,
 .md ul,
 .md ol {
-  margin: 0.8rem 0;
+  margin: var(--espaco-3) 0;
 }
 
 .md ul {
-  padding-left: 1.4rem;
+  padding-left: var(--espaco-5);
   list-style: disc;
 }
 
 .md ol {
-  padding-left: 1.5rem;
+  padding-left: var(--espaco-5);
 }
 
 .md li {
-  margin: 0.25rem 0;
+  margin: var(--espaco-1) 0;
 }
 
 .md li::marker {
@@ -62,13 +62,13 @@
 }
 
 .md hr {
-  margin: 2rem 0;
+  margin: var(--espaco-6) 0;
   border: 0;
   border-top: 1px solid var(--cor-borda);
 }
 
 .md blockquote {
-  margin: 1rem 0;
+  margin: var(--espaco-4) 0;
   padding: var(--espaco-1) var(--espaco-4);
   border-left: 3px solid var(--cor-destaque);
   border-radius: 0 var(--raio-sm) var(--raio-sm) 0;
@@ -83,7 +83,7 @@
 
 .tableWrap {
   max-width: 100%;
-  margin: 1rem 0;
+  margin: var(--espaco-4) 0;
   overflow-x: auto;
   border-radius: var(--raio-sm);
 }
@@ -100,9 +100,9 @@
 }
 
 .md :not(pre) > code {
-  padding: 1px 6px;
+  padding: var(--espaco-0) var(--espaco-15);
   border: 1px solid var(--cor-borda);
-  border-radius: 6px;
+  border-radius: var(--raio-xs);
   background: var(--cor-superficie-2);
   font-family: var(--fonte-codigo);
   font-size: 0.88em;

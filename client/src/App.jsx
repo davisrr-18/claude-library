@@ -4,7 +4,7 @@ import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary.jsx';
 import Footer from './components/Footer/Footer.jsx';
 import Skeleton from './components/Skeleton/Skeleton.jsx';
 import Topbar from './components/Topbar/Topbar.jsx';
-import { resetReveal, revealOnScroll } from './hooks/reveal.js';
+import { resetReveal, revealOnScroll } from './dom/reveal.js';
 import { EndEntranceContext } from './hooks/useEntrance.js';
 import { useHash } from './hooks/useHash.js';
 import { useLibrary } from './hooks/useLibrary.js';
