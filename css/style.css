@@ -311,7 +311,7 @@ main:focus, main:focus-visible, h1:focus, h1:focus-visible { outline: none; } /*
 }
 .card-aside a svg { flex: none; color: var(--accent-ink); }
 @media (hover: hover) { .card-aside a:hover { background: var(--surface-2); color: var(--text); } }
-.card-aside a[aria-current="page"] { background: var(--glow); color: var(--text); box-shadow: inset 2px 0 0 var(--accent); font-weight: 600; }
+.card-aside a[aria-current="page"] { background: var(--glow); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 600; } /* contorno inteiro: uma barra só na esquerda ficava cortada nos cantos arredondados */
 .panel { padding: 28px 0 8px; }
 .piece + .piece { margin-top: 56px; padding-top: 40px; border-top: 1px solid var(--border); }
 .piece-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
