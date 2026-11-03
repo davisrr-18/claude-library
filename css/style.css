@@ -510,11 +510,8 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   .searchbox { min-height: 52px; border-radius: 14px; }
   .searchbox kbd { display: none; }
   .brand { flex-basis: 100%; }
-  .topbar { position: relative; } /* topo alto no celular: não fica fixo */
-  .progress { top: 0; }
-  html { scroll-padding-top: 12px; } /* topo não fixo: sem faixa morta no foco */
   .tiers a { padding: 6px 10px; font-size: .88rem; }
-  .filters { position: relative; margin-inline: calc(var(--gutter) * -1); } /* relative (não static): ancora o ::before */
+  .filters { margin-inline: calc(var(--gutter) * -1); }
   .piece-head .btn { width: 100%; }
   .type-tab { padding: 10px 12px; }
   .card { padding: 16px; }
@@ -525,12 +522,15 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   .seg-btn { padding: 6px 10px; font-size: .84rem; }
   .stats li { padding: 4px 10px; font-size: .82rem; }
 }
-/* telas baixas (celular na horizontal): nada de barras fixas ocupando a tela */
-@media (max-height: 600px) {
-  .filters { position: relative; }
+/* telas estreitas (até 899px, inclui celulares com zoom ou densidade baixa) ou baixas (celular na horizontal):
+   topo e filtros são altos, então nada de barras fixas tampando o conteúdo. relative (não static) ancora o ::before. */
+@media (max-width: 899px), (max-height: 700px) {
+  .filters { position: relative; top: auto; }
   .topbar { position: relative; }
   .progress { top: 0; }
   html { scroll-padding-top: 12px; }
+}
+@media (max-height: 600px) {
   .card-aside { position: static; }
   .hero { padding-top: 24px; }
 }
