@@ -80,6 +80,103 @@
               "file": "intermediarias/estudos-em-programacao/09-checklist-de-verificacao.md"
             }
           ]
+        },
+        {
+          "id": "desenvolvimento-web",
+          "title": "Desenvolvimento Web",
+          "summary": "Pacote para o Claude construir aplicações web full-stack (HTML, CSS, JavaScript, React e Node.js): regras, arquitetura em camadas, permissões, 5 agentes, 5 skills e checklist, com plano, testes e revisão antes de dar como pronto.",
+          "icon": "code",
+          "tags": [
+            "web",
+            "react",
+            "node",
+            "full-stack",
+            "front-end",
+            "back-end"
+          ],
+          "pieces": [
+            {
+              "type": "arquitetura",
+              "title": "Pacote de desenvolvimento web completo",
+              "file": "intermediarias/desenvolvimento-web/00-indice.md"
+            },
+            {
+              "type": "arquitetura",
+              "title": "Arquitetura de [PROJETO]",
+              "file": "intermediarias/desenvolvimento-web/arquitetura.md",
+              "install": "file"
+            },
+            {
+              "type": "prompt",
+              "title": "Prompt principal de tarefa web",
+              "file": "intermediarias/desenvolvimento-web/01-prompt-principal.md"
+            },
+            {
+              "type": "claude-md",
+              "title": "CLAUDE.md do projeto web",
+              "file": "intermediarias/desenvolvimento-web/02-claude-md.md"
+            },
+            {
+              "type": "workflow",
+              "title": "Permissões e hooks",
+              "file": "intermediarias/desenvolvimento-web/03-settings-json.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Explorador",
+              "file": "intermediarias/desenvolvimento-web/04-agent-explorador.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Frontend",
+              "file": "intermediarias/desenvolvimento-web/05-agent-frontend.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Backend",
+              "file": "intermediarias/desenvolvimento-web/06-agent-backend.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Testador",
+              "file": "intermediarias/desenvolvimento-web/07-agent-testador.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Revisor",
+              "file": "intermediarias/desenvolvimento-web/08-agent-revisor.md"
+            },
+            {
+              "type": "skill",
+              "title": "Skill: Nova feature",
+              "file": "intermediarias/desenvolvimento-web/09-skill-nova-feature.md"
+            },
+            {
+              "type": "skill",
+              "title": "Skill: Corrigir bug",
+              "file": "intermediarias/desenvolvimento-web/10-skill-corrigir-bug.md"
+            },
+            {
+              "type": "skill",
+              "title": "Skill: Componente React",
+              "file": "intermediarias/desenvolvimento-web/11-skill-componente-react.md"
+            },
+            {
+              "type": "skill",
+              "title": "Skill: Endpoint de API",
+              "file": "intermediarias/desenvolvimento-web/12-skill-endpoint-api.md"
+            },
+            {
+              "type": "skill",
+              "title": "Skill: Acessibilidade e responsividade",
+              "file": "intermediarias/desenvolvimento-web/13-skill-acessibilidade-responsivo.md"
+            },
+            {
+              "type": "workflow",
+              "title": "Checklist de verificação",
+              "file": "intermediarias/desenvolvimento-web/14-checklist-de-verificacao.md"
+            }
+          ]
         }
       ]
     },

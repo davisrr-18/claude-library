@@ -18,14 +18,19 @@ const has = (cmd) => spawnSync(cmd, ['--version'], { stdio: 'ignore' }).status =
 const HAS_BASH = has('bash');
 const POWERSHELL = ['pwsh', 'powershell'].find(has);
 
-/** Arquivos instaláveis do conteúdo real do site (os que declaram `destino` com caminho). */
-function realFiles() {
+/** Arquivos instaláveis de cada card do conteúdo real (os que declaram `destino` com caminho). Um card por vez:
+ *  cada pacote vai para um projeto próprio, então destinos iguais entre cards (CLAUDE.md) não colidem. */
+function realPackages() {
   const manifest = JSON.parse(readFileSync(join(ROOT, 'content/manifest.json'), 'utf8'));
   const out = [];
-  for (const t of manifest.tiers) for (const c of t.cards) for (const p of c.pieces) {
-    const { meta, body } = parseFrontMatter(readFileSync(join(ROOT, 'content', p.file), 'utf8'));
-    const file = installFile(p, meta, body);
-    if (file) out.push(file);
+  for (const t of manifest.tiers) for (const c of t.cards) {
+    const files = [];
+    for (const p of c.pieces) {
+      const { meta, body } = parseFrontMatter(readFileSync(join(ROOT, 'content', p.file), 'utf8'));
+      const file = installFile(p, meta, body);
+      if (file) files.push(file);
+    }
+    if (files.length) out.push([`pacote real do site: ${c.id}`, files]);
   }
   return out;
 }
@@ -47,7 +52,7 @@ function listAll(dir, prefix = '') {
     e.isDirectory() ? listAll(join(dir, e.name), `${prefix}${e.name}/`) : [`${prefix}${e.name}`]);
 }
 
-for (const [label, files] of [['pacote real do site', realFiles()], ['conteudo hostil a shells', NASTY]]) {
+for (const [label, files] of [...realPackages(), ['conteudo hostil a shells', NASTY]]) {
   test(`bash executa os comandos (${label}) e cria arquivos identicos ao original`, { skip: !HAS_BASH }, () => {
     assert.ok(files.length > 0);
     const dir = mkdtempSync(join(base, 'bash-'));

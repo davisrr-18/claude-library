@@ -11,7 +11,7 @@ export const OS_LIST = [
 ];
 
 const HEADER = '# Rode dentro da pasta onde quer instalar (ex.: a sua pasta de estudos)';
-const SAFE_PATH = /^[A-Za-z0-9_./-]+\.md$/;
+const SAFE_PATH = /^[A-Za-z0-9_./-]+\.(md|json)$/;
 
 function isSafePath(path) {
   if (typeof path !== 'string' || !SAFE_PATH.test(path) || path.startsWith('/') || path.startsWith('-')) return false;
@@ -20,7 +20,7 @@ function isSafePath(path) {
 
 /**
  * Caminho de destino a partir do campo `destino` do front matter (ex.: `.claude/agents/tutor.md`,
- * `CLAUDE.md (raiz da pasta de estudos)`). Devolve null se não for um caminho de arquivo `.md` seguro
+ * `CLAUDE.md (raiz da pasta de estudos)`). Devolve null se não for um caminho de arquivo `.md` ou `.json` seguro
  * (ex.: "colar no início de cada sessão", "consulta").
  */
 export function installTarget(destino) {
@@ -33,10 +33,10 @@ export function installTarget(destino) {
  * Conteúdo do primeiro bloco de código ```markdown (ou com mais crases, como as 4 do pacote, que
  * podem conter blocos de 3) de um arquivo Markdown. É o "arquivo de verdade" que a peça ensina a salvar.
  */
-export function extractArtifact(markdown) {
-  if (typeof markdown !== 'string') return null;
+export function extractArtifact(markdown, lang = 'markdown') {
+  if (typeof markdown !== 'string' || !/^[a-z]+$/.test(lang)) return null;
   const text = markdown.replace(/\r\n?/g, '\n');
-  const m = text.match(/^(`{3,})markdown[ \t]*\n([\s\S]*?)\n\1[ \t]*$/m);
+  const m = text.match(new RegExp('^(`{3,})' + lang + '[ \\t]*\\n([\\s\\S]*?)\\n\\1[ \\t]*$', 'm'));
   return m ? m[2] : null;
 }
 
@@ -45,14 +45,14 @@ export function extractArtifact(markdown) {
  * - padrão (`install` ausente ou "block"): o conteúdo é o bloco ```markdown do arquivo;
  * - `install: "file"` (no manifest): o arquivo inteiro É o que se instala (ex.: arquitetura.md); `body` já vem
  *   sem o front matter, que é só metadado da biblioteca e não deve ir para o arquivo instalado.
- * Precisa de `destino` com um caminho .md seguro (senão null).
+ * Precisa de `destino` com um caminho .md/.json seguro (em .json, o conteúdo é o bloco ```json) (senão null).
  */
 export function installFile(piece, meta, body) {
   const path = installTarget(meta?.destino);
   if (!path) return null;
   const content = piece?.install === 'file'
     ? String(body ?? '').replace(/\r\n?/g, '\n').replace(/^\n+/, '').replace(/\s+$/, '')
-    : extractArtifact(body);
+    : extractArtifact(body, path.endsWith('.json') ? 'json' : 'markdown');
   return content ? { path, content } : null;
 }
 

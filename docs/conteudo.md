@@ -49,3 +49,5 @@ git status --short; git add -A; git commit -m "feat: adiciona meu-pacote"; git p
 ## Estado atual do conteúdo
 
 Um card, **Estudos em Programação**, em Tarefas Intermediárias, com 11 peças (origem: a pasta `~/Programação/Estudos em Programação` do usuário + `arquitetura.md`): índice e arquitetura da pasta (Arquitetura ×2), prompt, `CLAUDE.md`, 3 agentes (tutor, revisor de código, gerador de exercícios), 3 skills (sessão de estudo, revisão espaçada, explicar código) e o checklist (Workflow). Os 4 cards de exemplo do início foram removidos a pedido (histórico: commit `6905305`). Básicas e Complexas estão vazias, com aviso.
+
+Segundo card, **Desenvolvimento Web**, em Tarefas Intermediárias, com 15 peças (origem: a pasta `~/Programação/dev_web`): índice, arquitetura (`install: "file"`), prompt, `CLAUDE.md`, permissões e hooks (`.claude/settings.json`, instalado pelo bloco ```json), 5 agentes, 5 skills e o checklist. O site passou a aceitar `destino` terminado em `.json` (instala o bloco ```json). O teste de instalação roda um card por vez, porque cada pacote vai para um projeto próprio.

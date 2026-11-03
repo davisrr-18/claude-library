@@ -159,3 +159,23 @@ test('installFile: sem destino de caminho, sem conteudo ou caminho inseguro -> n
 test('installFile: normaliza CRLF no modo "file"', () => {
   assert.equal(installFile({ install: 'file' }, FM, 'a\r\nb\r\n').content, 'a\nb');
 });
+
+test('installTarget: aceita .json (ex.: .claude/settings.json), mas nao outras extensoes', () => {
+  assert.equal(installTarget('.claude/settings.json'), '.claude/settings.json');
+  assert.equal(installTarget('.claude/settings.json (raiz do projeto)'), '.claude/settings.json');
+  assert.equal(installTarget('.claude/hook.sh'), null);
+  assert.equal(installTarget('.claude/x.json5'), null);
+});
+
+test('extractArtifact: com a linguagem json pega o bloco json e ignora o markdown', () => {
+  const md = '```markdown\nA\n```\n\n````json\n{\n  "a": 1\n}\n````';
+  assert.equal(extractArtifact(md, 'json'), '{\n  "a": 1\n}');
+  assert.equal(extractArtifact(md), 'A');
+  assert.equal(extractArtifact('```markdown\nA\n```', 'json'), null);
+});
+
+test('installFile: destino .json instala o bloco json', () => {
+  const body = 'texto\n\n````json\n{ "permissions": {} }\n````\n';
+  assert.deepEqual(installFile({}, { destino: '.claude/settings.json' }, body), { path: '.claude/settings.json', content: '{ "permissions": {} }' });
+  assert.equal(installFile({}, { destino: '.claude/settings.json' }, '```markdown\nx\n```'), null);
+});
