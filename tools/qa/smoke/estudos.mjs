@@ -17,17 +17,22 @@ let failed = 0; const check = (n, c, x = '') => { console.log(`${c ? 'OK  ' : 'F
 await import(path.join(ROOT, 'js/app.js')); await sleep(400);
 
 // ---------- Home ----------
-check('home: so 1 card (o pacote de estudos); exemplos removidos', $$('.card').length === 1 && $('.card h3').textContent === 'Estudos em Programação', $$('.card h3').map((e) => e.textContent).join('|'));
-check('home: o card esta em Tarefas Intermediarias', !!$('#tier-intermediarias').closest('.tier').querySelector('.card'));
+check('home: so os 2 cards do usuario (estudos e desenvolvimento web); exemplos removidos', JSON.stringify($$('.card h3').map((e) => e.textContent)) === JSON.stringify(['Estudos em Programação', 'Desenvolvimento Web']), $$('.card h3').map((e) => e.textContent).join('|'));
+check('home: os cards estao em Tarefas Intermediarias', $('#tier-intermediarias').closest('.tier').querySelectorAll('.card').length === 2);
+const estudosCard = $$('.card').find((c) => c.querySelector('h3').textContent === 'Estudos em Programação');
 check('home: Basicas e Complexas vazias com aviso', $$('.tier').filter((t) => t.querySelector('.callout')).length === 2);
-check('home: chips agrupados com contagem (Agente ×3, Skill ×3)', (() => { const t = $('.card .chips').textContent; return t.includes('Agente ×3') && t.includes('Skill ×3'); })(), $('.card .chips').textContent);
+check('home: chips agrupados com contagem (Agente ×3, Skill ×3)', (() => { const t = estudosCard.querySelector('.chips').textContent; return t.includes('Agente ×3') && t.includes('Skill ×3'); })(), estudosCard.querySelector('.chips').textContent);
 await sleep(1000); // espera a contagem animada terminar
-check('home: estatisticas contam as pecas (3 agentes, 3 skills, 1 de cada outro tipo)', (() => { const t = $('.stats').textContent; return t.includes('3 skills') && t.includes('3 agentes') && t.includes('1 workflow') && t.includes('1 prompt') && t.includes('1 card'); })(), $('.stats').textContent);
+check('home: estatisticas contam as pecas dos 2 cards (8 skills, 8 agentes, 2 CLAUDE.md, 4 arquiteturas, 3 workflows, 2 prompts)', (() => { const t = $('.stats').textContent; return t.includes('8 skills') && t.includes('8 agentes') && t.includes('2 CLAUDE.md') && t.includes('4 arquiteturas') && t.includes('3 workflows') && t.includes('2 prompts') && t.includes('2 cards'); })(), $('.stats').textContent);
 const tabs = $$('[role="tab"]', $('#tier-intermediarias').closest('.tier')).map((t) => t.children[1].textContent + t.querySelector('.type-count').firstChild.textContent);
-check('faixa Intermediarias: abas por tipo com a contagem de CARDS (1 cada)', JSON.stringify(tabs) === JSON.stringify(['Todos1', 'Skills1', 'CLAUDE.md1', 'Arquiteturas1', 'Agentes1', 'Workflows1', 'Prompts1']), tabs.join('|'));
+check('faixa Intermediarias: abas por tipo (Todos conta cards; os tipos contam arquivos)', JSON.stringify(tabs) === JSON.stringify(['Todos2', 'Skills8', 'CLAUDE.md2', 'Arquiteturas4', 'Agentes8', 'Workflows3', 'Prompts2']), tabs.join('|'));
 {
-  const ag = $$('[role="tab"]').find((t) => t.textContent.includes('Agentes')); ag.click(); await sleep(40);
-  check('aba Agentes: o card mostra "3 agentes" e abre direto a aba de agentes', $('.card-piece').textContent.includes('3 agentes') && $('.card').getAttribute('href') === '#/intermediarias/estudos-em-programacao/agente', $('.card-piece').textContent + ' ' + $('.card').getAttribute('href'));
+  const ag = $$('[role="tab"]').find((t) => t.textContent.includes('Agentes')); ag.click(); await sleep(600);
+  const groups = $$('.piece-group');
+  check('aba Agentes: mostra direto os 8 arquivos de agente, agrupados pelo card de origem (sem cards)', groups.length === 2 && $$('.card').length === 0 && groups.map((g) => g.querySelectorAll('.piece').length).join(',') === '3,5' && groups[0].querySelector('.piece-origin a').getAttribute('href') === '#/intermediarias/estudos-em-programacao', groups.map((g) => g.querySelectorAll('.piece').length).join(','));
+  check('aba Agentes: cada arquivo tem Copiar e o bloco de codigo', $$('.piece-group .piece').every((p) => p.querySelector('.piece-head .btn') && p.querySelector('pre')));
+  const cl = $$('[role="tab"]').find((t) => t.textContent.includes('CLAUDE.md')); cl.click(); await sleep(600);
+  check('aba CLAUDE.md: os 2 arquivos CLAUDE.md da faixa', $$('.piece-group .piece').length === 2 && $$('.piece-group .piece-head h4').map((h) => h.textContent).join('|').includes('CLAUDE.md'), $$('.piece-group .piece-head h4').map((h) => h.textContent).join('|'));
   const todos = $$('[role="tab"]').find((t) => t.children[1].textContent === 'Todos'); todos.click(); await sleep(30);
 }
 
@@ -47,7 +52,7 @@ w.location.hash = base; await sleep(500);
 check('card: titulo, nivel e tags', $('.card-hero h1').textContent === 'Estudos em Programação' && $$('.card-hero .tag').length === 4);
 const tabLinks = $$('.tabs a').map((a) => a.textContent.replace(/\s+/g, ' ').trim());
 check('card: abas por tipo na ordem canonica, com contagem de pecas', JSON.stringify(tabLinks) === JSON.stringify(['Skill3 peças', 'CLAUDE.md', 'Arquitetura2 peças', 'Agente3 peças', 'Workflow', 'Prompt']), tabLinks.join('|'));
-check('card: sem aside (1 card no nivel) e sem pager', !$('.card-aside') && !$('.pager'));
+check('card: aside lista os 2 cards do nivel', $$('.card-aside li').length === 2);
 
 const open = async (type) => { w.location.hash = `${base}/${type}`; await sleep(600); };
 await open('agente');

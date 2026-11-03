@@ -48,12 +48,12 @@
 }
 
 * { box-sizing: border-box; }
-html { overflow-x: hidden; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: calc(var(--topbar-h) + var(--filters-h, 0px) + 12px); }
+html { overflow-x: hidden; overscroll-behavior-x: none; touch-action: pan-y pinch-zoom; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: calc(var(--topbar-h) + var(--filters-h, 0px) + 12px); }
 @media (min-width: 1800px) { html { font-size: 17px; } }
 body {
   margin: 0; background: var(--bg); color: var(--text);
   font: 16px/1.6 var(--font); -webkit-font-smoothing: antialiased;
-  min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: clip;
+  min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: clip; touch-action: pan-y pinch-zoom; /* a página não é arrastada para o lado; faixas com rolagem própria (abas, tags) continuam rolando */
 }
 h1, h2, h3, h4 { line-height: 1.2; letter-spacing: -.01em; }
 a { color: var(--accent-ink); text-underline-offset: 3px; }
@@ -227,9 +227,6 @@ main:focus, main:focus-visible, h1:focus, h1:focus-visible { outline: none; } /*
   background: var(--surface-2); color: var(--muted); font-size: .74rem; font-weight: 600; font-variant-numeric: tabular-nums;
 }
 .type-tab[aria-selected="true"] .type-count { background: var(--accent); color: var(--on-accent); }
-.card-piece { display: flex; align-items: center; gap: 8px; margin: 0; font-size: .88rem; font-weight: 600; color: var(--text); }
-.card-piece svg { flex: none; color: var(--accent-ink); }
-.chip.is-active { background: var(--glow); border-color: var(--accent-ink); }
 .grid.swap .card { animation: rise .45s cubic-bezier(.22, 1, .36, 1) backwards; animation-delay: calc(min(var(--i, 0), 8) * 45ms); }
 
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
@@ -575,3 +572,11 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .install .code-wrap { margin: 0; }
 .install .code-wrap pre { max-height: 360px; overflow: auto; }
 .piece > .install { margin-top: -4px; }
+
+/* arquivos de um tipo (ex.: todos os CLAUDE.md) dentro da faixa, agrupados pelo card de origem */
+.piece-group { min-width: 0; }
+.piece-group + .piece-group { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border); }
+.piece-origin { margin: 0 0 20px; font-size: 1rem; }
+.piece-origin a { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); text-decoration: none; font-weight: 600; overflow-wrap: anywhere; }
+.piece-origin svg { flex: none; color: var(--accent-ink); }
+@media (hover: hover) { .piece-origin a:hover { color: var(--accent-ink); text-decoration: underline; } }

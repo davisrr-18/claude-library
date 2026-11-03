@@ -12,7 +12,7 @@ const { isTagAllowed, isAttrAllowed } = await import(P + '/js/sanitize.js');
 const { parseFrontMatter, validateManifest } = await import(P + '/js/content.js');
 const { parseRoute, resolveView } = await import(P + '/js/router.js');
 const { buildIndex, search, collectTags, dedupeTags, normalize, sameTitle } = await import(P + '/js/search.js');
-const { typeCounts, filterByType, nextTabIndex, resolveTypeTab } = await import(P + '/js/tabs.js');
+const { typeCounts, nextTabIndex, resolveTypeTab } = await import(P + '/js/tabs.js');
 const { findSensitive } = await import(P + '/scripts/check-content.mjs');
 
 let seed = 12345;
@@ -79,7 +79,6 @@ for (let i = 0; i < 6000; i++) {
     // o que app.js faz com um manifest valido
     const entries = m.tiers.flatMap((t) => t.cards.map((c) => ({ tier: t.id, card: c.id, title: c.title, summary: c.summary || '', tags: c.tags || [], text: '', tierObj: t, cardObj: c })));
     const idx = buildIndex(entries); search(idx, 'a'); search(idx, '', { tier: 'basicas', tags: ['t'] }); collectTags(entries); typeCounts(entries);
-    for (const t of ['skill', 'agente', '']) filterByType(entries, t);
     for (const h of ['#/', '#/basicas', '#/basicas/a', '#/basicas/a/skill', '#/x', '#/basicas/a/agente']) resolveView(parseRoute(h), m);
     for (const e of entries) { dedupeTags(e.cardObj.tags); String(e.cardObj.title).length; }
   } catch (e) { fail('manifest', 'manifest VÁLIDO quebra o app: ' + e.message, m); }

@@ -31,7 +31,7 @@ Regra: lógica em módulos **puros** (sem DOM, testáveis em Node). Tocam o DOM:
 | `content.js` | Constantes do modelo, front matter, validação do manifest | `TIER_IDS`, `PIECE_TYPES`, `CARD_ICONS`, `parseFrontMatter`, `validateManifest`, `pieceDescription` | não |
 | `router.js` | Rotas por hash | `parseRoute`, `isAppHash`, `resolveView` | não |
 | `search.js` | Busca por palavra (prefixo), tags, títulos | `normalize`, `buildIndex`, `search`, `collectTags`, `dedupeTags`, `sameTitle` | não |
-| `tabs.js` | Abas por tipo de peça | `typeCounts`, `filterByType`, `groupPiecesByType`, `nextTabIndex`, `resolveTypeTab`, `TYPE_TAB_LABELS` | não |
+| `tabs.js` | Abas por tipo de peça | `typeCounts`, `groupPiecesByType`, `nextTabIndex`, `resolveTypeTab`, `TYPE_TAB_LABELS` | não |
 | `install.js` | Comandos de terminal (Linux, macOS, Windows) | `installTarget`, `extractArtifact`, `installFile`, `buildInstall`, `detectOs`, `OS_LIST` | não |
 | `markdown.js` | Markdown → HTML seguro (marked + renderer próprio) | `renderMarkdown`, `isSafeUrl` | não |
 | `sanitize.js` | Lista de permissões de tags e atributos (2ª camada) | `isTagAllowed`, `isAttrAllowed` | não |
@@ -66,7 +66,7 @@ Cada `.md` pode ter front matter (subconjunto de YAML: `chave: valor`, aspas, bl
 
 1. `init`: tema, medição do topo, efeitos de rolagem e ponteiro; `fetch` do manifest; `validateManifest`; `buildEntries` (um registro por card) e `buildIndex`.
 2. `route` (a cada `hashchange`): `resolveView(parseRoute(hash), manifest)` → `renderHome` / `renderTier` / `renderCard` / `renderNotFound`; depois foco (no `h1`, na busca com `/`, ou na aba ativa), rolagem ao topo e `playEntrance`.
-3. **Home:** hero com estatísticas (contagem animada), filtros (nível e tags, AND), uma faixa por nível. Cada faixa tem **abas por tipo de peça** (Todos + os tipos existentes, com contagem); escolher um tipo filtra os cards e o link abre a aba daquele tipo. A escolha fica em `state.tierTabs` e persiste na sessão.
+3. **Home:** hero com estatísticas (contagem animada), filtros (nível e tags, AND), uma faixa por nível. Cada faixa tem **abas por tipo de peça** (Todos + os tipos existentes, com contagem); "Todos" mostra os cards; escolher um tipo mostra direto os arquivos desse tipo (todos os CLAUDE.md, todas as skills…) de todos os cards da faixa, agrupados pelo card de origem, com copiar e instalar; a contagem da aba é de arquivos. A escolha fica em `state.tierTabs` e persiste na sessão.
 4. **Busca:** índice por card (título, tags, resumo, corpo). Todas as palavras devem casar como **início de palavra**, sem caixa e sem acento; ordem por relevância (título > tags/resumo > corpo). Os corpos das peças são carregados uma vez, sob demanda, na primeira digitação; falha de rede reabre a tentativa após 5 s. Com mais de 60 cards, a repintura espera 90 ms de pausa.
 5. **Card:** abas (links, `aria-current`) por tipo; a aba mostra **todas** as peças do tipo, empilhadas. Cada peça: cabeçalho (título, `name`, `Destino`), botão "Copiar peça", painel de instalação (se instalável), texto renderizado. O primeiro título do corpo é removido se for igual ao título da peça. Com 2+ peças instaláveis, o card mostra também "Instalar o pacote inteiro".
 6. **Instalação pelo terminal:** `installFile(piece, meta, body)` extrai caminho e conteúdo; `buildInstall(os, files)` gera bash (Linux e macOS, heredoc com delimitador único entre aspas) ou PowerShell (here-string literal, UTF-8 sem BOM, base64 se uma linha começar com `'@`). Só caminhos `.md` relativos com `[A-Za-z0-9_./-]` são aceitos.

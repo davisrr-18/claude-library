@@ -31,15 +31,17 @@ check('tablist tem nome acessivel', !!$('[role="tablist"]', tier('basicas')).get
 // clicar em Agentes filtra e abre direto a peca
 const agentes = $$('[role="tab"]', tier('basicas')).find((t) => t.textContent.includes('Agentes'));
 agentes.focus(); agentes.click(); await sleep(50);
-check('Agentes: 1 card, so em basicas', cardsOf('basicas').length === 1 && cardsOf('intermediarias').length === 1);
-check('Agentes: link abre a peca de agente', cardsOf('basicas')[0].getAttribute('href') === '#/basicas/investigacao-rapida/agente', cardsOf('basicas')[0].getAttribute('href'));
-check('Agentes: card mostra o titulo da peca e chip ativo', cardsOf('basicas')[0].textContent.includes('Agente investigator') && !!$('.chip.is-active', tier('basicas')));
+await sleep(150);
+const groupsOf = (id) => $$('.piece-group', tier(id));
+check('Agentes: mostra direto os arquivos (nao os cards), so em basicas', groupsOf('basicas').length === 1 && cardsOf('basicas').length === 0 && cardsOf('intermediarias').length === 1, groupsOf('basicas').length + '/' + cardsOf('basicas').length);
+check('Agentes: grupo aponta o card de origem', groupsOf('basicas')[0]?.querySelector('.piece-origin a')?.getAttribute('href') === '#/basicas/investigacao-rapida', groupsOf('basicas')[0]?.querySelector('.piece-origin a')?.getAttribute('href'));
+check('Agentes: o arquivo (titulo e texto) aparece na propria faixa', groupsOf('basicas')[0]?.querySelector('.piece h4')?.textContent.includes('Agente investigator') && !!groupsOf('basicas')[0]?.querySelector('article.md'), groupsOf('basicas')[0]?.textContent.slice(0, 80));
 check('Agentes: aba continua focada e selecionada (foco nao se perde)', w.document.activeElement === agentes && agentes.getAttribute('aria-selected') === 'true');
 check('abas das outras faixas nao mudam', $('[role="tab"][aria-selected="true"]', tier('complexas')).textContent.includes('Todos'));
 
 // teclado
-w.document.activeElement.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })); await sleep(50);
-check('ArrowRight: vai para Prompts e filtra', $('[role="tab"][aria-selected="true"]', tier('basicas')).textContent.includes('Prompts') && cardsOf('basicas')[0].getAttribute('href').endsWith('/prompt') && w.document.activeElement.textContent.includes('Prompts'));
+w.document.activeElement.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })); await sleep(150);
+check('ArrowRight: vai para Prompts e mostra os arquivos', $('[role="tab"][aria-selected="true"]', tier('basicas')).textContent.includes('Prompts') && groupsOf('basicas').length === 1 && w.document.activeElement.textContent.includes('Prompts'));
 w.document.activeElement.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })); await sleep(50);
 check('ArrowRight no ultimo: volta para Todos', $('[role="tab"][aria-selected="true"]', tier('basicas')).textContent.includes('Todos') && cardsOf('basicas').length === 2);
 w.document.activeElement.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'End', bubbles: true })); await sleep(50);
@@ -51,7 +53,8 @@ check('ArrowLeft na primeira: vai para a ultima', $('[role="tab"][aria-selected=
 
 // a escolha persiste ao repintar por busca/filtro e volta ao navegar
 const q = $('#q'); q.value = 'investigacao'; q.dispatchEvent(new w.Event('input', { bubbles: true })); await sleep(350);
-check('busca + aba: o tipo escolhido continua valido se o card restante o tem', cardsOf('basicas').length === 1 && $('[role="tab"][aria-selected="true"]', tier('basicas')).textContent.includes('Prompts'), tabsOf('basicas').join('|'));
+await sleep(150);
+check('busca + aba: o tipo escolhido continua valido se o card restante o tem', groupsOf('basicas').length === 1 && $('[role="tab"][aria-selected="true"]', tier('basicas')).textContent.includes('Prompts'), tabsOf('basicas').join('|'));
 q.value = 'exemplo'; q.dispatchEvent(new w.Event('input', { bubbles: true })); await sleep(350);
 check('busca sem o tipo escolhido: recua para Todos, sem erro', cardsOf('basicas').length === 1 && $('[role="tab"][aria-selected="true"]', tier('basicas')).textContent.includes('Todos'), tabsOf('basicas').join('|'));
 q.value = ''; q.dispatchEvent(new w.Event('input', { bubbles: true })); await sleep(300);
@@ -63,7 +66,8 @@ check('ao voltar para a Home a escolha continua', $('[role="tab"][aria-selected=
 w.location.hash = '#/complexas'; await sleep(350);
 check('pagina do nivel: abas presentes e cards em h2', $$('[role="tab"]').length === 4 && !!$('.card h2'));
 const wf = $$('[role="tab"]').find((t) => t.textContent.includes('Workflows')); wf.click(); await sleep(50);
-check('pagina do nivel: Workflows abre a peca de workflow', $('.card').getAttribute('href') === '#/complexas/planejar-em-marcos/workflow');
+await sleep(150);
+check('pagina do nivel: Workflows mostra o arquivo de workflow, com o card de origem em h2', $('.piece-group .piece-origin a')?.getAttribute('href') === '#/complexas/planejar-em-marcos' && $('.piece-group .piece h3')?.textContent.length > 0 && $('.piece-origin')?.tagName === 'H2');
 w.location.hash = '#/complexas/planejar-em-marcos/workflow'; await sleep(500);
 check('link direto abre a aba Workflow do card', $('.tabs a[aria-current="page"]')?.textContent.includes('Workflow') && !!$('article.md'));
 
@@ -94,9 +98,8 @@ w.location.hash = '#/'; await sleep(350);
   const q2 = $('#q'); q2.value = 'a'; q2.dispatchEvent(new w.Event('input', { bubbles: true })); await sleep(350);
   check('foco volta para a mesma aba depois de repintar a lista', w.document.activeElement?.id === idBefore, w.document.activeElement?.tagName + '#' + w.document.activeElement?.id);
   q2.value = ''; q2.dispatchEvent(new w.Event('input', { bubbles: true })); await sleep(300);
-  const card = $$('.card', tier('basicas'))[0];
-  const labelIds = card.getAttribute('aria-labelledby').split(' ');
-  check('card com aba de tipo: nome acessivel = titulo + peca', labelIds.length === 2 && labelIds.map((i) => w.document.getElementById(i)?.textContent).join(' ').includes('Agente investigator'), labelIds.join(','));
+  const card = $('.card');
+  check('card: nome acessivel = titulo do card', !!card && w.document.getElementById(card.getAttribute('aria-labelledby'))?.textContent === card.querySelector('h3, h2').textContent);
   check('contagem da aba tem texto para leitor de tela (sem aria-label em span)', !$('.type-count[aria-label]') && !!$('.type-count .sr-only'));
 }
 check('barra de progresso fora do header (backdrop-filter nao a prende)', !!$('.progress') && !$('.topbar .progress'));

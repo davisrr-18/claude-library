@@ -2,7 +2,7 @@ import { parseFrontMatter, validateManifest, pieceDescription, TIER_IDS } from '
 import { parseRoute, isAppHash, resolveView } from './router.js';
 import { renderMarkdown } from './markdown.js';
 import { buildIndex, search, collectTags, dedupeTags, sameTitle } from './search.js';
-import { typeCounts, filterByType, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS, groupPiecesByType } from './tabs.js';
+import { typeCounts, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS, groupPiecesByType } from './tabs.js';
 import { h, safeFragment, copyButton, addCopyButtons, wrapTables, initTheme } from './dom.js';
 import { icon, TYPE_ICON } from './icons.js';
 import { installFile, buildInstall, detectOs, OS_LIST } from './install.js';
@@ -121,25 +121,17 @@ function renderNav(activeTier) {
 
 /* ---------- cards e níveis ---------- */
 
-/**
- * Card da vitrine. Com `activeType` (aba de tipo escolhida), o link abre direto essa peça
- * e o card mostra qual é a peça.
- */
-function cardTile(entry, i = 0, headingTag = 'h3', activeType = '') {
+/** Card da vitrine: link para a página do card. */
+function cardTile(entry, i = 0, headingTag = 'h3') {
   const { cardObj: card, tierObj: tier } = entry;
-  const titleId = `card-${tier.id}-${card.id}${activeType ? `-${activeType}` : ''}`;
+  const titleId = `card-${tier.id}-${card.id}`;
   const tags = dedupeTags(card.tags);
-  const typePieces = activeType ? card.pieces.filter((p) => p.type === activeType) : [];
-  const piece = typePieces[0] ?? null;
-  const pieceLine = !piece ? '' : typePieces.length === 1 ? piece.title : `${typePieces.length} ${TYPE_TAB_LABELS[activeType].toLowerCase()}`;
-  const href = piece ? pieceHref(tier.id, card.id, piece.type) : cardHref(tier.id, card.id);
-  return h('a', { class: 'card', href, style: `--i:${Math.min(i, 8)}`, 'aria-labelledby': piece ? `${titleId} ${titleId}-piece` : titleId },
+  return h('a', { class: 'card', href: cardHref(tier.id, card.id), style: `--i:${Math.min(i, 8)}`, 'aria-labelledby': titleId },
     h('span', { class: 'card-icon' }, icon(card.icon || 'folder', 22)),
     h(headingTag, { id: titleId }, card.title),
     h('p', { class: 'card-summary' }, card.summary || ''),
-    piece ? h('p', { class: 'card-piece', id: `${titleId}-piece` }, icon(TYPE_ICON[piece.type], 15), h('span', { title: typePieces.map((p) => p.title).join(', ') }, pieceLine)) : null,
     h('ul', { class: 'chips', 'aria-label': 'Peças incluídas' },
-      groupPiecesByType(card.pieces).map((g) => h('li', { class: `chip${g.type === activeType ? ' is-active' : ''}` },
+      groupPiecesByType(card.pieces).map((g) => h('li', { class: 'chip' },
         icon(TYPE_ICON[g.type], 13), TYPE_LABELS[g.type], g.pieces.length > 1 ? ` ×${g.pieces.length}` : ''))),
     tags.length
       ? h('ul', { class: 'tags', 'aria-label': 'Tags' }, tags.map((t) => h('li', { class: 'tag' }, `#${t}`)))
@@ -148,8 +140,9 @@ function cardTile(entry, i = 0, headingTag = 'h3', activeType = '') {
 }
 
 /**
- * Faixa de um nível: cabeçalho e, ao lado/abaixo, abas por tipo de peça (Todos, Skills, Agentes…)
- * que filtram os cards daquele nível. A aba escolhida fica em state.tierTabs.
+ * Faixa de um nível: cabeçalho e, ao lado/abaixo, abas por tipo de peça. "Todos" mostra os cards do nível;
+ * uma aba de tipo (Skills, CLAUDE.md…) mostra direto os arquivos desse tipo de todos os cards do nível.
+ * A aba escolhida fica em state.tierTabs.
  */
 function tierSection(tier, entries, { heading = 'h2', cardHeading = 'h3', link = true } = {}) {
   const title = link ? h('a', { href: tierHref(tier.id) }, tier.title) : tier.title;
@@ -176,12 +169,13 @@ function tierSection(tier, entries, { heading = 'h2', cardHeading = 'h3', link =
   const tabs = defs.map((d) => h('button', {
     type: 'button', role: 'tab', class: 'type-tab', id: tabId(d.type), 'aria-controls': panel.id,
     onclick: () => select(d.type),
-  }, icon(d.iconName, 16), h('span', {}, d.label), h('span', { class: 'type-count' }, d.count, h('span', { class: 'sr-only' }, d.count === 1 ? ' card' : ' cards'))));
+  }, icon(d.iconName, 16), h('span', {}, d.label), h('span', { class: 'type-count' }, d.count, h('span', { class: 'sr-only' }, d.type ? (d.count === 1 ? ' arquivo' : ' arquivos') : (d.count === 1 ? ' card' : ' cards')))));
   const bar = h('div', { class: 'type-tabs', role: 'tablist', 'aria-label': `Tipo de peça em ${tier.title}` }, tabs);
 
   // Se o tipo escolhido não existe nos cards filtrados, mostra todos (sem esquecer a escolha).
   const current = () => resolveTypeTab(state.tierTabs[tier.id], available);
 
+  let paintToken = 0;
   function paint(swap) {
     const cur = current();
     tabs.forEach((btn, i) => {
@@ -190,8 +184,18 @@ function tierSection(tier, entries, { heading = 'h2', cardHeading = 'h3', link =
       btn.setAttribute('tabindex', on ? '0' : '-1');
     });
     panel.setAttribute('aria-labelledby', tabId(cur));
-    panel.replaceChildren(h('div', { class: `grid${swap ? ' swap' : ''}` },
-      filterByType(entries, cur).map((e, i) => cardTile(e, i, cardHeading, cur))));
+    const mine = ++paintToken;
+    if (!cur) {
+      panel.replaceChildren(h('div', { class: `grid${swap ? ' swap' : ''}` },
+        entries.map((e, i) => cardTile(e, i, cardHeading))));
+      return;
+    }
+    panel.replaceChildren(skeleton());
+    loadTierPieces(entries, cur, cardHeading).then(async ({ nodes, articles }) => {
+      if (mine !== paintToken || !panel.isConnected) return; // trocou de aba (ou de página) durante o carregamento
+      panel.replaceChildren(...nodes);
+      await Promise.all(articles.map((a) => highlightCodeBlocks(a)));
+    });
   }
   function select(type) {
     endEntrance();
@@ -426,7 +430,7 @@ async function collectInstallFiles(card) {
 }
 
 /** Monta uma peça (cabeçalho + texto). Falha de uma peça vira aviso nela, sem derrubar as outras. */
-async function buildPiece(piece, index) {
+async function buildPiece(piece, index, headingTag = 'h2') {
   const headId = `piece-${index}-title`;
   try {
     const raw = await fetchText(piece.file);
@@ -441,7 +445,7 @@ async function buildPiece(piece, index) {
     const node = h('section', { class: 'piece', 'aria-labelledby': headId },
       h('div', { class: 'piece-head' },
         h('div', {},
-          h('h2', { id: headId }, piece.title),
+          h(headingTag, { id: headId }, piece.title),
           meta.name && meta.name !== piece.title ? h('code', { class: 'piece-name' }, meta.name) : null,
           description ? h('p', {}, description) : null),
         copyButton('Copiar peça', () => raw, '', `Copiar peça: ${piece.title}`)),
@@ -465,6 +469,27 @@ async function loadPieces(panel, pieces) {
     revealOnScroll(article.children);
   }
   await Promise.all(built.filter((b) => b.article).map((b) => highlightCodeBlocks(b.article)));
+}
+
+let pieceSeq = 0;
+
+/**
+ * Arquivos de um tipo (ex.: todos os CLAUDE.md) de todos os cards de uma faixa, já montados e agrupados por card.
+ * O título do card tem o nível `cardHeading` e o da peça o nível seguinte.
+ */
+async function loadTierPieces(entries, type, cardHeading) {
+  const pieceHeading = `h${Number(cardHeading.slice(1)) + 1}`;
+  const groups = entries
+    .map((e) => ({ entry: e, pieces: e.cardObj.pieces.filter((p) => p.type === type) }))
+    .filter((g) => g.pieces.length);
+  const built = await Promise.all(groups.map(async ({ entry, pieces }) => ({
+    entry, items: await Promise.all(pieces.map((p) => buildPiece(p, pieceSeq++, pieceHeading))),
+  })));
+  const nodes = built.map(({ entry, items }) => h('div', { class: 'piece-group' },
+    h(cardHeading, { class: 'piece-origin' },
+      h('a', { href: cardHref(entry.tierObj.id, entry.cardObj.id) }, icon(entry.cardObj.icon || 'folder', 16), h('span', {}, entry.cardObj.title))),
+    ...items.map((b) => b.node)));
+  return { nodes, articles: built.flatMap(({ items }) => items.map((b) => b.article).filter(Boolean)) };
 }
 
 function renderCard(tier, card, activeType) {

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { typeCounts, filterByType, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS, groupPiecesByType } from '../js/tabs.js';
+import { typeCounts, nextTabIndex, resolveTypeTab, TYPE_TAB_LABELS, groupPiecesByType } from '../js/tabs.js';
 import { PIECE_TYPES } from '../js/content.js';
 
 const entry = (id, ...types) => ({ id, cardObj: { pieces: types.map((type) => ({ type })) } });
@@ -11,7 +11,7 @@ const entries = [
   entry('d'),
 ];
 
-test('typeCounts: so tipos presentes, na ordem canonica, contando cards', () => {
+test('typeCounts: so tipos presentes, na ordem canonica, contando arquivos (pecas)', () => {
   assert.deepEqual(typeCounts(entries), [
     { type: 'skill', count: 1 },
     { type: 'agente', count: 2 },
@@ -20,22 +20,14 @@ test('typeCounts: so tipos presentes, na ordem canonica, contando cards', () => 
   ]);
 });
 
-test('typeCounts: card com dois tipos iguais conta uma vez; lista vazia', () => {
-  assert.deepEqual(typeCounts([entry('x', 'skill', 'skill')]), [{ type: 'skill', count: 1 }]);
+test('typeCounts: card com dois arquivos do mesmo tipo conta os dois; lista vazia', () => {
+  assert.deepEqual(typeCounts([entry('x', 'skill', 'skill')]), [{ type: 'skill', count: 2 }]);
   assert.deepEqual(typeCounts([]), []);
 });
 
 test('typeCounts: ordem canonica independe da ordem das pecas', () => {
   const got = typeCounts([entry('x', 'prompt', 'claude-md', 'arquitetura', 'skill')]).map((c) => c.type);
   assert.deepEqual(got, ['skill', 'claude-md', 'arquitetura', 'prompt']);
-});
-
-test('filterByType: vazio devolve todos; tipo devolve so quem tem a peca', () => {
-  assert.equal(filterByType(entries, '').length, 4);
-  assert.deepEqual(filterByType(entries, 'agente').map((e) => e.id), ['a', 'b']);
-  assert.deepEqual(filterByType(entries, 'prompt').map((e) => e.id), ['c']);
-  assert.deepEqual(filterByType(entries, 'skill').map((e) => e.id), ['a']);
-  assert.deepEqual(filterByType(entries, 'arquitetura'), []);
 });
 
 test('nextTabIndex: setas dao a volta; Home e End; outras teclas ignoradas', () => {
