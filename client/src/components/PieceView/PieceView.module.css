@@ -1,0 +1,44 @@
+.piece + .piece {
+  margin-top: 56px;
+  padding-top: 40px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-3);
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.head h2,
+.head h3,
+.head h4 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.head p {
+  max-width: 60ch;
+  margin: var(--espaco-1) 0 0;
+  color: var(--cor-texto-suave);
+}
+
+.name {
+  display: inline-block;
+  margin-top: var(--espaco-1);
+  padding: 1px var(--espaco-2);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  background: var(--cor-superficie-2);
+  color: var(--cor-texto-suave);
+  font: 500 0.8rem var(--fonte-codigo);
+}
+
+@media (max-width: 640px) {
+  .copy {
+    width: 100%;
+  }
+}

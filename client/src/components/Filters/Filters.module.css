@@ -1,0 +1,158 @@
+.filters {
+  position: sticky;
+  top: var(--altura-topo);
+  z-index: 20;
+  display: grid;
+  gap: 10px;
+  margin: var(--espaco-3) calc(var(--espaco-margem) * -1) 0;
+  padding: var(--espaco-3) var(--espaco-margem);
+  isolation: isolate;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Fundo e linha ocupam a largura toda da tela (como o topo), mesmo acima do limite de --largura-max. */
+.filters::before {
+  content: '';
+  position: absolute;
+  inset: 0 calc(50% - 50vw);
+  z-index: -1;
+  border-bottom: 1px solid var(--cor-borda);
+  background: color-mix(in srgb, var(--cor-fundo) 88%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-2);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  background: var(--cor-superficie-2);
+}
+
+.segBtn {
+  min-height: 36px;
+  padding: var(--espaco-2) 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.segBtn[aria-pressed='true'] {
+  background: var(--cor-destaque);
+  color: var(--cor-sobre-destaque);
+  font-weight: 600;
+}
+
+.tagbar {
+  display: flex;
+  gap: 6px;
+  padding: 2px 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tagBtn {
+  display: inline-flex;
+  flex: none;
+  gap: 6px;
+  align-items: center;
+  min-height: 32px;
+  padding: 5px var(--espaco-3);
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto-suave);
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.tagBtn:focus-visible {
+  outline-offset: -2px; /* não cortado por overflow */
+}
+
+.tagBtn span {
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+
+.tagBtn[aria-pressed='true'] {
+  border-color: var(--cor-destaque-texto);
+  background: var(--cor-brilho);
+  color: var(--cor-texto);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .segBtn:hover {
+    color: var(--cor-texto);
+  }
+
+  .tagBtn:hover {
+    border-color: var(--cor-destaque);
+    color: var(--cor-texto);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .segBtn,
+  .tagBtn {
+    transition:
+      transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .segBtn:active,
+  .tagBtn:active {
+    transform: scale(0.96);
+  }
+
+  @media (hover: hover) {
+    .segBtn:hover,
+    .tagBtn:hover {
+      transform: translateY(-1px);
+    }
+  }
+}
+
+@media (max-width: 380px) {
+  .segBtn {
+    padding: 6px 10px;
+    font-size: 0.84rem;
+  }
+}
+
+/* telas estreitas ou baixas: a barra de filtros é alta, então não fica fixa (relative ancora o ::before) */
+@media (max-width: 899px), (max-height: 700px) {
+  .filters {
+    position: relative;
+    top: auto;
+  }
+}
+
+@media (pointer: coarse) {
+  .segBtn,
+  .tagBtn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}

@@ -179,3 +179,11 @@ test('installFile: destino .json instala o bloco json', () => {
   assert.deepEqual(installFile({}, { destino: '.claude/settings.json' }, body), { path: '.claude/settings.json', content: '{ "permissions": {} }' });
   assert.equal(installFile({}, { destino: '.claude/settings.json' }, '```markdown\nx\n```'), null);
 });
+
+test('buildInstall windows: aspa tipográfica + @ no início da linha também quebraria o here-string (o PowerShell as trata como aspas simples)', () => {
+  for (const q of ['‘', '’', '‚', '‛']) {
+    const out = buildInstall('windows', [f('x.md', `a\n${q}@ perigoso\nb`)]);
+    assert.ok(out.includes('FromBase64String'), `aspa U+${q.charCodeAt(0).toString(16)}`);
+    assert.ok(!out.includes("@'"), 'não pode usar here-string');
+  }
+});

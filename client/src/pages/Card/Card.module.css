@@ -1,0 +1,25 @@
+.layout {
+  display: grid;
+  gap: 32px 48px;
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.main {
+  min-width: 0;
+}
+
+.install {
+  margin-bottom: 20px;
+}
+
+.panel {
+  padding: 28px 0 var(--espaco-2);
+}
+
+/* desktop: página do card com coluna lateral */
+@media (min-width: 1024px) {
+  .hasAside {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+}

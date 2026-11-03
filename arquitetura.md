@@ -1,6 +1,6 @@
 # Arquitetura de Claude Library (modelo dev_web)
 
-> **Estado:** alvo da migração em andamento (ver `docs/decisions/0001-migracao-para-o-modelo-dev-web.md`). Enquanto o marco 4 não termina, o código real ainda é o descrito em `docs/arquitetura.md` (HTML/JS puros em `js/` e `css/`). Este arquivo diz para onde estamos indo; leia os dois.
+> **Estado:** `client/` já tem a interface inteira (marcos 1 a 4 de `docs/decisions/0001-migracao-para-o-modelo-dev-web.md`). O site publicado ainda é o antigo (`js/` e `css/`, descrito em `docs/arquitetura.md`) até o marco 5, que troca a publicação e apaga o legado. Este arquivo descreve o `client/`.
 
 Site estático: SPA em React (Vite) que lê o catálogo de pacotes de `content/` como arquivos estáticos. Não há `server/` nem banco: o GitHub Pages só serve arquivos.
 
@@ -36,16 +36,20 @@ claude-library/
     └── src/
         ├── main.jsx              ponto de entrada
         ├── App.jsx               rotas e layout raiz
-        ├── pages/                uma pasta por rota (Home, Card)
-        ├── components/           UI reutilizável (cada um com .module.css e .test.jsx)
-        ├── hooks/                estado e efeitos compartilhados (useXxx)
+        ├── pages/                uma pasta por rota: Home, Tier, Card, NotFound
+        ├── components/           UI reutilizável, cada um com .module.css e .test.jsx: Topbar, Footer, Hero, Filters,
+        │                         TierSection, CardTile, CardHero, CardAside, PieceTabs, PieceView, Markdown,
+        │                         InstallPanel, CodeBlock, CopyButton, Tabs, Button, Icon, LevelDots, Callout,
+        │                         Skeleton, Crumbs, Pager, EmptyState
+        ├── hooks/                useLibrary, useHash, usePieceText, useInstallFiles, useTheme, useOs, useScrollFx,
+        │                         useHeightVar, usePointerGlow, reveal (revelação ao rolar), useEntrance
         ├── services/             leitura do conteúdo (único lugar que faz fetch)
         ├── styles/
         │   ├── tokens.css        cores, espaços, tipografia (custom properties)
         │   └── global.css        reset e estilos base
         └── utils/                funções puras: content (front matter e validação do manifest), router, search,
-                                  tabs, install, markdown, sanitize. Em `services/`: content (fetch do manifest e das peças).
-                                  icons, dom e code-highlight (tocam o DOM) viram componentes no marco 4.
+                                  tabs, install, markdown, sanitize, icons (dados), format (rótulos e links), entries.
+                                  Em `services/`: content (fetch do manifest e das peças).
 ```
 
 `server/` não existe. Se um dia existir, segue o modelo (`routes → controllers → services`) e o deploy deixa de ser só Pages; isso é decisão a registrar.
@@ -68,7 +72,7 @@ O repositório e o site são públicos e o Markdown vem de arquivos, então vale
 
 - Markdown: HTML bruto escapado e URLs filtradas por `isSafeUrl`.
 - Segunda camada: `sanitize` com lista de permissões.
-- Texto do conteúdo entra no React como texto. `dangerouslySetInnerHTML` só em um componente, e só com a saída do `sanitize`; fora disso é proibido.
+- Texto do conteúdo entra no React como texto. O único lugar que insere HTML do conteúdo é `components/Markdown` (`safeFragment`, template inerte e lista de permissões de `sanitize`), sem `dangerouslySetInnerHTML`; fora dele, injetar HTML é proibido.
 - Exceção registrada: `utils/markdown.js` importa `marked` de `vendor/`, na raiz do repositório (fora de `client/`). No marco 4, decidir entre alias do Vite ou copiar o `vendor/` para dentro de `client/`.
 - Nada de segredo no `client/`; só variáveis `VITE_` e nunca com segredo.
 

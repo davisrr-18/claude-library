@@ -1,0 +1,229 @@
+.tier {
+  margin-top: 36px;
+}
+
+.head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: var(--espaco-4);
+}
+
+.dots {
+  margin-top: var(--espaco-3);
+  padding: var(--espaco-1) var(--espaco-2);
+  border-radius: 999px;
+  background: var(--cor-superficie-2);
+}
+
+.head > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.head h1,
+.head h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  overflow-wrap: anywhere;
+}
+
+.head h2 a {
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.head p {
+  max-width: 62ch;
+  margin: var(--espaco-1) 0 0;
+  color: var(--cor-texto-suave);
+}
+
+.count {
+  margin-top: var(--espaco-2);
+  color: var(--cor-texto-suave);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.body {
+  min-width: 0;
+}
+
+/* abas por tipo de peça dentro da faixa */
+.tabs {
+  display: flex;
+  gap: var(--espaco-1);
+  margin: 0 0 18px;
+  padding: 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--cor-borda);
+  scrollbar-width: thin;
+}
+
+.tab {
+  display: inline-flex;
+  flex: none;
+  gap: var(--espaco-2);
+  align-items: center;
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--cor-texto-suave);
+  font-size: 0.93rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tab svg {
+  color: var(--cor-destaque-texto);
+}
+
+.tab:focus-visible {
+  outline-offset: -2px;
+}
+
+.tab[aria-selected='true'] {
+  border-bottom-color: var(--cor-destaque);
+  color: var(--cor-texto);
+  font-weight: 600;
+}
+
+.typeCount {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--cor-superficie-2);
+  color: var(--cor-texto-suave);
+  font-size: 0.74rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.tab[aria-selected='true'] .typeCount {
+  background: var(--cor-destaque);
+  color: var(--cor-sobre-destaque);
+}
+
+.grid {
+  display: grid;
+  gap: var(--espaco-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+}
+
+/* arquivos de um tipo dentro da faixa, agrupados pelo card de origem */
+.group {
+  min-width: 0;
+}
+
+.group + .group {
+  margin-top: 48px;
+  padding-top: var(--espaco-6);
+  border-top: 1px solid var(--cor-borda);
+}
+
+.origin {
+  margin: 0 0 20px;
+  font-size: 1rem;
+}
+
+.origin a {
+  display: inline-flex;
+  gap: var(--espaco-2);
+  align-items: center;
+  color: var(--cor-texto-suave);
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.origin svg {
+  flex: none;
+  color: var(--cor-destaque-texto);
+}
+
+@media (hover: hover) {
+  .head h2 a:hover {
+    color: var(--cor-destaque-texto);
+  }
+
+  .tab:hover {
+    color: var(--cor-texto);
+    background: var(--cor-superficie-2);
+  }
+
+  .origin a:hover {
+    color: var(--cor-destaque-texto);
+    text-decoration: underline;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tab {
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
+  }
+}
+
+/* tablet e acima: o nível vira duas colunas (info à esquerda, cards à direita) */
+@media (min-width: 900px) {
+  .tier {
+    display: grid;
+    gap: 0 40px;
+    align-items: start;
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+
+  .head {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .dots {
+    margin-top: 0;
+  }
+
+  .head > div {
+    flex: none;
+  }
+
+  .count {
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 1280px) {
+  .tier {
+    gap: 0 56px;
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .tier {
+    margin-top: 28px;
+  }
+
+  .head {
+    flex-wrap: wrap;
+  }
+
+  .count {
+    margin-left: auto;
+  }
+
+  .tab {
+    padding: 10px var(--espaco-3);
+  }
+}
+
+@media (pointer: coarse) {
+  .tab {
+    min-height: 44px;
+  }
+}

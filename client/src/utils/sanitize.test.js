@@ -92,3 +92,11 @@ test('class de linguagem de codigo: c++, c#, objective-c e .net passam; aspas e 
     assert.equal(isAttrAllowed('CODE', 'class', cls), false, cls);
   }
 });
+
+test('class só vale em CODE e só com language-* ou hljs: classes da interface (reveal, enter…) não passam', () => {
+  for (const cls of ['reveal', 'in', 'is-entering', 'enter', 'anim-rise', 'sr-only', 'language-js reveal']) {
+    assert.equal(isAttrAllowed('CODE', 'class', cls), false, cls);
+  }
+  assert.equal(isAttrAllowed('SPAN', 'class', 'language-js'), false);
+  assert.equal(isAttrAllowed('P', 'class', 'hljs'), false);
+});

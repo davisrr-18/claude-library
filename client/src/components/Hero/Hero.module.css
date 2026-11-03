@@ -1,0 +1,201 @@
+.hero {
+  position: relative;
+  padding: 64px 0 28px;
+  text-align: center;
+  isolation: isolate;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: -58px calc(50% - 50vw) 0;
+  z-index: -1;
+  background:
+    radial-gradient(55% 60% at var(--hx, 50%) var(--hy, 0%), var(--cor-brilho), transparent 72%),
+    linear-gradient(var(--cor-grade) 1px, transparent 1px) 0 0 / 44px 44px,
+    linear-gradient(90deg, var(--cor-grade) 1px, transparent 1px) 0 0 / 44px 44px;
+  -webkit-mask-image: linear-gradient(#000 35%, transparent);
+  mask-image: linear-gradient(#000 35%, transparent);
+}
+
+.eyebrow {
+  display: inline-block;
+  margin: 0 0 var(--espaco-4);
+  padding: var(--espaco-1) var(--espaco-3);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: 999px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto-suave);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0 0 14px;
+  font-size: clamp(2rem, 1.2rem + 4vw, 4rem);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.accent {
+  color: var(--cor-destaque-texto);
+}
+
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .accent {
+    background: var(--cor-titulo-grad);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+
+.lead {
+  max-width: 60ch;
+  margin: 0 auto var(--espaco-5);
+  color: var(--cor-texto-suave);
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem);
+  text-wrap: pretty;
+}
+
+.searchbox {
+  display: flex;
+  gap: var(--espaco-3);
+  align-items: center;
+  max-width: 720px;
+  min-height: 56px;
+  margin: 0 auto 20px;
+  padding: 0 var(--espaco-4);
+  border: 1px solid var(--cor-borda-forte);
+  border-color: var(--cor-borda-campo);
+  border-radius: 16px;
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra);
+  color: var(--cor-texto-suave);
+  cursor: text;
+}
+
+.searchbox:focus-within {
+  border-color: var(--cor-destaque-texto);
+  outline: 2px solid var(--cor-destaque-texto);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 4px var(--cor-brilho),
+    var(--sombra);
+  color: var(--cor-destaque-texto);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--cor-texto);
+  font-size: 1.05rem;
+}
+
+.input::placeholder {
+  color: var(--cor-texto-suave);
+  opacity: 1;
+}
+
+.input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-2);
+  justify-content: center;
+}
+
+.stats li {
+  padding: 5px var(--espaco-3);
+  border-radius: 999px;
+  background: var(--cor-superficie-2);
+  color: var(--cor-texto-suave);
+  font-size: 0.88rem;
+}
+
+.stats strong {
+  color: var(--cor-texto);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .stats li:hover {
+    background: var(--cor-brilho);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero::before {
+    transition:
+      --hx 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      --hy 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: breathe 6s ease-in-out 1;
+  }
+
+  .accent {
+    animation: drift 9s ease-in-out 1;
+  }
+
+  .searchbox {
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .searchbox:focus-within {
+    transform: scale(1.012);
+  }
+
+  .stats li {
+    transition:
+      transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+      background-color 0.2s ease;
+  }
+
+  @media (hover: hover) {
+    .stats li:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding-top: 40px;
+    padding-bottom: 20px;
+  }
+
+  .searchbox {
+    min-height: 52px;
+    border-radius: 14px;
+  }
+
+  .searchbox kbd {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .stats li {
+    padding: var(--espaco-1) 10px;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-height: 600px) {
+  .hero {
+    padding-top: var(--espaco-5);
+  }
+}

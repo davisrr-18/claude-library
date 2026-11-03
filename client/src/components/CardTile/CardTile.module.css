@@ -1,0 +1,176 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  overflow: hidden;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+/* Brilho que segue o ponteiro: fica sobre o card só com hover ou foco (opacity 0 em repouso) e não captura cliques. */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    340px circle at var(--mx, 100%) var(--my, 0%),
+    var(--cor-brilho),
+    transparent 65%
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+
+.card:focus-visible {
+  border-color: var(--cor-destaque);
+  box-shadow: var(--sombra);
+}
+
+.card:focus-visible::after {
+  opacity: 1;
+}
+
+.card h2,
+.card h3 {
+  margin: var(--espaco-1) 0 0;
+  font-size: 1.12rem;
+}
+
+.card h2,
+.card h3,
+.tag,
+.chip {
+  overflow-wrap: anywhere;
+}
+
+.summary {
+  display: -webkit-box;
+  flex: 1;
+  margin: 0;
+  overflow: hidden;
+  color: var(--cor-texto-suave);
+  font-size: 0.94rem;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.icon {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid color-mix(in srgb, var(--cor-destaque) 35%, transparent);
+  border-radius: 12px;
+  background: var(--cor-brilho);
+  color: var(--cor-destaque-texto);
+}
+
+.go {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: var(--cor-texto-suave);
+}
+
+.chips,
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 3px 9px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  background: var(--cor-superficie-2);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.chip svg {
+  color: var(--cor-destaque-texto);
+}
+
+.tag {
+  color: var(--cor-texto-suave);
+  font-size: 0.78rem;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--cor-destaque);
+    box-shadow: var(--sombra);
+  }
+
+  .card:hover::after {
+    opacity: 1;
+  }
+
+  .card:hover .go {
+    color: var(--cor-destaque-texto);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    transition:
+      transform 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  .card::after {
+    transition: opacity 0.2s;
+  }
+
+  .icon {
+    transition:
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      background-color 0.2s ease;
+  }
+
+  .go {
+    transition:
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      color 0.2s ease;
+  }
+
+  .card:active {
+    transform: scale(0.985);
+  }
+
+  @media (hover: hover) {
+    .card:hover {
+      transform: translateY(-3px);
+    }
+
+    .card:hover .go {
+      transform: translateX(3px);
+    }
+
+    .card:hover .icon {
+      transform: translateY(-2px) scale(1.08) rotate(-4deg);
+    }
+
+    /* o hover logo após a revelação ao rolar não pode ser anulado por .reveal.in */
+    .card:global(.reveal.in):hover {
+      transform: translateY(-3px);
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: var(--espaco-4);
+  }
+}

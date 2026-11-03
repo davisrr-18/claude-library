@@ -1,0 +1,168 @@
+.md {
+  max-width: 90ch;
+  overflow-wrap: anywhere;
+}
+
+.md > :first-child {
+  margin-top: 0;
+}
+
+.md h3 {
+  margin: 2rem 0 0.6rem;
+  font-size: 1.5rem;
+}
+
+.md h4 {
+  margin: 2rem 0 0.5rem;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cor-borda);
+  font-size: 1.25rem;
+}
+
+.md h5 {
+  margin: 1.6rem 0 0.4rem;
+  font-size: 1.1rem;
+}
+
+.md h6 {
+  margin: 1.4rem 0 0.4rem;
+  color: var(--cor-texto-suave);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.md p,
+.md ul,
+.md ol {
+  margin: 0.8rem 0;
+}
+
+.md ul {
+  padding-left: 1.4rem;
+  list-style: disc;
+}
+
+.md ol {
+  padding-left: 1.5rem;
+}
+
+.md li {
+  margin: 0.25rem 0;
+}
+
+.md li::marker {
+  color: var(--cor-destaque);
+}
+
+.md img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--raio-sm);
+}
+
+.md hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.md blockquote {
+  margin: 1rem 0;
+  padding: var(--espaco-1) var(--espaco-4);
+  border-left: 3px solid var(--cor-destaque);
+  border-radius: 0 var(--raio-sm) var(--raio-sm) 0;
+  background: var(--cor-superficie-2);
+  color: var(--cor-texto-suave);
+}
+
+.md table {
+  min-width: 100%;
+  border-collapse: collapse;
+}
+
+.tableWrap {
+  max-width: 100%;
+  margin: 1rem 0;
+  overflow-x: auto;
+  border-radius: var(--raio-sm);
+}
+
+.md th,
+.md td {
+  padding: var(--espaco-2) var(--espaco-3);
+  border: 1px solid var(--cor-borda);
+  text-align: left;
+}
+
+.md th {
+  background: var(--cor-superficie-2);
+}
+
+.md :not(pre) > code {
+  padding: 1px 6px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  background: var(--cor-superficie-2);
+  font-family: var(--fonte-codigo);
+  font-size: 0.88em;
+}
+
+/* sintaxe (highlight.js): as classes vêm do próprio highlight.js, por isso :global */
+.md :global(.hljs) {
+  color: var(--cor-texto);
+}
+
+.md :global(.hljs-comment),
+.md :global(.hljs-quote) {
+  color: var(--cor-texto-suave);
+  font-style: italic;
+}
+
+.md :global(.hljs-keyword),
+.md :global(.hljs-selector-tag),
+.md :global(.hljs-literal),
+.md :global(.hljs-doctag),
+.md :global(.hljs-meta .hljs-keyword) {
+  color: var(--cor-destaque-texto);
+  font-weight: 600;
+}
+
+.md :global(.hljs-string),
+.md :global(.hljs-regexp),
+.md :global(.hljs-addition),
+.md :global(.hljs-meta .hljs-string) {
+  color: var(--cor-sintaxe-texto);
+}
+
+.md :global(.hljs-number),
+.md :global(.hljs-symbol),
+.md :global(.hljs-bullet),
+.md :global(.hljs-variable),
+.md :global(.hljs-template-variable) {
+  color: var(--cor-sintaxe-numero);
+}
+
+.md :global(.hljs-title),
+.md :global(.hljs-section),
+.md :global(.hljs-function .hljs-title),
+.md :global(.hljs-built_in),
+.md :global(.hljs-attr),
+.md :global(.hljs-attribute),
+.md :global(.hljs-name),
+.md :global(.hljs-selector-id),
+.md :global(.hljs-selector-class) {
+  color: var(--cor-sintaxe-titulo);
+}
+
+.md :global(.hljs-deletion) {
+  color: var(--cor-perigo);
+}
+
+.md :global(.hljs-emphasis) {
+  font-style: italic;
+}
+
+.md :global(.hljs-strong) {
+  font-weight: 700;
+}

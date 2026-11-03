@@ -1,0 +1,24 @@
+.skip {
+  position: absolute;
+  top: var(--espaco-2);
+  left: -999px;
+  z-index: 50;
+}
+
+.skip:focus {
+  left: var(--espaco-margem);
+  padding: var(--espaco-2) 14px;
+  border-radius: var(--raio-sm);
+  background: var(--cor-destaque);
+  color: var(--cor-sobre-destaque);
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--largura-max);
+  margin: 0 auto;
+  padding: 0 max(var(--espaco-margem), env(safe-area-inset-right)) 72px
+    max(var(--espaco-margem), env(safe-area-inset-left));
+  outline: none; /* o foco vai para o <main> ou o h1 a cada rota; sem contorno */
+}

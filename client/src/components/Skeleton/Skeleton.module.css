@@ -1,0 +1,25 @@
+.skeleton {
+  display: grid;
+  gap: var(--espaco-3);
+  padding: var(--espaco-2) 0;
+}
+
+.skeleton i {
+  display: block;
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(
+      90deg,
+      var(--cor-superficie-2) 25%,
+      var(--cor-borda) 50%,
+      var(--cor-superficie-2) 75%
+    )
+    0 0 / 300% 100%;
+}
+
+/* único movimento que repete: some quando o conteúdo chega */
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton i {
+    animation: shimmer 1.4s linear infinite;
+  }
+}

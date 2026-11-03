@@ -1,0 +1,18 @@
+.empty {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 64px var(--espaco-4);
+  color: var(--cor-texto-suave);
+  text-align: center;
+}
+
+.empty h1,
+.empty h2 {
+  margin: var(--espaco-2) 0 0;
+  color: var(--cor-texto);
+}
+
+.empty p {
+  margin: 0 0 var(--espaco-3);
+}

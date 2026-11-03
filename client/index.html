@@ -6,10 +6,26 @@
     <meta name="robots" content="noindex, nofollow" />
     <meta name="color-scheme" content="dark light" />
     <title>Claude Library</title>
+    <script>
+      // Aplica o tema salvo antes do primeiro paint (evita o flash do tema errado).
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <noscript><p>Esta página precisa de JavaScript.</p></noscript>
+    <script>
+      // Módulos ES não carregam via file://; avisa antes, com script clássico.
+      if (location.protocol === 'file:') {
+        var p = document.createElement('p');
+        p.textContent =
+          'Abra via servidor: rode "npm run dev" (ou sirva client/dist) e acesse o endereço no navegador.';
+        document.body.prepend(p);
+      }
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

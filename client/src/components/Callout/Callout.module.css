@@ -1,0 +1,19 @@
+.callout {
+  margin: var(--espaco-4) 0;
+  padding: 14px var(--espaco-4);
+  border: 1px dashed var(--cor-borda-forte);
+  border-radius: var(--raio-md);
+  color: var(--cor-texto-suave);
+}
+
+.error {
+  border-style: solid;
+  border-color: var(--cor-perigo);
+  color: var(--cor-perigo);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .callout {
+    animation: fade 0.4s ease backwards;
+  }
+}

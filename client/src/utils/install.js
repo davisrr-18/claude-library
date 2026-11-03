@@ -112,9 +112,9 @@ function buildWindows(files) {
       made.add(dir);
       out.push(`New-Item -ItemType Directory -Force -Path ${psQuote(dir)} | Out-Null`);
     }
-    // Here-string literal (@' ... '@) não expande nada; só quebra se uma linha começar com '@.
+    // Here-string literal (@' ... '@) não expande nada; só quebra se uma linha começar com '@ (ou com aspa tipográfica, que o PowerShell trata como aspa simples).
     // Nesse caso o conteúdo vai em base64.
-    if (/(^|\n)'@/.test(content)) {
+    if (/(^|\n)['\u2018\u2019\u201A\u201B]@/.test(content)) {
       const b64 = toBase64(content);
       out.push(`$content = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${b64}'))`);
     } else {

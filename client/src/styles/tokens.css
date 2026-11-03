@@ -17,7 +17,12 @@
   --cor-titulo-grad: linear-gradient(100deg, #c2410c, #d9480f 50%, #c2410c);
   --cor-codigo-fundo: #faf8f4;
   --cor-perigo: #b3261e;
+  --cor-destaque-claro: #ffb347;
+  --cor-sintaxe-texto: #b45309;
+  --cor-sintaxe-numero: #b45309;
+  --cor-sintaxe-titulo: #9a3412;
   --sombra: 0 1px 2px rgba(23, 18, 13, 0.06), 0 8px 24px rgba(23, 18, 13, 0.06);
+  --sombra-topo: 0 8px 28px rgba(0, 0, 0, 0.12);
 
   --espaco-1: 0.25rem;
   --espaco-2: 0.5rem;
@@ -54,6 +59,9 @@
     --cor-grade: rgba(255, 255, 255, 0.045);
     --cor-titulo-grad: linear-gradient(100deg, #ff9a4d, #ff7a1a 45%, #ffb347 70%, #ff7a1a 90%, #ff9a4d);
     --cor-codigo-fundo: #101010;
+    --cor-sintaxe-texto: #ffc680;
+    --cor-sintaxe-numero: #ffb066;
+    --cor-sintaxe-titulo: #ffd2a6;
     --cor-perigo: #ff8a80;
     --sombra: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.45);
     color-scheme: dark;
@@ -75,6 +83,9 @@
   --cor-grade: rgba(255, 255, 255, 0.045);
   --cor-titulo-grad: linear-gradient(100deg, #ff9a4d, #ff7a1a 45%, #ffb347 70%, #ff7a1a 90%, #ff9a4d);
   --cor-codigo-fundo: #101010;
+  --cor-sintaxe-texto: #ffc680;
+  --cor-sintaxe-numero: #ffb066;
+  --cor-sintaxe-titulo: #ffd2a6;
   --cor-perigo: #ff8a80;
   --sombra: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.45);
   color-scheme: dark;

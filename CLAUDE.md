@@ -8,7 +8,7 @@ Este arquivo complementa o `CLAUDE.md` global do usuário e usa o modelo dev_web
 
 ## Migração em andamento
 
-O projeto está migrando do site de HTML/JS puros (sem build) para o modelo dev_web (React + Vite em `client/`). Plano, marcos e dependências em `docs/decisions/0001-migracao-para-o-modelo-dev-web.md`. **Cada marco só começa com o "sim" do usuário.** Até o marco 4 acabar, o site publicado usa `js/` e `css/` (ver `docs/arquitetura.md`). Os módulos puros já existem copiados em `client/src/utils/` e `services/` (marco 3); **`js/` está congelado** (só correção de bug, aplicada também na cópia) até o marco 5 apagá-lo, quando `docs/arquitetura.md` também é substituído pelo `arquitetura.md` da raiz. Atualize este arquivo ao fim de cada marco.
+O projeto está migrando do site de HTML/JS puros (sem build) para o modelo dev_web (React + Vite em `client/`). Plano, marcos e dependências em `docs/decisions/0001-migracao-para-o-modelo-dev-web.md`. **Cada marco só começa com o "sim" do usuário.** O `client/` já tem a interface inteira (marco 4, falta a conferência visual do usuário), mas o site publicado ainda usa `js/` e `css/` (ver `docs/arquitetura.md`) até o marco 5. Os módulos puros existem copiados em `client/src/utils/` e `services/`; **`js/` e `css/` estão congelados** (só correção de bug, aplicada também no `client`) até o marco 5 apagá-los, quando `docs/arquitetura.md` também é substituído pelo `arquitetura.md` da raiz. Atualize este arquivo ao fim de cada marco.
 
 ## Stack
 
@@ -34,10 +34,10 @@ Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Nod
 
 ## Convenções
 
-As duas primeiras linhas valem para o que está em `client/`. **Até o marco 4 acabar, o código em `js/` e `css/` segue o estilo atual:** lógica em módulo puro de `js/`, DOM só em `app.js`, `dom.js`, `icons.js` e `code-highlight.js`, e cores só por tokens (`--bg`, `--accent`…).
+Valem para o que está em `client/`. O código legado de `js/` e `css/` (congelado) segue o estilo antigo: lógica em módulo puro, DOM só em `app.js`, `dom.js`, `icons.js` e `code-highlight.js`, tokens `--bg`, `--accent`…
 
-- Componentes React (alvo): função + hooks, um componente por arquivo, PascalCase, `Nome.jsx` com `Nome.module.css` e `Nome.test.jsx` ao lado. Hooks em `hooks/`, prefixo `use`. Leitura de `content/` só em `services/`, nunca dentro de componentes.
-- CSS: mobile-first; cor, espaço e tipografia vêm dos tokens (`var(--...)`: hoje `--bg`, `--accent`…; no alvo `--cor-*`, `--espaco-*`), nunca valores soltos. Sem `!important`.
+- Componentes React: função + hooks, um componente por arquivo, PascalCase, `Nome.jsx` com `Nome.module.css` e `Nome.test.jsx` ao lado. Hooks em `hooks/`, prefixo `use`. Leitura de `content/` só em `services/`, nunca dentro de componentes.
+- CSS: mobile-first; cor, espaço e tipografia vêm dos tokens (`var(--...)`: `--cor-*`, `--espaco-*`, `--raio-*`, `--fonte-*`; o legado usa `--bg`, `--accent`…), nunca valores soltos. Sem `!important`.
 - HTML: elementos semânticos antes de `div`; todo controle interativo é um elemento nativo com rótulo.
 - JavaScript: `const` por padrão, sem `var`, funções pequenas, erros tratados e nunca engolidos em silêncio.
 - Commits pequenos, no imperativo, em português, formato `tipo: resumo` (ver Git).
@@ -45,12 +45,12 @@ As duas primeiras linhas valem para o que está em `client/`. **Até o marco 4 a
 ## Regras de código (não negociáveis)
 
 1. **Dependência de execução só com o "sim" do usuário** (diga qual, para quê e o tamanho; registre em `docs/decisions/`). Sem CDN. Terceiros de runtime em `vendor/` (versão fixa, licença, hash) ou como dependência aprovada. Ferramentas de QA ficam isoladas em `tools/qa/`. Não editar `package-lock.json` à mão.
-2. **Teste primeiro (TDD):** escrever o teste, ver falhar pelo motivo certo, implementar, ver passar. Lógica nova vai em módulo puro testável (hoje `js/`, no alvo `utils/`); DOM só em `app.js` e `dom.js` hoje, em componentes no alvo.
-3. **Nunca injetar HTML com texto do conteúdo.** Texto entra como texto (React escapa). `dangerouslySetInnerHTML` só no único componente que recebe a saída do `sanitize`. Hoje, `innerHTML` só em `safeFragment` (template inerte + lista de permissões em `sanitize.js`).
+2. **Teste primeiro (TDD):** escrever o teste, ver falhar pelo motivo certo, implementar, ver passar. Lógica nova vai em módulo puro testável em `client/src/utils/`; DOM só em componentes e hooks.
+3. **Nunca injetar HTML com texto do conteúdo.** Texto entra como texto (React escapa). Sem `dangerouslySetInnerHTML`. O HTML do Markdown só entra em `components/Markdown`, por `safeFragment` (template inerte + lista de permissões de `sanitize`). No legado, `innerHTML` só em `safeFragment` de `js/dom.js`.
 4. **Markdown:** HTML bruto escapado, URLs filtradas por `isSafeUrl`, mais a segunda camada de `sanitize`. Não afrouxar nenhuma das duas.
 5. `localStorage` sempre em `try/catch`; a página funciona sem ele.
-6. **CSS:** grids com texto de largura imprevisível usam `minmax(0, 1fr)` ou `min-width: 0`; **nada com `position: absolute` por cima de área rolável ou de texto** (o botão Copiar tem linha própria); `:hover` só dentro de `@media (hover: hover)`; alvos de toque ≥ 44px em `pointer: coarse`.
-7. **Animações:** só a entrada da página, a revelação ao rolar e microinterações; cada uma roda **uma vez**. **Nenhuma animação decorativa em loop** (só o esqueleto de carregamento pode repetir); tudo respeita `prefers-reduced-motion`. Há teste que trava isso.
+6. **CSS:** cor só por token (há teste); todo `animation` e `transition` dentro de `@media (prefers-reduced-motion: no-preference)` e `:hover` dentro de `@media (hover: hover)` (há teste, e `!important` é proibido); grids com texto de largura imprevisível usam `minmax(0, 1fr)` ou `min-width: 0`; **nada com `position: absolute` por cima de área rolável ou de texto** (o botão Copiar tem linha própria); `:hover` só dentro de `@media (hover: hover)`; alvos de toque ≥ 44px em `pointer: coarse`.
+7. **Animações:** só a entrada da página, a revelação ao rolar e microinterações; cada uma roda **uma vez**. **Nenhuma animação decorativa em loop** (só o esqueleto de carregamento pode repetir); tudo respeita `prefers-reduced-motion`. Há teste que trava isso (`client/src/styles/regras.test.js`).
 8. **Acessibilidade:** hierarquia de títulos sem saltos (h1 = página, h2 = peça, Markdown começa em h3), foco vai para o `h1` a cada rota, nomes acessíveis em tudo que é clicável, abas reais com setas/Home/End nas abas por tipo da faixa e nas de sistema operacional (as abas da página do card são links de navegação), foco visível, contraste ≥ 4,5:1 no texto.
 9. Nunca ler, editar ou imprimir `.env*`; variável nova entra em `.env.example`. Nunca segredo, chave ou token no código.
 10. Não desligar lint, teste ou regra de acessibilidade para "fazer passar".
