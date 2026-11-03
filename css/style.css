@@ -48,7 +48,7 @@
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: calc(var(--topbar-h) + var(--filters-h, 0px) + 12px); }
+html { overflow-x: hidden; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: calc(var(--topbar-h) + var(--filters-h, 0px) + 12px); }
 @media (min-width: 1800px) { html { font-size: 17px; } }
 body {
   margin: 0; background: var(--bg); color: var(--text);
