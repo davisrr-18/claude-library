@@ -3,10 +3,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.mjs",
+    "dev": "npm run dev -w client",
+    "test": "node --test tests/*.test.mjs && npm run test -w client",
+    "lint": "eslint client",
+    "format": "prettier --write client",
+    "build": "npm run build -w client",
     "check": "node scripts/check-content.mjs",
     "qa:install": "npm --prefix tools/qa install",
     "qa": "npm --prefix tools/qa run all",
     "build:site": "node scripts/build-site.mjs"
+  },
+  "workspaces": [
+    "client"
+  ],
+  "devDependencies": {
+    "eslint": "^10.14.0",
+    "prettier": "^3.9.10"
   }
 }

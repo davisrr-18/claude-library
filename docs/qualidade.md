@@ -8,7 +8,7 @@ Três camadas. Rode da raiz do projeto; os comandos são iguais em Linux, macOS 
 | Verificação de conteúdo | `npm run check` | Manifest, arquivos, dados sensíveis, identidade do autor |
 | QA completo | `npm run qa` (uma vez: `npm run qa:install`) | Linter, CSS, fuzz, fumaça com DOM simulado, estresse |
 
-## 1. `npm test` (Node 22, `node:test`, zero dependências)
+## 1. `npm test` (Node 22.22 ou superior; `node:test` para o legado e Vitest para o `client`; precisa de `npm install` antes)
 
 Arquivos em `tests/` (um por módulo ou tema):
 
@@ -29,7 +29,7 @@ Consequência prática: **não escreva dado pessoal real em nenhum arquivo do pr
 
 ## 3. `npm run qa` (`tools/qa/`)
 
-Dependências isoladas em `tools/qa/package.json` (jsdom, eslint, css-tree); o projeto principal continua sem dependências. Instalar uma vez com `npm run qa:install`. Roda 10 verificações (cada uma também pode ser rodada sozinha: `node tools/qa/run-all.mjs <filtro>`):
+Dependências isoladas em `tools/qa/package.json` (jsdom, eslint, css-tree); o projeto principal passou a ter dependências do `client` (React, Vite, Vitest, ESLint, Prettier; ver `docs/decisions/`), separadas das do QA. Instalar uma vez com `npm run qa:install`. Roda 10 verificações (cada uma também pode ser rodada sozinha: `node tools/qa/run-all.mjs <filtro>`):
 
 | Verificação | O que faz |
 |---|---|

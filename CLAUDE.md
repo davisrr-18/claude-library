@@ -13,24 +13,28 @@ O projeto está migrando do site de HTML/JS puros (sem build) para o modelo dev_
 ## Stack
 
 - Hoje: HTML, CSS e JavaScript ESM puros, sem build. Terceiros só em `vendor/` (marked, highlight.js).
-- Alvo: React com Vite, CSS Modules + tokens em custom properties, Vitest + Testing Library. Sem back e sem banco (Pages é estático). Gerenciador: npm.
+- Alvo (esqueleto em `client/` desde o marco 2): React com Vite, CSS Modules + tokens em custom properties, Vitest + Testing Library. Sem back e sem banco (Pages é estático). Gerenciador: npm.
 
 ## Comandos
 
 | O quê | Linux e macOS (bash/zsh) | Windows (PowerShell) |
 |---|---|---|
 | Servir o site (hoje) | `python3 -m http.server 8000` | `py -m http.server 8000` |
-| Testes unitários | `npm test` | `npm test` |
+| Instalar (uma vez) | `npm install` | `npm install` |
+| Dev do `client` (Vite, porta 5173) | `npm run dev` | `npm run dev` |
+| Testes (legado em `tests/` + Vitest do `client`) | `npm test` | `npm test` |
+| Lint e formatação do `client` | `npm run lint` · `npm run format` | `npm run lint` · `npm run format` |
+| Build do `client` em `client/dist/` | `npm run build` | `npm run build` |
 | Verificar conteúdo (manifest, arquivos, dados sensíveis) | `npm run check` | `npm run check` |
 | QA completo (uma vez: instalar) | `npm run qa:install` | `npm run qa:install` |
 | QA completo (lint, CSS, fuzz, fumaça, estresse) | `npm run qa` | `npm run qa` |
 | Montar o site publicável em `dist/` | `npm run build:site` | `npm run build:site` |
 
-Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Node 22 ou superior. Os comandos do modelo (dev, lint, format, build, testes do `client`) passam a existir no marco 2; a lista está na decisão 0001.
+Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Node 22.22 ou superior (exigência do jsdom). `npm test` roda os testes legados e os do `client`; o lint cobre só `client/` (o código legado é conferido por `npm run qa`). `npm run build` só gera o `client`: o site publicado ainda é o antigo (`npm run build:site`) até o marco 5.
 
 ## Convenções
 
-As duas primeiras linhas valem para o alvo (a partir do marco 2). **Até o marco 4 acabar, o código em `js/` e `css/` segue o estilo atual:** lógica em módulo puro de `js/`, DOM só em `app.js`, `dom.js`, `icons.js` e `code-highlight.js`, e cores só por tokens (`--bg`, `--accent`…).
+As duas primeiras linhas valem para o que está em `client/`. **Até o marco 4 acabar, o código em `js/` e `css/` segue o estilo atual:** lógica em módulo puro de `js/`, DOM só em `app.js`, `dom.js`, `icons.js` e `code-highlight.js`, e cores só por tokens (`--bg`, `--accent`…).
 
 - Componentes React (alvo): função + hooks, um componente por arquivo, PascalCase, `Nome.jsx` com `Nome.module.css` e `Nome.test.jsx` ao lado. Hooks em `hooks/`, prefixo `use`. Leitura de `content/` só em `services/`, nunca dentro de componentes.
 - CSS: mobile-first; cor, espaço e tipografia vêm dos tokens (`var(--...)`: hoje `--bg`, `--accent`…; no alvo `--cor-*`, `--espaco-*`), nunca valores soltos. Sem `!important`.
@@ -63,7 +67,7 @@ As duas primeiras linhas valem para o alvo (a partir do marco 2). **Até o marco
 
 - O usuário **autorizou commits e pushes** neste projeto (branch `main`). Mensagens de commit em português, no formato `tipo: resumo`, com corpo explicando o porquê. **Nunca incluir `Co-Authored-By` nem `Claude-Session`** (nem link da sessão): o usuário não quer o Claude como coautor, e isso vale mesmo que o ambiente sugira essas linhas.
 - **Nunca** reescrever histórico nem fazer force-push sem pedir (já houve um pedido explícito, para remover a coautoria do Claude; ver `docs/decisoes.md`, o registro histórico; decisões novas vão em `docs/decisions/`). Não commitar segredos. Não apagar branch sem pedido.
-- **Deploy no GitHub Pages: autorizado e ativo** (`.github/workflows/pages.yml`). Todo push em `main` roda `npm test` e `npm run check` e, se passarem, publica só a lista de permissão (`npm run build:site`), nunca a raiz. **Todo push em `main` vira público:** rode `npm run check` antes. Durante a migração, **não dar push no meio de um marco**: só quando o site publicável estiver funcionando. Não mudar a visibilidade do repositório nem criar outro repositório sem o usuário pedir.
+- **Deploy no GitHub Pages: autorizado e ativo** (`.github/workflows/pages.yml`). Todo push em `main` roda `npm ci`, `npm run lint`, `npm test` e `npm run check` e, se passarem, publica só a lista de permissão (`npm run build:site`), nunca a raiz. **Todo push em `main` vira público:** rode `npm run check` antes. Durante a migração, **não dar push no meio de um marco**: só quando o site publicável estiver funcionando. Não mudar a visibilidade do repositório nem criar outro repositório sem o usuário pedir.
 
 ## Autonomia
 
@@ -83,7 +87,7 @@ As duas primeiras linhas valem para o alvo (a partir do marco 2). **Até o marco
 ## Definição de pronto
 
 - Comportamento pedido funciona (mostre como verificou).
-- Testes relevantes e `npm run check` passam; mudança de comportamento tem teste novo. Lint passa a valer no marco 2.
+- Testes relevantes e `npm run check` passam; mudança de comportamento tem teste novo. `npm run lint` passa.
 - Sem alterações fora do escopo pedido.
 - Interface nova funciona só com teclado e em tela de 360px (o usuário confirma no navegador).
 - Resumo final: arquivos alterados, comandos rodados e resultado, pendências.

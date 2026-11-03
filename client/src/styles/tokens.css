@@ -1,0 +1,81 @@
+/* Tokens do Claude Library. Mapa dos nomes antigos (css/style.css) em docs/design.md.
+   Claro por padrão; escuro por preferência do sistema ou por data-theme="dark". */
+:root {
+  --cor-fundo: #ffffff;
+  --cor-superficie: #ffffff;
+  --cor-superficie-2: #f6f4f0;
+  --cor-borda: #e7e2d9;
+  --cor-borda-forte: #d6cfc2;
+  --cor-borda-campo: #8f877a; /* contraste ≥ 3:1 */
+  --cor-texto: #17120d;
+  --cor-texto-suave: #615a50;
+  --cor-destaque: #ff7a1a; /* preenchimentos */
+  --cor-destaque-texto: #c2410c; /* texto e links sobre o fundo */
+  --cor-sobre-destaque: #17120d;
+  --cor-brilho: rgba(255, 122, 26, 0.16);
+  --cor-grade: rgba(23, 18, 13, 0.05);
+  --cor-titulo-grad: linear-gradient(100deg, #c2410c, #d9480f 50%, #c2410c);
+  --cor-codigo-fundo: #faf8f4;
+  --cor-perigo: #b3261e;
+  --sombra: 0 1px 2px rgba(23, 18, 13, 0.06), 0 8px 24px rgba(23, 18, 13, 0.06);
+
+  --espaco-1: 0.25rem;
+  --espaco-2: 0.5rem;
+  --espaco-3: 0.75rem;
+  --espaco-4: 1rem;
+  --espaco-5: 1.5rem;
+  --espaco-6: 2rem;
+  --espaco-7: 3rem;
+  --espaco-margem: clamp(16px, 4.5vw, 80px);
+  --largura-max: 2560px;
+  --altura-topo: 58px;
+
+  --raio-sm: 8px;
+  --raio-md: 14px;
+
+  --fonte-texto: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --fonte-codigo: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --cor-fundo: #0b0b0b;
+    --cor-superficie: #141413;
+    --cor-superficie-2: #1b1a18;
+    --cor-borda: #2a2825;
+    --cor-borda-forte: #3a3733;
+    --cor-borda-campo: #77716a;
+    --cor-texto: #f4f1ec;
+    --cor-texto-suave: #a39d93;
+    --cor-destaque-texto: #ff9a4d;
+    --cor-sobre-destaque: #0b0b0b;
+    --cor-brilho: rgba(255, 122, 26, 0.22);
+    --cor-grade: rgba(255, 255, 255, 0.045);
+    --cor-titulo-grad: linear-gradient(100deg, #ff9a4d, #ff7a1a 45%, #ffb347 70%, #ff7a1a 90%, #ff9a4d);
+    --cor-codigo-fundo: #101010;
+    --cor-perigo: #ff8a80;
+    --sombra: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --cor-fundo: #0b0b0b;
+  --cor-superficie: #141413;
+  --cor-superficie-2: #1b1a18;
+  --cor-borda: #2a2825;
+  --cor-borda-forte: #3a3733;
+  --cor-borda-campo: #77716a;
+  --cor-texto: #f4f1ec;
+  --cor-texto-suave: #a39d93;
+  --cor-destaque-texto: #ff9a4d;
+  --cor-sobre-destaque: #0b0b0b;
+  --cor-brilho: rgba(255, 122, 26, 0.22);
+  --cor-grade: rgba(255, 255, 255, 0.045);
+  --cor-titulo-grad: linear-gradient(100deg, #ff9a4d, #ff7a1a 45%, #ffb347 70%, #ff7a1a 90%, #ff9a4d);
+  --cor-codigo-fundo: #101010;
+  --cor-perigo: #ff8a80;
+  --sombra: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}

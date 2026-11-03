@@ -23,6 +23,22 @@ O que o usuário escolheu e o que ele pediu para evitar. Antes de mudar visual, 
 | `--field-border` (≥ 3:1) | `#8f877a` | `#77716a` |
 | `--code-bg` | `#faf8f4` | `#101010` |
 
+### Nomes novos (migração, `client/src/styles/tokens.css`)
+
+Mesmos valores, nomes do modelo dev_web. Quem migra um trecho de `css/style.css` troca assim:
+
+| Antigo | Novo | Antigo | Novo |
+|---|---|---|---|
+| `--bg` | `--cor-fundo` | `--code-bg` | `--cor-codigo-fundo` |
+| `--surface` / `--surface-2` | `--cor-superficie` / `--cor-superficie-2` | `--danger` | `--cor-perigo` |
+| `--border` / `--border-strong` | `--cor-borda` / `--cor-borda-forte` | `--glow` / `--grid` | `--cor-brilho` / `--cor-grade` |
+| `--field-border` | `--cor-borda-campo` | `--title-grad` | `--cor-titulo-grad` |
+| `--text` / `--muted` | `--cor-texto` / `--cor-texto-suave` | `--shadow` | `--sombra` |
+| `--accent` / `--accent-ink` / `--on-accent` | `--cor-destaque` / `--cor-destaque-texto` / `--cor-sobre-destaque` | `--radius` / `--radius-sm` | `--raio-md` / `--raio-sm` |
+| `--gutter` / `--maxw` / `--topbar-h` | `--espaco-margem` / `--largura-max` / `--altura-topo` | `--font` / `--mono` | `--fonte-texto` / `--fonte-codigo` |
+
+Espaços novos: `--espaco-1` a `--espaco-7` (0,25 rem a 3 rem). O CSS antigo usa `!important` em animações e em `prefers-reduced-motion`; o modelo proíbe. Ao migrar (marco 4), reescrever sem `!important` e manter o teste de movimento.
+
 Regras: laranja `#ff7a1a` só em preenchimentos (texto sobre ele é escuro); para texto/links no claro usa-se `--accent-ink`, que tem contraste suficiente. O tema segue o sistema (`prefers-color-scheme`) e o botão guarda a escolha (`data-theme`, aplicado antes do primeiro paint). Cores de sintaxe (highlight.js) são escritas no CSS na mesma paleta.
 
 ## Layout e responsividade

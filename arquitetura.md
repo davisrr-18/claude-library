@@ -71,7 +71,7 @@ O repositório e o site são públicos e o Markdown vem de arquivos, então vale
 
 ## Estilo e design (CSS)
 
-- `styles/tokens.css` define `--cor-*`, `--espaco-*`, `--fonte-*`, `--raio-*` em `:root`; o modo escuro redefine os mesmos tokens em `@media (prefers-color-scheme: dark)`. O mapa dos tokens atuais (`--bg`, `--accent`…) para esses nomes é feito no marco 2 e registrado em `docs/design.md`.
+- `styles/tokens.css` define `--cor-*`, `--espaco-*`, `--fonte-*`, `--raio-*` em `:root`; o modo escuro redefine os mesmos tokens em `@media (prefers-color-scheme: dark)`. O mapa dos tokens antigos (`--bg`, `--accent`…) para esses nomes está em `docs/design.md`.
 - Cada componente tem o próprio `.module.css`; estilo global só em `global.css`.
 - Mobile-first, `@media (min-width: ...)` para ampliar. Flexbox e Grid, unidades relativas antes de `px`.
 - Regras do projeto que continuam: grids com texto imprevisível usam `minmax(0, 1fr)` ou `min-width: 0`; nada com `position: absolute` sobre área rolável ou texto; `:hover` só em `@media (hover: hover)`; alvos de toque ≥ 44px em `pointer: coarse`; animações só de entrada, uma vez, e respeitando `prefers-reduced-motion`.

@@ -1,6 +1,6 @@
 # 0001 — Migração para o modelo dev_web
 
-Data: 2026-11-03. Status: em andamento (marco 1 concluído).
+Data: 2026-11-03. Status: em andamento (marcos 1 e 2 concluídos).
 
 ## Decisão
 
@@ -29,7 +29,7 @@ Conteúdo público e sem dado pessoal, `npm run check`, as duas camadas de sanit
 ## Marcos
 
 1. **Base:** CLAUDE.md fundido, `arquitetura.md` novo, esta decisão. Sem código. (concluído)
-2. **Esqueleto:** `client/` com Vite, tokens, página vazia; dependências aprovadas; workflow do Pages ajustado.
+2. **Esqueleto:** `client/` com Vite, tokens, página vazia; dependências aprovadas; CI com lint, testes e build. (concluído) No workflow do Pages só o portão de verificação muda (`npm ci` e `npm run lint` antes dos testes); a publicação continua sendo o site antigo, para um push no meio da migração não colocar uma página vazia no ar. A troca para `client/dist` é do marco 5.
 3. **Lógica:** módulos puros para `utils/` e `services/`, testes para Vitest, mantendo TDD.
 4. **Interface:** `app.js` e `style.css` viram componentes e CSS Modules.
 5. **Fechamento:** `npm run check`, QA, revisão independente, deploy.
@@ -48,6 +48,12 @@ Instalar `npm install`; dev `npm run dev`; testes `npm test` e `npm run test -w 
 | `eslint`, `prettier` | lint e formatação |
 
 `marked` e `highlight.js` ficam em `vendor/` (versão, licença e hash fixos). Roteamento: manter o `router.js` por hash, sem `react-router`. Os tamanhos são conferidos com `npm view` antes de instalar.
+
+## Estado das dependências (marco 2)
+
+Instaladas com o OK do usuário: `react`, `react-dom` (execução); `vite`, `@vitejs/plugin-react`, `vitest`, `@testing-library/react`, `jsdom`, `eslint`, `prettier` (desenvolvimento). `@testing-library/dom` entra sozinho, como dependência obrigatória (peer) do Testing Library. `package-lock.json` gerado pelo npm.
+
+Fora da lista aprovada, **ainda não instaladas** (pedem aprovação): `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y` e `eslint-plugin-react`. Sem elas o lint não confere hooks nem acessibilidade em JSX; está anotado como `shortcut` em `eslint.config.js`. Também falta `@testing-library/jest-dom` (asserções como `toHaveAttribute`); por ora os testes usam asserções simples.
 
 ## Pontos em aberto
 

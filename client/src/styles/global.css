@@ -1,0 +1,63 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font: 1rem/1.6 var(--fonte-texto);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--cor-destaque-texto);
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--cor-destaque);
+  outline-offset: 2px;
+}
+
+main {
+  padding: var(--espaco-6) var(--espaco-margem);
+}
+
+main:focus {
+  outline: none;
+}
+
+/* Link de pular para o conteúdo: fora da tela até receber foco. Sem position: absolute sobre texto (some por clip). */
+.pular {
+  display: block;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pular:focus {
+  inline-size: auto;
+  block-size: auto;
+  clip-path: none;
+  padding: var(--espaco-3) var(--espaco-4);
+  background: var(--cor-superficie);
+}
