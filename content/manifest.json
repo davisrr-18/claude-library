@@ -184,7 +184,73 @@
       "id": "complexas",
       "title": "Tarefas Complexas",
       "description": "Mudanças arquiteturais, migrações e trabalho em marcos com revisão independente.",
-      "cards": []
+      "cards": [
+        {
+          "id": "desenvolvimento-por-orquestracao",
+          "title": "Desenvolvimento por Orquestração",
+          "summary": "Pacote para conduzir trabalho de engenharia com um orquestrador e três subagents (investigator, implementer e reviewer), escolhendo modelo e esforço por delegação, com marcos, revisão independente e registro das escolhas.",
+          "icon": "layers",
+          "tags": [
+            "orquestração",
+            "subagents",
+            "marcos",
+            "revisão",
+            "delegação"
+          ],
+          "pieces": [
+            {
+              "type": "arquitetura",
+              "title": "Pacote global de desenvolvimento por orquestração",
+              "file": "complexas/desenvolvimento-por-orquestracao/00-indice.md"
+            },
+            {
+              "type": "prompt",
+              "title": "Prompt principal de delegação multiagente",
+              "file": "complexas/desenvolvimento-por-orquestracao/01-prompt-principal.md"
+            },
+            {
+              "type": "claude-md",
+              "title": "Política de desenvolvimento por orquestração para o CLAUDE.md",
+              "file": "complexas/desenvolvimento-por-orquestracao/02-trecho-claude-md.md"
+            },
+            {
+              "type": "skill",
+              "title": "Skill: Desenvolvimento por orquestração",
+              "file": "complexas/desenvolvimento-por-orquestracao/03-skill-desenvolvimento-multiagente.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Investigator",
+              "file": "complexas/desenvolvimento-por-orquestracao/04-agent-investigator.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Implementer",
+              "file": "complexas/desenvolvimento-por-orquestracao/05-agent-implementer.md"
+            },
+            {
+              "type": "agente",
+              "title": "Agent: Reviewer",
+              "file": "complexas/desenvolvimento-por-orquestracao/06-agent-reviewer.md"
+            },
+            {
+              "type": "workflow",
+              "title": "Modelo de registro de tarefa",
+              "file": "complexas/desenvolvimento-por-orquestracao/07-modelo-registro-de-tarefa.md"
+            },
+            {
+              "type": "workflow",
+              "title": "Permissões de git somente leitura (settings.json)",
+              "file": "complexas/desenvolvimento-por-orquestracao/08-settings-json.md"
+            },
+            {
+              "type": "workflow",
+              "title": "Checklist de desenvolvimento por orquestração",
+              "file": "complexas/desenvolvimento-por-orquestracao/09-checklist.md"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
