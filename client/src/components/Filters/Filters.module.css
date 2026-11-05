@@ -1,6 +1,5 @@
 .filters {
-  position: sticky;
-  top: var(--altura-topo);
+  position: relative;
   z-index: 20;
   display: grid;
   gap: var(--espaco-25);

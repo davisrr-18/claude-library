@@ -6,7 +6,7 @@ import Icon from '../Icon/Icon.jsx';
 import styles from './Filters.module.css';
 
 /**
- * Filtros da Home: nível (um só), tags (várias) e "Limpar filtros". Fica fixo sob o topo e informa a própria altura
+ * Filtros da Home: nível (um só), tags (várias) e "Limpar filtros". Fica no fluxo da página (não fixo); informa a própria altura
  * em --altura-filtros para o foco do teclado não ficar atrás dele.
  */
 export default function Filters({ tiers, tags, filters, active, onTier, onTag, onClear }) {
