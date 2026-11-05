@@ -3,7 +3,6 @@
 
 # ---- Gerado (reconstruível) ----
 node_modules/
-tools/qa/node_modules/
 dist/
 .wrangler/
 graphify-out/

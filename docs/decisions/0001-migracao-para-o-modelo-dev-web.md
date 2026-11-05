@@ -1,6 +1,6 @@
 # 0001 — Migração para o modelo dev_web
 
-Data: 2026-11-03. Status: em andamento (marcos 1 a 4 concluídos).
+Data: 2026-11-03. Status: **concluída** (marcos 1 a 5).
 
 ## Decisão
 
@@ -32,7 +32,8 @@ Conteúdo público e sem dado pessoal, `npm run check`, as duas camadas de sanit
 2. **Esqueleto:** `client/` com Vite, tokens, página vazia; dependências aprovadas; CI com lint, testes e build. (concluído) No workflow do Pages só o portão de verificação muda (`npm ci` e `npm run lint` antes dos testes); a publicação continua sendo o site antigo, para um push no meio da migração não colocar uma página vazia no ar. A troca para `client/dist` é do marco 5.
 3. **Lógica:** módulos puros para `utils/` e `services/`, testes para Vitest, mantendo TDD. (concluído) Os módulos foram **copiados**, não movidos, porque o site publicado ainda usa `js/`. `js/` fica **congelado** até o marco 5, quando é apagado junto com os testes legados dos módulos copiados e o `check-content` passa a importar de `client/src/utils/content.js`. Correção em módulo copiado vale nos dois lugares até lá.
 4. **Interface:** `app.js` e `style.css` viram componentes e CSS Modules. (concluído, falta a conferência visual do usuário) `client/` tem a interface inteira: Home com busca e filtros, página do nível, página do card, instalação pelo terminal e página não encontrada. O site publicado ainda é o antigo; a troca é o marco 5.
-5. **Fechamento:** `npm run check`, QA, revisão independente, deploy.
+5. **Fechamento:** publicação trocada para `client/dist`, legado apagado, `vendor/` movido para `client/vendor/`. (concluído) `js/`, `css/`, o `index.html` da raiz, os testes legados e `docs/arquitetura.md` foram removidos. O `check-content` passou a importar `validateManifest` de `client/src/utils/content.js`. `build:site` roda a build do client e `scripts/build-site.mjs` monta `dist/` com `client/dist` mais o `_headers`, recusando build velha. O workflow do Pages instala com `npm ci` e publica essa saída.
+   - **`tools/qa/` apagado, não migrado:** a suíte de QA era toda sobre o DOM do site antigo (`app.js`, `style.css`). O que tinha valor foi portado para o Vitest do `client`: o fuzz (XSS em 4000 documentos, front matter, mutações do manifest, rotas, busca, Markdown patológico) virou `fuzz.test.js` e o estresse de 300 cards virou `estresse.test.jsx`. Lint, CSS e fumaça são cobertos por `npm run lint`, `styles/regras.test.js`, `App.test.jsx`, `integracao.test.jsx` e os testes de cada componente. Não foi portado: o ataque de ReDoS ao `findSensitive` (já coberto por `tests/check-content-perf.test.mjs`) e o `css-check` por `css-tree` (a build do Vite já rejeita CSS inválido).
 
 ## Comandos alvo (valem a partir do marco 2)
 
@@ -66,7 +67,7 @@ Marco 4, instaladas com o OK do usuário: `eslint-plugin-react`, `eslint-plugin-
 
 ## Pontos em aberto
 
-- **`vendor/` fora de `client/`:** `utils/markdown.js` e `dom/highlight.js` importam `marked` e `highlight.js` de `vendor/`, na raiz. A build funciona (conferido), mas o `client` não é independente do resto do repositório. Não dá para mover agora: `js/` (congelado, ainda publicado) e o `build:site` usam o mesmo `vendor/`. **Fica para o marco 5**, quando `js/` sai: aí o `vendor/` vai para dentro de `client/` e o `README.md` dele com hashes vai junto.
+- **`vendor/` fora de `client/`:** resolvido no marco 5. `marked` e `highlight.js` estão em `client/vendor/` (com o `README.md` de versão, licença e hash); `eslint` e `prettier` o ignoram.
 
 ## Resolvido depois do marco 4 (a pedido do usuário)
 

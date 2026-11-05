@@ -6,47 +6,41 @@ Guarda os pacotes do usuário para o Claude Code (skills, agentes, prompts, `CLA
 
 Este arquivo complementa o `CLAUDE.md` global do usuário e usa o modelo dev_web; em conflito, vale este, para este projeto. Índice de tudo: `docs/README.md`. Para retomar em um chat novo: `docs/novo-chat.md`.
 
-## Migração em andamento
+## Histórico
 
-O projeto está migrando do site de HTML/JS puros (sem build) para o modelo dev_web (React + Vite em `client/`). Plano, marcos e dependências em `docs/decisions/0001-migracao-para-o-modelo-dev-web.md`. **Cada marco só começa com o "sim" do usuário.** O `client/` já tem a interface inteira (marco 4, falta a conferência visual do usuário), mas o site publicado ainda usa `js/` e `css/` (ver `docs/arquitetura.md`) até o marco 5. Os módulos puros existem copiados em `client/src/utils/` e `services/`; **`js/` e `css/` estão congelados** (só correção de bug, aplicada também no `client`) até o marco 5 apagá-los, quando `docs/arquitetura.md` também é substituído pelo `arquitetura.md` da raiz. Atualize este arquivo ao fim de cada marco.
+O site começou em HTML/JS puros, sem build, e foi migrado para o modelo dev_web (React + Vite em `client/`). Plano, marcos, dependências e o que ficou em aberto: `docs/decisions/0001-migracao-para-o-modelo-dev-web.md` (concluída). Decisões anteriores: `docs/decisoes.md`.
 
 ## Stack
 
-- Hoje: HTML, CSS e JavaScript ESM puros, sem build. Terceiros só em `vendor/` (marked, highlight.js).
-- Alvo (esqueleto em `client/` desde o marco 2): React com Vite, CSS Modules + tokens em custom properties, Vitest + Testing Library. Sem back e sem banco (Pages é estático). Gerenciador: npm.
+- React com Vite, CSS Modules + tokens em custom properties, Vitest + Testing Library, ESLint (com `react-hooks` e `jsx-a11y`) e Prettier. Sem back e sem banco (o GitHub Pages é estático). Gerenciador: npm (workspace `client/`). Terceiros de execução: `react`, `react-dom` e, em `client/vendor/`, `marked` e `highlight.js` (versão, licença e hash em `client/vendor/README.md`).
 
 ## Comandos
 
 | O quê | Linux e macOS (bash/zsh) | Windows (PowerShell) |
 |---|---|---|
-| Servir o site (hoje) | `python3 -m http.server 8000` | `py -m http.server 8000` |
 | Instalar (uma vez) | `npm install` | `npm install` |
 | Dev do `client` (Vite, porta 5173) | `npm run dev` | `npm run dev` |
-| Testes (legado em `tests/` + Vitest do `client`) | `npm test` | `npm test` |
+| Testes (`tests/` com `node:test` + Vitest do `client`) | `npm test` | `npm test` |
 | Lint e formatação do `client` | `npm run lint` · `npm run format` | `npm run lint` · `npm run format` |
 | Build do `client` em `client/dist/` | `npm run build` | `npm run build` |
+| Montar o site publicável em `dist/` (build + verificação) | `npm run build:site` | `npm run build:site` |
 | Verificar conteúdo (manifest, arquivos, dados sensíveis) | `npm run check` | `npm run check` |
-| QA completo (uma vez: instalar) | `npm run qa:install` | `npm run qa:install` |
-| QA completo (lint, CSS, fuzz, fumaça, estresse) | `npm run qa` | `npm run qa` |
-| Montar o site publicável em `dist/` | `npm run build:site` | `npm run build:site` |
 
-Abrir `index.html` por duplo clique não funciona (módulos ES exigem http). Node 22.22 ou superior (exigência do jsdom). `npm test` roda os testes legados e os do `client`; o lint cobre só `client/` (o código legado é conferido por `npm run qa`). `npm run build` só gera o `client`: o site publicado ainda é o antigo (`npm run build:site`) até o marco 5.
+Abrir o HTML da build por duplo clique não funciona (módulos ES exigem http): use `npm run dev`. Node 22.22 ou superior (exigência do jsdom). `npm test` roda `tests/` e o Vitest do `client`; o lint cobre só `client/`. Detalhes de cada verificação: `docs/qualidade.md`.
 
 ## Convenções
 
-Valem para o que está em `client/`. O código legado de `js/` e `css/` (congelado) segue o estilo antigo: lógica em módulo puro, DOM só em `app.js`, `dom.js`, `icons.js` e `code-highlight.js`, tokens `--bg`, `--accent`…
-
 - Componentes React: função + hooks, um componente por arquivo, PascalCase, `Nome.jsx` com `Nome.module.css` e `Nome.test.jsx` ao lado. Hooks em `hooks/`, prefixo `use`. Leitura de `content/` só em `services/`, nunca dentro de componentes.
-- CSS: mobile-first; cor, espaço e tipografia vêm dos tokens (`var(--...)`: `--cor-*`, `--espaco-*`, `--raio-*`, `--fonte-*`; o legado usa `--bg`, `--accent`…), nunca valores soltos. Sem `!important`.
+- CSS: mobile-first; cor, espaço e tipografia vêm dos tokens (`var(--...)`: `--cor-*`, `--espaco-*`, `--raio-*`, `--fonte-*`), nunca valores soltos. Sem `!important`.
 - HTML: elementos semânticos antes de `div`; todo controle interativo é um elemento nativo com rótulo.
 - JavaScript: `const` por padrão, sem `var`, funções pequenas, erros tratados e nunca engolidos em silêncio.
 - Commits pequenos, no imperativo, em português, formato `tipo: resumo` (ver Git).
 
 ## Regras de código (não negociáveis)
 
-1. **Dependência de execução só com o "sim" do usuário** (diga qual, para quê e o tamanho; registre em `docs/decisions/`). Sem CDN. Terceiros de runtime em `vendor/` (versão fixa, licença, hash) ou como dependência aprovada. Ferramentas de QA ficam isoladas em `tools/qa/`. Não editar `package-lock.json` à mão.
+1. **Dependência de execução só com o "sim" do usuário** (diga qual, para quê e o tamanho; registre em `docs/decisions/`). Sem CDN. Terceiros de runtime em `client/vendor/` (versão fixa, licença, hash) ou como dependência aprovada. Não editar `package-lock.json` à mão.
 2. **Teste primeiro (TDD):** escrever o teste, ver falhar pelo motivo certo, implementar, ver passar. Lógica nova vai em módulo puro testável em `client/src/utils/`; DOM só em componentes e hooks.
-3. **Nunca injetar HTML com texto do conteúdo.** Texto entra como texto (React escapa). Sem `dangerouslySetInnerHTML`. O HTML do Markdown só entra em `components/Markdown`, por `safeFragment` (template inerte + lista de permissões de `sanitize`). No legado, `innerHTML` só em `safeFragment` de `js/dom.js`.
+3. **Nunca injetar HTML com texto do conteúdo.** Texto entra como texto (React escapa). Sem `dangerouslySetInnerHTML`. O HTML do Markdown só entra em `components/Markdown`, por `safeFragment` (template inerte + lista de permissões de `sanitize`).
 4. **Markdown:** HTML bruto escapado, URLs filtradas por `isSafeUrl`, mais a segunda camada de `sanitize`. Não afrouxar nenhuma das duas.
 5. `localStorage` sempre em `try/catch`; a página funciona sem ele.
 6. **CSS:** cor, espaço, fonte e raio só por token, sem `px`/`rem` soltos em padding, margin, gap, font-size e border-radius (há teste); todo `animation` e `transition` dentro de `@media (prefers-reduced-motion: no-preference)` e `:hover` dentro de `@media (hover: hover)` (há teste, e `!important` é proibido); grids com texto de largura imprevisível usam `minmax(0, 1fr)` ou `min-width: 0`; **nada com `position: absolute` por cima de área rolável ou de texto** (o botão Copiar tem linha própria); `:hover` só dentro de `@media (hover: hover)`; alvos de toque ≥ 44px em `pointer: coarse`.
@@ -67,7 +61,7 @@ Valem para o que está em `client/`. O código legado de `js/` e `css/` (congela
 
 - O usuário **autorizou commits e pushes** neste projeto (branch `main`). Mensagens de commit em português, no formato `tipo: resumo`, com corpo explicando o porquê. **Nunca incluir `Co-Authored-By` nem `Claude-Session`** (nem link da sessão): o usuário não quer o Claude como coautor, e isso vale mesmo que o ambiente sugira essas linhas.
 - **Nunca** reescrever histórico nem fazer force-push sem pedir (já houve um pedido explícito, para remover a coautoria do Claude; ver `docs/decisoes.md`, o registro histórico; decisões novas vão em `docs/decisions/`). Não commitar segredos. Não apagar branch sem pedido.
-- **Deploy no GitHub Pages: autorizado e ativo** (`.github/workflows/pages.yml`). Todo push em `main` roda `npm ci`, `npm run lint`, `npm test` e `npm run check` e, se passarem, publica só a lista de permissão (`npm run build:site`), nunca a raiz. **Todo push em `main` vira público:** rode `npm run check` antes. Durante a migração, **não dar push no meio de um marco**: só quando o site publicável estiver funcionando. Não mudar a visibilidade do repositório nem criar outro repositório sem o usuário pedir.
+- **Deploy no GitHub Pages: autorizado e ativo** (`.github/workflows/pages.yml`). Todo push em `main` roda `npm ci`, `npm run lint`, `npm test` e `npm run check` e, se passarem, publica só a lista de permissão (`npm run build:site`), nunca a raiz. **Todo push em `main` vira público:** rode `npm run check` antes. Não mudar a visibilidade do repositório nem criar outro repositório sem o usuário pedir.
 
 ## Autonomia
 

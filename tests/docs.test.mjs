@@ -1,18 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// A documentação é conferida contra o código: se um módulo, arquivo, comando ou export citado deixar de
+// A documentação é conferida contra o código: se uma pasta, arquivo, comando ou componente citado deixar de
 // existir, o teste falha e o documento precisa ser atualizado no mesmo commit.
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel) => readFileSync(join(ROOT, rel), 'utf8');
-const DOCS = ['CLAUDE.md', ...readdirSync(join(ROOT, 'docs')).filter((f) => f.endsWith('.md')).map((f) => `docs/${f}`)];
+const dirs = (rel) => readdirSync(join(ROOT, rel)).filter((f) => statSync(join(ROOT, rel, f)).isDirectory());
+const DOCS = ['CLAUDE.md', 'arquitetura.md', ...readdirSync(join(ROOT, 'docs')).filter((f) => f.endsWith('.md')).map((f) => `docs/${f}`)];
 
 test('a documentacao existe e tem os documentos esperados', () => {
-  for (const f of ['CLAUDE.md', 'docs/README.md', 'docs/novo-chat.md', 'docs/arquitetura.md', 'docs/design.md',
-    'docs/regras-de-trabalho.md', 'docs/conteudo.md', 'docs/qualidade.md', 'docs/decisoes.md']) {
+  for (const f of ['CLAUDE.md', 'arquitetura.md', 'docs/README.md', 'docs/novo-chat.md', 'docs/design.md',
+    'docs/regras-de-trabalho.md', 'docs/conteudo.md', 'docs/qualidade.md', 'docs/decisoes.md',
+    'docs/decisions/0001-migracao-para-o-modelo-dev-web.md']) {
     assert.ok(existsSync(join(ROOT, f)), `falta ${f}`);
   }
 });
@@ -30,7 +32,7 @@ test('links relativos dos documentos apontam para arquivos que existem', () => {
 });
 
 test('todo arquivo do projeto citado entre crases nos documentos existe', () => {
-  const PATH = /^(?:tests|js|scripts|tools|css|content|docs|vendor)\/[\w./-]+\.\w+$/;
+  const PATH = /^(?:tests|scripts|content|docs|client|deploy|\.github)\/[\w./-]+\.\w+$/;
   let checked = 0;
   for (const doc of DOCS) {
     for (const m of read(doc).matchAll(/`([^`\s]+)`/g)) {
@@ -54,17 +56,13 @@ test('todo "npm run X" citado existe no package.json da raiz', () => {
   assert.ok(checked >= 8, `poucos comandos conferidos (${checked})`);
 });
 
-test('arquitetura.md: todo modulo de js/ tem linha na tabela e cada export prometido existe de verdade', () => {
-  const table = read('docs/arquitetura.md').split('\n').filter((l) => /^\| `[\w-]+\.js` \|/.test(l));
-  const documented = new Map(table.map((l) => [l.match(/^\| `([\w-]+\.js)`/)[1], l.split('|')[3] ?? '']));
-  const actual = readdirSync(join(ROOT, 'js')).filter((f) => f.endsWith('.js'));
-  assert.deepEqual([...documented.keys()].sort(), actual.sort(), 'modulos da tabela x arquivos de js/');
-  for (const [file, exportsCell] of documented) {
-    const src = read(`js/${file}`);
-    for (const name of [...exportsCell.matchAll(/`([A-Za-z_]\w*)`/g)].map((m) => m[1])) {
-      assert.match(src, new RegExp(`export\\s+(?:async\\s+)?(?:function|const|let|class)\\s+${name}\\b|export\\s*\\{[^}]*\\b${name}\\b`),
-        `docs/arquitetura.md promete ${file} exportar ${name}, mas nao exporta`);
-    }
+test('arquitetura.md: toda pasta de client/src e todo componente aparecem na arvore, e nada citado sumiu', () => {
+  const arq = read('arquitetura.md');
+  for (const dir of dirs('client/src')) assert.match(arq, new RegExp(`\\b${dir}/`), `a arvore nao cita client/src/${dir}/`);
+  for (const comp of dirs('client/src/components')) assert.match(arq, new RegExp(`\\b${comp}\\b`), `a arvore nao cita o componente ${comp}`);
+  for (const page of dirs('client/src/pages')) assert.match(arq, new RegExp(`\\b${page}\\b`), `a arvore nao cita a pagina ${page}`);
+  for (const hook of readdirSync(join(ROOT, 'client/src/hooks')).filter((f) => /^use\w+\.js$/.test(f)).map((f) => f.replace('.js', ''))) {
+    assert.match(arq, new RegExp(`\\b${hook}\\b`), `a arvore nao cita o hook ${hook}`);
   }
 });
 

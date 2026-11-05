@@ -1,4 +1,4 @@
-import { Marked } from '../../../vendor/marked.esm.js';
+import { Marked } from '../../vendor/marked.esm.js';
 
 const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 

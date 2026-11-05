@@ -13,9 +13,9 @@ after(() => rmSync(base, { recursive: true, force: true }));
 /** Mini projeto com a CLI real, o validador e um card. `skillText` é o conteúdo da peça. */
 function makeProject(name, skillText) {
   const root = join(base, name);
-  for (const dir of ['scripts', 'js', 'content/basicas/a']) mkdirSync(join(root, dir), { recursive: true });
+  for (const dir of ['scripts', 'client/src/utils', 'content/basicas/a']) mkdirSync(join(root, dir), { recursive: true });
   copyFileSync(join(REPO, 'scripts/check-content.mjs'), join(root, 'scripts/check-content.mjs'));
-  copyFileSync(join(REPO, 'js/content.js'), join(root, 'js/content.js'));
+  copyFileSync(join(REPO, 'client/src/utils/content.js'), join(root, 'client/src/utils/content.js'));
   writeFileSync(join(root, 'package.json'), '{"type":"module"}\n');
   writeFileSync(join(root, 'content/manifest.json'), JSON.stringify({
     tiers: [

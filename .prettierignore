@@ -1,0 +1,3 @@
+client/dist
+client/vendor
+package-lock.json

@@ -20,7 +20,7 @@ function ignored(path) {
 
 const DEVE_IGNORAR = [
   // gerado
-  'node_modules/x/index.js', 'tools/qa/node_modules/jsdom/package.json', 'dist/index.html', '.wrangler/state/x',
+  'node_modules/x/index.js', 'client/node_modules/react/index.js', 'dist/index.html', 'client/dist/index.html', '.wrangler/state/x',
   // pessoal e local do Claude Code
   '.claude/settings.local.json', '.claude/agents/meu.md', 'CLAUDE.local.md', 'settings.local.json', 'qualquer.local',
   // segredos e credenciais
@@ -35,11 +35,12 @@ const DEVE_IGNORAR = [
 ];
 
 const NAO_PODE_IGNORAR = [
-  'CLAUDE.md', 'README.md', 'package.json', 'index.html', '.gitignore', '.node-version', '.github/workflows/ci.yml',
-  '.github/workflows/pages.yml', 'css/style.css', 'js/app.js', 'vendor/marked.esm.js', 'vendor/README.md',
+  'CLAUDE.md', 'arquitetura.md', 'README.md', 'package.json', 'package-lock.json', 'eslint.config.js', '.prettierrc.json',
+  '.gitignore', '.node-version', '.github/workflows/ci.yml', '.github/workflows/pages.yml',
+  'client/index.html', 'client/package.json', 'client/vite.config.js', 'client/src/App.jsx', 'client/src/styles/tokens.css',
+  'client/vendor/marked.esm.js', 'client/vendor/README.md', 'client/vendor/highlight/core.min.js',
   'content/manifest.json', 'content/intermediarias/estudos-em-programacao/00-indice.md', 'deploy/_headers',
   'docs/README.md', 'docs/novo-chat.md', 'docs/deploy/cloudflare.md', 'scripts/build-site.mjs', 'tests/gitignore.test.mjs',
-  'tools/qa/package.json', 'tools/qa/package-lock.json', 'tools/qa/smoke/estudos.mjs', 'tools/qa/fixtures/manifest-3-cards.json',
   '.env.example', // exemplo sem segredo pode ser versionado
 ];
 

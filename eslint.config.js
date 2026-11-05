@@ -29,7 +29,7 @@ const browser = {
 };
 
 export default [
-  { ignores: ['client/dist/**'] },
+  { ignores: ['client/dist/**', 'client/vendor/**'] }, // vendor: código de terceiros, minificado
   {
     files: ['client/**/*.{js,jsx}'],
     plugins: { react, 'react-hooks': reactHooks, 'jsx-a11y': jsxA11y },

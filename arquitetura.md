@@ -1,7 +1,5 @@
 # Arquitetura de Claude Library (modelo dev_web)
 
-> **Estado:** `client/` já tem a interface inteira (marcos 1 a 4 de `docs/decisions/0001-migracao-para-o-modelo-dev-web.md`). O site publicado ainda é o antigo (`js/` e `css/`, descrito em `docs/arquitetura.md`) até o marco 5, que troca a publicação e apaga o legado. Este arquivo descreve o `client/`.
-
 Site estático: SPA em React (Vite) que lê o catálogo de pacotes de `content/` como arquivos estáticos. Não há `server/` nem banco: o GitHub Pages só serve arquivos.
 
 ## Visão geral
@@ -26,13 +24,12 @@ claude-library/
 ├── content/                      manifest.json + um .md por peça
 ├── docs/                         documentação do projeto
 │   └── decisions/                registros de decisão (um .md por decisão)
-├── scripts/                      check-content, build do site publicável
+├── scripts/                      check-content, build do site publicável (build-site)
 ├── tests/                        node:test: conteúdo, docs, .gitignore, build do site
-├── tools/qa/                     QA com dependências isoladas
-├── vendor/                       marked e highlight.js (versão, licença e hash)
 └── client/
     ├── index.html
     ├── vite.config.js
+    ├── vendor/                   marked e highlight.js (versão, licença e hash em vendor/README.md)
     └── src/
         ├── main.jsx              ponto de entrada
         ├── App.jsx               rotas e layout raiz
@@ -40,12 +37,13 @@ claude-library/
         ├── components/           UI reutilizável, cada um com .module.css e .test.jsx: Topbar, Footer, Hero, Filters,
         │                         TierSection, CardTile, CardHero, CardAside, PieceTabs, PieceView, Markdown,
         │                         InstallPanel, CodeBlock, CopyButton, Tabs, Button, Icon, LevelDots, Callout,
-        │                         Skeleton, Crumbs, Pager, EmptyState
+        │                         Skeleton, Crumbs, Pager, EmptyState, ErrorBoundary (aviso no lugar de tela em branco)
         ├── hooks/                useLibrary, useHash, usePieceText, useInstallFiles, useTheme, useOs, useScrollFx,
         │                         useHeightVar, usePointerGlow, useEntrance
         ├── dom/                  helpers imperativos de DOM: reveal (revelação ao rolar), reducedMotion, copyText,
         │                         highlight, markdownDom (safeFragment e afins)
         ├── services/             leitura do conteúdo (único lugar que faz fetch)
+        ├── test/                 apoio dos testes (conteúdo grande e determinístico para o estresse)
         ├── styles/
         │   ├── tokens.css        cores, espaços, tipografia (custom properties)
         │   └── global.css        reset e estilos base
@@ -69,14 +67,13 @@ claude-library/
 
 **Regra de dependência:** as setas só descem na tabela. Componentes nunca chamam `fetch`; `utils/` nunca importa React nem toca o DOM.
 
-## Segurança do conteúdo (inalterada pela migração)
+## Segurança do conteúdo
 
-O repositório e o site são públicos e o Markdown vem de arquivos, então valem as duas camadas de hoje:
+O repositório e o site são públicos e o Markdown vem de arquivos, então valem duas camadas, mais a lista de permissões do DOM:
 
 - Markdown: HTML bruto escapado e URLs filtradas por `isSafeUrl`.
 - Segunda camada: `sanitize` com lista de permissões.
 - Texto do conteúdo entra no React como texto. O único lugar que insere HTML do conteúdo é `components/Markdown` (com `safeFragment`, de `dom/markdownDom.js`, template inerte e lista de permissões de `sanitize`), sem `dangerouslySetInnerHTML`; fora dele, injetar HTML é proibido.
-- Exceção registrada: `utils/markdown.js` e `dom/highlight.js` importam `marked` e `highlight.js` de `vendor/`, na raiz do repositório (fora de `client/`), enquanto `js/` ainda existe. No marco 5 o `vendor/` vai para dentro de `client/`.
 - Nada de segredo no `client/`; só variáveis `VITE_` e nunca com segredo.
 
 ## Estilo e design (CSS)
@@ -95,9 +92,14 @@ O repositório e o site são públicos e o Markdown vem de arquivos, então vale
 | Onde | Ferramenta | O que cobre |
 |---|---|---|
 | `client/src/**/*.test.jsx` | Vitest + Testing Library | Comportamento do componente visto pelo usuário |
-| `client/src/utils/*.test.js` | Vitest (ambiente Node) | Funções puras; `install-exec.test.js` também roda bash (e zsh/PowerShell, se existirem) de verdade |
+| `client/src/utils/*.test.js`, `dom/*.test.js` | Vitest | Funções puras e helpers de DOM; `install-exec.test.js` também roda bash (e zsh/PowerShell, se existirem) de verdade |
 | `tests/` | `node:test` | Conteúdo, documentação, `.gitignore`, build do site, scripts |
-| `tools/qa/` | Playwright e afins (isolado) | Lint, CSS, fuzz, fumaça, estresse |
+| `client/src/styles/regras.test.js` | Vitest | Regras de CSS do projeto lendo os `.css` |
+| `client/src/fuzz.test.js`, `estresse.test.jsx`, `integracao.test.jsx` | Vitest | Entradas hostis (XSS), 300 cards e todo o conteúdo real |
+
+## Publicação
+
+`npm run build:site` roda a build do client e monta `dist/` com `client/dist` (HTML, assets e `content/`) mais o `_headers` de `deploy/`. `scripts/build-site.mjs` é um portão: **recusa** build velha em relação a `content/`, dado sensível, referência do `index.html` fora da build e saída perigosa (nunca apaga a raiz, um ancestral dela ou pastas do projeto). O workflow do GitHub Pages (`.github/workflows/pages.yml`) roda lint, testes e `npm run check` e só então publica. Os caminhos do site são relativos (`base: './'`), então funciona em qualquer subcaminho.
 
 ## Regras de integridade
 
@@ -107,4 +109,4 @@ O repositório e o site são públicos e o Markdown vem de arquivos, então vale
 
 ## Decisões
 
-Ver `docs/decisions/`. A primeira registra esta migração. As decisões anteriores à migração estão em `docs/decisoes.md`.
+Ver `docs/decisions/`. A primeira registra a migração para este modelo. As decisões anteriores estão em `docs/decisoes.md`.

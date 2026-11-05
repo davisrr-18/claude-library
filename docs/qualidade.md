@@ -1,25 +1,34 @@
 # Qualidade: testes e verificações
 
-Três camadas. Rode da raiz do projeto; os comandos são iguais em Linux, macOS e Windows.
+Duas camadas e o lint. Rode da raiz do projeto; os comandos são iguais em Linux, macOS e Windows. Antes, uma vez: `npm install`.
 
-| Camada | Comando | O que cobre |
+| O quê | Comando | O que cobre |
 |---|---|---|
-| Testes unitários | `npm test` | Lógica pura, CSS por leitura, execução real dos comandos de instalação |
+| Testes | `npm test` | Tudo: `tests/` (conteúdo, documentação, `.gitignore`, build do site) e o Vitest do `client` |
 | Verificação de conteúdo | `npm run check` | Manifest, arquivos, dados sensíveis, identidade do autor |
-| QA completo | `npm run qa` (uma vez: `npm run qa:install`) | Linter, CSS, fuzz, fumaça com DOM simulado, estresse |
+| Lint | `npm run lint` | ESLint no `client`, com regras de React, hooks e acessibilidade (jsx-a11y) |
 
-## 1. `npm test` (Node 22.22 ou superior; `node:test` para o legado e Vitest para o `client`; precisa de `npm install` antes)
+## 1. `npm test` (Node 22.22 ou superior)
 
-Arquivos em `tests/` (um por módulo ou tema):
+Roda `node:test` sobre `tests/*.test.mjs` e depois `vitest run` no `client`.
 
-- **Módulos puros:** `content`, `router`, `search`, `tabs`, `install`, `markdown`, `sanitize`, `icons`.
+**`tests/` (`node:test`, sobre o repositório e os scripts):**
+
 - **`.gitignore`:** `gitignore` confere com o próprio `git check-ignore`, nos dois sentidos: o que precisa ser ignorado (segredos, `.claude/`, `*.local`, arquivos de editor e de sistema, backups) e o que não pode (o projeto de verdade), e que nenhum arquivo já rastreado casa com o ignore.
-- **Build do site:** `build-site` (publica só a lista de permissão, recusa dado sensível e referência fora da lista, e **nunca apaga** a raiz, um ancestral dela ou uma pasta do site).
+- **Build do site:** `build-site` roda a build do client e confere que o `dist/` publica só `client/dist` e o `_headers`, **recusa** build velha (conteúdo mudou), dado sensível e referência fora da build, e **nunca apaga** a raiz, um ancestral dela, a build do client ou uma pasta do projeto.
 - **Verificador:** `check-content` (regras, mascaramento, varredura, binários, symlink), `check-content-cli` (a CLI de verdade, inclusive por link simbólico, e a listagem pelo git), `check-content-mask`, `check-content-perf` (tempo linear), `repo-content` (o próprio repositório passa).
-- **CSS por leitura:** `css-layout` (grids que encolhem, botão Copiar em linha própria, espaçamento do bloco, barras finas) e `css-motion` (só o esqueleto pode ser infinito; elemento já revelado não reanima).
-- **Execução real:** `install-exec` roda **de verdade** os comandos gerados no `bash` (e no `zsh`/PowerShell quando existirem), num diretório temporário, e compara os arquivos criados com o conteúdo original, inclusive com conteúdo hostil a shells (`$(…)`, crases, aspas, linhas `EOF`, `'@`, emoji). Sem `zsh`/PowerShell na máquina, esses testes são **pulados** (hoje: 4).
+- **Documentação:** `docs` confere links, arquivos citados, `npm run X` citados e que a árvore de `arquitetura.md` bate com as pastas de `client/src`.
 
-**CI (`.github/workflows/ci.yml`) roda `npm test` e `npm run check` em Linux, macOS e Windows a cada push.** Lá os comandos de instalação são executados de verdade: `bash` nos três, `zsh` no macOS e **PowerShell nos três** (o `pwsh` já vem nos runners), todos passando com o pacote real e com o conteúdo hostil. Na máquina de desenvolvimento (Fedora, só com `bash`) os testes de `zsh` e PowerShell são pulados; a evidência deles é o CI. Para ver o resultado: `gh run list --limit 3` e `gh run view <id>`.
+**`client/src/` (Vitest + Testing Library, jsdom):**
+
+- **Componentes, páginas e hooks:** cada um com `Nome.test.jsx` ao lado (comportamento visto pelo usuário: papéis, nomes acessíveis, teclado, foco).
+- **Módulos puros (`utils/`):** inclui `install-exec.test.js`, que roda **de verdade** os comandos de instalação gerados no `bash` (e no `zsh` e PowerShell quando existirem), num diretório temporário, e compara os arquivos criados com o conteúdo original, inclusive com conteúdo hostil a shells (`$(…)`, crases, aspas, linhas `EOF`, `'@` e aspas tipográficas, emoji). Sem `zsh`/PowerShell na máquina, esses testes são **pulados** (hoje: 6).
+- **`styles/regras.test.js`:** trava as regras de CSS do `CLAUDE.md` lendo os `.css`: sem `!important`, cor só por token, espaço, fonte e raio sem `px`/`rem` soltos, todo movimento em `prefers-reduced-motion: no-preference`, só o esqueleto em loop, `:hover` só em `hover: hover`, e os layouts que já deram problema (grids que encolhem, botão Copiar em linha própria).
+- **`fuzz.test.js`:** entradas aleatórias e hostis com semente fixa: Markdown → HTML → lista de permissões (nenhum vetor de XSS sobrevive em 4000 documentos), front matter, mutações do manifest (um manifest válido nunca quebra a interface), rotas, busca, abas e Markdown patológico (tempo).
+- **`estresse.test.jsx`:** 300 cards e mais de 700 peças: busca no texto, tags sem repetição, aba de tipo nas três faixas, card do meio com os 100 da lateral, sem ids duplicados. Confere correção, não velocidade.
+- **`integracao.test.jsx`:** renderiza toda rota de card e de tipo de peça do **conteúdo real**, sem aviso de erro.
+
+**CI (`.github/workflows/ci.yml`) roda lint, `npm test`, `npm run check` e `npm run build` em Linux, macOS e Windows a cada push.** Lá os comandos de instalação são executados de verdade: `bash` nos três, `zsh` no macOS e **PowerShell nos três** (o `pwsh` já vem nos runners). Na máquina de desenvolvimento (Fedora, só com `bash`) os testes de `zsh` e PowerShell são pulados; a evidência deles é o CI. Para ver o resultado: `gh run list --limit 3` e `gh run view <id>`.
 
 ## 2. `npm run check` (`scripts/check-content.mjs`)
 
@@ -27,29 +36,20 @@ Valida o manifest, confere se cada arquivo existe e varre **todos os arquivos do
 
 Consequência prática: **não escreva dado pessoal real em nenhum arquivo do projeto** (nem em teste, nem em doc). Fixtures fictícios (um e-mail no domínio reservado `example.com`, o home de um usuário inventado) só são permitidos em `tests/`, que fica fora das regras de segredo; **em `docs/` e no resto, o verificador também recusa esses exemplos**, então descreva em palavras ("um e-mail fictício") em vez de escrevê-los. Para o repositório use `<usuario>/claude-library`.
 
-## 3. `npm run qa` (`tools/qa/`)
+## 3. `npm run lint`
 
-Dependências isoladas em `tools/qa/package.json` (jsdom, eslint, css-tree); o projeto principal passou a ter dependências do `client` (React, Vite, Vitest, ESLint, Prettier; ver `docs/decisions/`), separadas das do QA. Instalar uma vez com `npm run qa:install`. Roda 10 verificações (cada uma também pode ser rodada sozinha: `node tools/qa/run-all.mjs <filtro>`):
-
-| Verificação | O que faz |
-|---|---|
-| `lint` | eslint (recomendadas + `no-shadow`, `eqeqeq`, `prefer-const`…) em `js/`, `scripts/`, `tests/` |
-| `css` | sintaxe, `var()` sem definição, custom property sobrando |
-| `fuzz` | ~18 mil entradas hostis: Markdown → HTML → política de DOM (nenhum vetor de XSS pode sobreviver), front matter, mutações do manifest (um manifest válido nunca quebra o app), rotas, busca, tempo do verificador (ReDoS) |
-| `smoke/ancoras` | abrir a página com `#main` não trava |
-| `smoke/estudos` | o pacote real: abas, peças empilhadas, `Destino`, blocos aninhados, busca, rotas |
-| `smoke/instalacao` | painéis de instalação, abas de sistema, conteúdo dos comandos, `arquitetura.md` inteiro |
-| `smoke/geral`, `smoke/abas`, `smoke/filtros` | comportamento geral, abas por tipo, filtros, aside e pager, sobre **fixtures** (`tools/qa/fixtures/`), porque o conteúdo real mudou |
-| `estresse (300 cards)` | 300 cards gerados (`lib/big-fixture.mjs`): tempo, ids duplicados, tags, busca no corpo |
-
-Os testes de fumaça rodam o `app.js` **de verdade** sobre um DOM simulado (jsdom). jsdom não tem layout nem CSS: ele prova lógica, ARIA, foco, rotas e erros de console; **não** prova aparência.
+ESLint 9 sobre `client/` (`client/vendor/` e `client/dist/` ficam de fora): regras recomendadas de React e de hooks (`react-hooks`), de acessibilidade em JSX (`jsx-a11y`), `eqeqeq`, `prefer-const`, `no-var`. O código de `scripts/` e `tests/` não passa pelo lint.
 
 ## O que não está coberto (dizer sempre)
 
-- **Aparência e layout reais** (cores, espaçamentos, estouro de caixa, celular), **animações** e **foco visual**: só em navegador. O usuário confirma; peça print.
+- **Aparência e layout reais** (cores, espaçamentos, estouro de caixa, celular), **animações**, a troca de tema e a barra de progresso e o **foco visual**: só em navegador. O usuário confirma; peça print.
 - **PowerShell e zsh** não rodam na máquina de desenvolvimento (e o ambiente bloqueia executar binário baixado); a execução real deles é verificada no **CI**, não localmente.
-- `marked` 15.0.12 estoura a pilha com ~5000 `>` aninhados e fica lento com milhares de `[a](` abertos (entrada patológica, só do próprio conteúdo do usuário; o app mostra erro em vez de travar o resto).
+- `marked` 15.0.12 estoura a pilha com ~5000 `>` aninhados e fica lento com milhares de `[a](` abertos (entrada patológica, só do próprio conteúdo do usuário; a interface mostra erro em vez de travar o resto).
+- O jsdom não tem layout nem CSS: ele prova lógica, ARIA, foco, rotas e erros, **não** aparência.
 
 ## Adicionar verificação
 
-Teste unitário novo em `tests/<tema>.test.mjs` (nome `.test.mjs`, importa de `../js/…`). Fumaça nova em `tools/qa/smoke/` (copie o cabeçalho de um existente) e registre em `STEPS` de `tools/qa/run-all.mjs`. Bug de interface sem como testar em Node: escreva o teste que **lê o CSS/JS e trava a causa** e relate que a aparência não foi vista.
+- Componente, hook ou página novo: `Nome.test.jsx` ao lado, escrito **antes** do código (ver falhar, implementar, ver passar).
+- Regra de CSS nova: um teste em `client/src/styles/regras.test.js`.
+- Verificação sobre o repositório ou os scripts: `tests/<tema>.test.mjs`.
+- Bug de interface sem como testar em jsdom: escreva o teste que **lê o CSS/JS e trava a causa** e relate que a aparência não foi vista.

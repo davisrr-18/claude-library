@@ -25,7 +25,7 @@ O que o usuário escolheu e o que ele pediu para evitar. Antes de mudar visual, 
 
 ### Nomes novos (migração, `client/src/styles/tokens.css`)
 
-Mesmos valores, nomes do modelo dev_web. Quem migra um trecho de `css/style.css` troca assim:
+Mesmos valores do CSS antigo (que não existe mais), nomes do modelo dev_web. A tabela serve para ler registros antigos e `docs/superpowers/`:
 
 | Antigo | Novo | Antigo | Novo |
 |---|---|---|---|
@@ -52,7 +52,7 @@ Regras: laranja `#ff7a1a` só em preenchimentos (texto sobre ele é escuro); par
 ## Movimento
 
 - Entrada da página (elementos sobem em sequência), revelação ao rolar (cada elemento uma vez), contador do hero, brilho que segue o mouse (cards e hero), barra de progresso de leitura e sombra do topo ao rolar, troca de tema com transição de cores.
-- **Cada animação roda uma vez.** O usuário reclamou de animações que se repetiam; as decorativas do hero (`breathe`, `drift`) rodam **uma passada** e terminam onde começam. **Só o esqueleto de carregamento (`shimmer`) pode ser infinito.** `tests/css-motion.test.mjs` falha se outra for.
+- **Cada animação roda uma vez.** O usuário reclamou de animações que se repetiam; as decorativas do hero (`breathe`, `drift`) rodam **uma passada** e terminam onde começam. **Só o esqueleto de carregamento (`shimmer`) pode ser infinito.** `client/src/styles/regras.test.js` falha se outra for.
 - Repintar a lista (buscar, filtrar, trocar de aba) encerra a fase de entrada para não reanimar elementos novos; elementos revelados ao rolar ganham `.revealed` (nunca reanimam).
 - `prefers-reduced-motion: reduce` desliga animações e transições, deixa tudo visível e pula contador, revelação e transição de tema.
 

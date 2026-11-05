@@ -10,7 +10,7 @@ Escolha do usuário para publicar: mantém o repositório **privado** e o site s
 
 | Arquivo | Para quê |
 |---|---|
-| `scripts/build-site.mjs` (`npm run build:site`) | Monta `dist/` só com `index.html`, `css/`, `js/`, `vendor/` e `content/` (+ `_headers`). **Recusa construir** se a verificação de conteúdo achar dado sensível, se faltar arquivo do manifest ou se o `index.html` apontar para fora da lista. Nunca apaga uma pasta que não seja vazia ou um build anterior. Testado em Linux, macOS e Windows pelo CI. |
+| `scripts/build-site.mjs` (`npm run build:site`) | Roda a build do client (Vite) e monta `dist/` com `client/dist` (HTML, assets e `content/`) mais o `_headers`. **Recusa construir** se a verificação de conteúdo achar dado sensível, se faltar arquivo do manifest, se a build estiver velha em relação a `content/` ou se o `index.html` apontar para fora da build. Nunca apaga uma pasta que não seja vazia ou um build anterior. Testado em Linux, macOS e Windows pelo CI. |
 | `deploy/_headers` | Cabeçalhos do site: `noindex`, sem iframe, sem referrer, `nosniff`. O Cloudflare aplica este arquivo. |
 | `.node-version` | Node 22 no build do Cloudflare. |
 | `.github/workflows/pages.yml` | O deploy **ativo** no GitHub Pages (usa o mesmo `npm run build:site`). |
@@ -44,7 +44,7 @@ Montar e ver o site publicável no seu computador:
 ```bash
 # Linux e macOS (bash/zsh)
 npm run build:site
-python3 -m http.server 8000 --directory dist      # abra http://localhost:8000
+python3 -m http.server 8000 --directory dist      # abra http://localhost:8000 (a tela abre pela rota #/)
 ```
 ```powershell
 # Windows (PowerShell)

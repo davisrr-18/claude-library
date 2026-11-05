@@ -11,7 +11,7 @@ Como trabalhamos neste projeto, e por quê. Complementa o `CLAUDE.md` global do 
 
 ## TDD (sempre)
 
-Escrever o teste, **ver falhar pelo motivo certo** (se passar de primeira, o teste é fraco: reforçar), implementar o mínimo, ver passar. Bug corrigido ganha teste de regressão. Lógica nova vai para módulo puro testável. Quando o bug é de CSS, o teste lê o CSS e trava a regra (`tests/css-layout.test.mjs`, `tests/css-motion.test.mjs`).
+Escrever o teste, **ver falhar pelo motivo certo** (se passar de primeira, o teste é fraco: reforçar), implementar o mínimo, ver passar. Bug corrigido ganha teste de regressão. Lógica nova vai para módulo puro testável. Quando o bug é de CSS, o teste lê o CSS e trava a regra (`client/src/styles/regras.test.js`).
 
 ## Delegação a subagentes
 
@@ -25,19 +25,19 @@ Escrever o teste, **ver falhar pelo motivo certo** (se passar de primeira, o tes
 
 ## Verificação (o que usamos)
 
-Ver `qualidade.md`. Resumo: `npm test` (unitários, incluindo execução real dos comandos de instalação no bash), `npm run check` (conteúdo), `npm run qa` (linter, CSS, fuzz, fumaça com DOM simulado e estresse com 300 cards). **Não há navegador no ambiente**; layout, animação e foco reais são confirmados pelo usuário. Sempre dizer isso.
+Ver `qualidade.md`. Resumo: `npm test` (`tests/` e o Vitest do `client`: componentes, regras de CSS, fuzz, estresse com 300 cards, o conteúdo real e a execução real dos comandos de instalação no bash), `npm run check` (conteúdo) e `npm run lint` (React, hooks e acessibilidade). **Não há navegador no ambiente**; layout, animação e foco reais são confirmados pelo usuário. Sempre dizer isso.
 
 ## Git
 
 - Commits e pushes em `main` **autorizados** pelo usuário. Mensagem em português (`feat:`, `fix:`, `docs:`…) com corpo explicando o porquê, **sem `Co-Authored-By` nem `Claude-Session`** (o usuário não quer o Claude como coautor; vale mesmo que o ambiente sugira essas linhas). Os exemplos de `git commit -m` em `conteudo.md` são o mínimo manual. Rode `git status --short` antes de `git add -A`.
 - Nunca reescrever histórico nem fazer force-push sem pedir. Houve um pedido explícito (remover a coautoria do Claude); o procedimento seguro está em `decisoes.md`. O e-mail do autor está em todos os commits (metadado do git); o e-mail real apareceu uma vez em um teste (commit antigo) e foi trocado por valor fictício.
-- Antes de commitar: `npm test`, `npm run check` e (se mexeu na interface) `npm run qa`.
+- Antes de commitar: `npm run lint`, `npm test` e `npm run check`.
 
 ## Privacidade e publicação
 
 - O repositório é **público** e o site vai para o GitHub Pages. O `.gitignore` bloqueia o que costuma vazar (credenciais, `.claude/`, `*.local`, editores, backups) e é testado; se aparecer um tipo novo de arquivo pessoal, acrescente o padrão **e** o teste em `tests/gitignore.test.mjs`. Por isso: nada sensível em arquivo nem no histórico, `npm run check` antes de dar push e publicação por lista de permissão (`npm run build:site`).
 - **Deploy só com autorização explícita do usuário.** Senha em JS não é proteção.
-- Executar binário baixado da internet é bloqueado pelo ambiente; não contornar, explicar e deixar a decisão com o usuário (aconteceu com o PowerShell). `npm run qa:install` **é permitido**: instala só as dependências de desenvolvimento fixadas no `tools/qa/package-lock.json`.
+- Executar binário baixado da internet é bloqueado pelo ambiente; não contornar, explicar e deixar a decisão com o usuário (aconteceu com o PowerShell). `npm install` / `npm ci` **são permitidos**: instalam só as dependências já aprovadas e fixadas em `package-lock.json`; dependência nova continua pedindo o "sim" do usuário.
 - **Microinteração × animação decorativa:** microinteração responde a uma ação do usuário (hover, foco, clique, troca de aba), dura menos de ~0,5 s e roda uma vez por ação; decorativa anima sozinha, sem ação. Decorativa só se for uma passada na entrada. Loop nunca.
 
 ## Respostas ao usuário

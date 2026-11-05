@@ -1,7 +1,7 @@
 # Publica o site no GitHub Pages a cada push em main, DEPOIS de os testes e a verificação de conteúdo passarem.
-# Só uma lista de permissão vai para o ar (index.html, css/, js/, vendor/, content/); tests/, docs/, tools/,
-# scripts/ e .git nunca. O repositório e o site são públicos.
-# Migração (docs/decisions/0001): a publicação continua sendo o site antigo até o marco 5, quando passa a ser client/dist.
+# O que vai para o ar é só a build do client (client/dist: HTML, assets e content/) mais o _headers; tests/, docs/,
+# scripts/ e .git nunca. `npm run build:site` recusa publicar se a build estiver velha ou o conteúdo tiver dado sensível.
+# O repositório e o site são públicos.
 name: Publicar no GitHub Pages
 
 on:
@@ -42,7 +42,11 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
-      - name: Montar o site (somente a lista de permissão, com verificação de conteúdo)
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Montar o site (build do client, com verificação de conteúdo)
         run: npm run build:site
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:

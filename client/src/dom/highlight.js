@@ -1,19 +1,19 @@
 const LOADERS = {
-  javascript: () => import('../../../vendor/highlight/languages/javascript.min.js'),
-  typescript: () => import('../../../vendor/highlight/languages/typescript.min.js'),
-  bash: () => import('../../../vendor/highlight/languages/bash.min.js'),
-  shell: () => import('../../../vendor/highlight/languages/shell.min.js'),
-  json: () => import('../../../vendor/highlight/languages/json.min.js'),
-  yaml: () => import('../../../vendor/highlight/languages/yaml.min.js'),
-  markdown: () => import('../../../vendor/highlight/languages/markdown.min.js'),
-  python: () => import('../../../vendor/highlight/languages/python.min.js'),
-  xml: () => import('../../../vendor/highlight/languages/xml.min.js'),
-  css: () => import('../../../vendor/highlight/languages/css.min.js'),
-  go: () => import('../../../vendor/highlight/languages/go.min.js'),
-  java: () => import('../../../vendor/highlight/languages/java.min.js'),
-  sql: () => import('../../../vendor/highlight/languages/sql.min.js'),
-  diff: () => import('../../../vendor/highlight/languages/diff.min.js'),
-  plaintext: () => import('../../../vendor/highlight/languages/plaintext.min.js'),
+  javascript: () => import('../../vendor/highlight/languages/javascript.min.js'),
+  typescript: () => import('../../vendor/highlight/languages/typescript.min.js'),
+  bash: () => import('../../vendor/highlight/languages/bash.min.js'),
+  shell: () => import('../../vendor/highlight/languages/shell.min.js'),
+  json: () => import('../../vendor/highlight/languages/json.min.js'),
+  yaml: () => import('../../vendor/highlight/languages/yaml.min.js'),
+  markdown: () => import('../../vendor/highlight/languages/markdown.min.js'),
+  python: () => import('../../vendor/highlight/languages/python.min.js'),
+  xml: () => import('../../vendor/highlight/languages/xml.min.js'),
+  css: () => import('../../vendor/highlight/languages/css.min.js'),
+  go: () => import('../../vendor/highlight/languages/go.min.js'),
+  java: () => import('../../vendor/highlight/languages/java.min.js'),
+  sql: () => import('../../vendor/highlight/languages/sql.min.js'),
+  diff: () => import('../../vendor/highlight/languages/diff.min.js'),
+  plaintext: () => import('../../vendor/highlight/languages/plaintext.min.js'),
 };
 
 const ALIASES = {
@@ -34,7 +34,7 @@ const ALIASES = {
 };
 
 let corePromise;
-const core = () => (corePromise ??= import('../../../vendor/highlight/core.min.js').then((m) => m.default));
+const core = () => (corePromise ??= import('../../vendor/highlight/core.min.js').then((m) => m.default));
 
 /** Destaca `pre code.language-*`. Falhas deixam o código como texto simples. */
 export async function highlightCodeBlocks(root) {

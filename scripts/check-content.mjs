@@ -6,7 +6,7 @@ import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, statSyn
 import { userInfo } from 'node:os';
 import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateManifest } from '../js/content.js';
+import { validateManifest } from '../client/src/utils/content.js';
 
 const URL_CREDENTIAL_RULE = 'credencial-url';
 

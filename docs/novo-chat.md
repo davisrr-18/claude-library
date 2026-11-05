@@ -6,11 +6,11 @@ O Claude Code lê o `CLAUDE.md` da raiz sozinho ao abrir o projeto. Para o chat 
 
 ```bash
 # Linux e macOS (bash/zsh)
-cd ~/Programação/Projects/claude-library && git pull && claude
+cd ~/Programação/dev_web/claude-library && git pull && claude
 ```
 ```powershell
 # Windows (PowerShell)
-cd $HOME\Programação\Projects\claude-library; git pull; claude
+cd $HOME\Programação\dev_web\claude-library; git pull; claude
 ```
 
 ## 2. Primeira mensagem sugerida
@@ -24,9 +24,9 @@ Se o pedido for **adicionar um pacote**: diga o caminho da pasta (ex.: `~/Progra
 ## 3. O que o Claude vai fazer sozinho (por causa do `CLAUDE.md`)
 
 - Falar português, direto, separando o que verificou do que não verificou.
-- Escrever o teste antes do código; rodar `npm test`, `npm run check` e, se mexer na interface, `npm run qa`.
+- Escrever o teste antes do código; rodar `npm run lint`, `npm test` e `npm run check`.
 - Commitar e dar push em `main` (autorizado), sem reescrever histórico.
-- **Não** publicar no GitHub Pages, **não** pôr dado pessoal em arquivo, **não** inventar conteúdo, **não** usar o `CLAUDE.md` global como conteúdo do site.
+- Publicar só por push em `main` (autorizado, depois de `npm run check`); **não** mudar a visibilidade do repositório, **não** pôr dado pessoal em arquivo, **não** inventar conteúdo, **não** usar o `CLAUDE.md` global como conteúdo do site.
 - Incluir comandos de terminal para os 3 sistemas ao adicionar/instalar algo.
 - Delegar a subagentes Haiku (até 3, escopos separados) e conferir o que eles entregam; pedir revisão independente.
 - Avisar que não tem navegador e pedir print quando algo visual estiver estranho.
@@ -36,25 +36,25 @@ Se o pedido for **adicionar um pacote**: diga o caminho da pasta (ex.: `~/Progra
 ```bash
 # Linux e macOS
 git clone <url-do-repositorio-no-github>/claude-library.git && cd claude-library
+npm install
 npm test && npm run check
-npm run qa:install && npm run qa      # opcional: QA completo (baixa jsdom, eslint, css-tree)
-python3 -m http.server 8000
+npm run dev                           # abra http://localhost:5173
 ```
 ```powershell
 # Windows (PowerShell)
 git clone <url-do-repositorio-no-github>/claude-library.git; cd claude-library
+npm install
 npm test; npm run check
-npm run qa:install; npm run qa        # opcional
-py -m http.server 8000
+npm run dev                           # abra http://localhost:5173
 ```
 
-Necessário: Node 22 ou superior, git e Python (só para servir localmente). No Windows e no macOS, `npm test` também executa os testes de PowerShell/zsh que na máquina anterior eram pulados.
+Necessário: Node 22.22 ou superior e git. No Windows e no macOS, `npm test` também executa os testes de PowerShell/zsh que na máquina anterior eram pulados.
 
 ## 5. Estado na última atualização
 
-- Site completo e verde (`npm test`, `npm run check`, `npm run qa`).
-- Conteúdo: card **Estudos em Programação** (Tarefas Intermediárias), 11 peças.
+- Site completo em React + Vite (`client/`), verde em `npm run lint`, `npm test` e `npm run check`. A migração do site de HTML/JS puros para o modelo dev_web terminou (decisão `docs/decisions/0001-migracao-para-o-modelo-dev-web.md`).
+- Conteúdo: dois cards em Tarefas Intermediárias, **Estudos em Programação** (11 peças) e **Desenvolvimento Web** (16 peças).
 - CI verde em Linux, macOS e Windows (comandos de instalação executados de verdade em bash, zsh e PowerShell).
-- Publicação: **GitHub Pages ativo** (repositório público); todo push em `main` publica depois de `npm test` e `npm run check`. Alternativa com login documentada em `docs/deploy/cloudflare.md`.
+- Publicação: **GitHub Pages ativo** (repositório público); todo push em `main` publica a build do `client` depois de `npm run lint`, `npm test` e `npm run check`. Alternativa com login documentada em `docs/deploy/cloudflare.md`.
 - **Pendente (depende do usuário):** novos pacotes para Básicas e Complexas.
 - Detalhes e histórico: `docs/decisoes.md`.

@@ -19,7 +19,7 @@ O site é do usuário: o conteúdo vem dos pacotes dele. Esta página é o passo
    - **`title` da peça igual ao primeiro `# Título` do arquivo**: assim o site não repete o título.
    - `icon` de `CARD_ICONS` (`folder`, `code`, `zap`, `layers`, `git-branch`, `bot`, `file-text`, `message-square`, `shield`, `bug`, `star`), `summary` e `tags` curtos.
    - Instalação pelo terminal: o arquivo precisa de `destino:` no front matter com um caminho `.md` (ex.: `.claude/agents/tutor.md`). Padrão: instala o bloco ` ```markdown ` do arquivo. Se o arquivo inteiro é o que se instala (ex.: `arquitetura.md`), marque `"install": "file"` na peça (o front matter da biblioteca não vai para o arquivo instalado).
-4. `npm run check` e `npm test`. `npm run qa` quando mexer na interface; só trocar conteúdo não exige, mas rode se algum smoke de `tools/qa/` depender do conteúdo (os de `estudos` e `instalacao` leem o conteúdo real e precisam ser atualizados quando o card dele mudar).
+4. `npm run check` e `npm test` (o teste `integracao` renderiza todo o conteúdo real e falha se alguma peça der erro).
 5. Atualizar `docs/decisoes.md` se houve decisão nova; commit e push.
 6. **Responder ao usuário com os comandos para Linux, macOS e Windows** (copiar arquivos, verificar, commitar).
 

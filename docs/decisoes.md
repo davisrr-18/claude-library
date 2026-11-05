@@ -29,7 +29,7 @@ Mais recente no fim. Cada decisão: o quê, por quê. Itens que mudaram de ideia
 ## Publicação
 
 - **GitHub Pages:** ao tentar ativar com o repositório privado o GitHub respondeu 422 (o plano gratuito não permite). O usuário então **tornou o repositório público e autorizou o Pages**. Foi considerado Cloudflare Pages com login (guia mantido em `docs/deploy/cloudflare.md`, não usado).
-- **Uma única definição do que é publicado:** `scripts/build-site.mjs` (lista de permissão `index.html`, `css/`, `js/`, `vendor/`, `content/` + `_headers`). Ele é um portão: **recusa construir** com dado sensível, arquivo faltando ou referência fora da lista, porque o deploy pode rodar mesmo que outra verificação falhe. O workflow do GitHub Pages (`.github/workflows/pages.yml`) usa o mesmo script.
+- **Uma única definição do que é publicado:** `scripts/build-site.mjs` (na época, lista de permissão `index.html`, `css/`, `js/`, `vendor/`, `content/` + `_headers`; hoje publica `client/dist` + `_headers`, ver o fim deste arquivo). Ele é um portão: **recusa construir** com dado sensível, arquivo faltando ou referência fora da lista, porque o deploy pode rodar mesmo que outra verificação falhe. O workflow do GitHub Pages (`.github/workflows/pages.yml`) usa o mesmo script.
 - O build apaga a pasta de saída, então só aceita uma pasta inexistente, vazia ou que pareça um build anterior; nunca a raiz do projeto, um ancestral dela ou uma pasta do site (testado).
 
 ## Segurança
@@ -50,3 +50,12 @@ Mais recente no fim. Cada decisão: o quê, por quê. Itens que mudaram de ideia
 
 - Cards de **Básicas** e **Complexas** (vazias) e de `CLAUDE.md`/arquitetura de outros pacotes, quando o usuário trouxer.
 - Link e imagem relativos dentro dos `.md` resolvem contra `index.html`, não contra `content/` (convenção a definir se algum pacote usar).
+
+## Migração para o modelo dev_web (concluída em 2026-11-03)
+
+Detalhes, marcos, dependências e pendências: `docs/decisions/0001-migracao-para-o-modelo-dev-web.md`. O que isso mudou nas decisões acima:
+
+- **Cai** "HTML, CSS e JS puros, sem build e sem dependências de execução": o site é React + Vite em `client/`. Continua sem CDN; `marked` e `highlight.js` seguem vendorizados, agora em `client/vendor/`.
+- **Cai** "`npm test` sem dependências; QA com dependências isoladas em `tools/qa/`": o QA foi absorvido pelo Vitest do `client` (lint com ESLint, regras de CSS, fuzz, estresse e integração com o conteúdo real) e `tools/qa/` foi apagado.
+- **Muda** "uma única definição do que é publicado": `scripts/build-site.mjs` agora publica `client/dist` mais o `_headers`, e recusa build velha em relação a `content/`; continua sendo um portão (dado sensível, referência fora da build, saída perigosa).
+- **Permanecem** o repositório público, o GitHub Pages, a sanitização em duas camadas do Markdown, as regras de conteúdo e de git (sem coautoria do Claude).
