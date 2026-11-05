@@ -16,7 +16,7 @@ test('loadManifest devolve o manifest validado', async () => {
   const fetchMock = vi.fn().mockResolvedValue(ok(manifestValido, 'json'));
   vi.stubGlobal('fetch', fetchMock);
   expect(await loadManifest()).toEqual(manifestValido);
-  expect(fetchMock).toHaveBeenCalledWith('content/manifest.json');
+  expect(fetchMock).toHaveBeenCalledWith('content/manifest.json', { cache: 'no-cache' });
 });
 
 test('loadManifest falha com o status quando o HTTP não é ok', async () => {
@@ -33,7 +33,7 @@ test('loadPiece codifica cada segmento do caminho e devolve o texto', async () =
   const fetchMock = vi.fn().mockResolvedValue(ok('# oi'));
   vi.stubGlobal('fetch', fetchMock);
   expect(await loadPiece('intermediarias/pacote x/a#b.md')).toBe('# oi');
-  expect(fetchMock).toHaveBeenCalledWith('content/intermediarias/pacote%20x/a%23b.md');
+  expect(fetchMock).toHaveBeenCalledWith('content/intermediarias/pacote%20x/a%23b.md', { cache: 'no-cache' });
 });
 
 test('loadPiece guarda em cache: a mesma peça só é buscada uma vez, mesmo em chamadas simultâneas', async () => {

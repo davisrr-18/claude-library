@@ -6,7 +6,9 @@ const pieceCache = new Map();
 const encodePath = (file) => file.split('/').map(encodeURIComponent).join('/');
 
 async function get(url) {
-  const res = await fetch(url);
+  // no-cache: revalida com o servidor (ETag, 304 barato). Sem isso o Pages serve manifest de até 10 min atrás junto
+  // com o código novo, e a validação recusa o formato antigo.
+  const res = await fetch(url, { cache: 'no-cache' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res;
 }
