@@ -64,6 +64,7 @@
   gap: var(--espaco-15);
   padding: var(--espaco-0) 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain; /* o gesto de lado na faixa não arrasta a página */
   scrollbar-width: thin;
 }
 

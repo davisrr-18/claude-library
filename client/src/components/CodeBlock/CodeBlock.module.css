@@ -21,6 +21,7 @@
   margin: 0;
   padding: var(--espaco-1) var(--espaco-2) var(--espaco-3);
   overflow-x: auto;
+  overscroll-behavior-x: contain; /* o gesto de lado na faixa não arrasta a página */
   border: 0;
   border-radius: 0;
   background: transparent;

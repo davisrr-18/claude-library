@@ -99,6 +99,7 @@
 .pre {
   max-height: 360px;
   overflow: auto;
+  overscroll-behavior: contain;
 }
 
 @media (hover: hover) {

@@ -2,6 +2,7 @@
   display: flex;
   gap: var(--espaco-1);
   overflow-x: auto;
+  overscroll-behavior-x: contain; /* o gesto de lado na faixa não arrasta a página */
   border-bottom: 1px solid var(--cor-borda);
   scrollbar-width: thin;
 }
