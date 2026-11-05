@@ -100,6 +100,7 @@ for (const [label, files] of [...realPackages(), ['conteudo hostil a shells', NA
         assert.equal(buf.toString('utf8'), f.content + '\n', f.path);
       }
     },
+    60000, // iniciar o PowerShell no CI é lento: o padrão de 15s estourava
   );
 }
 
