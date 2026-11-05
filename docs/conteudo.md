@@ -45,7 +45,7 @@ git status --short; git add -A; git commit -m "feat: adiciona meu-pacote"; git p
 
 - **Peça com bloco ` ```markdown `** (agentes, skills, `CLAUDE.md` do pacote de estudos): o texto explica e o bloco é o arquivo de verdade; o site mostra "Salvar … pelo terminal" com esse bloco. Blocos de 4 crases que contêm blocos de 3 funcionam.
 - **Peça que é o próprio arquivo** (`arquitetura.md`): `install: "file"`.
-- **Seção para acrescentar a um arquivo que já existe** (política no `CLAUDE.md` do pacote de orquestração): `"install": "append"` mais `"installTo": "CLAUDE.md"` na peça. O comando usa `>>` (bash) ou `AppendAllText` (PowerShell), nunca sobrescreve. Rodar duas vezes duplica a seção.
+- **Bloco que vai para um arquivo com nome fixo** (ex.: `CLAUDE.md` do pacote de orquestração): `"installTo": "CLAUDE.md"` na peça. Sobrescreve.
 - **Peça de consulta** (índice, checklist, prompt): `destino` é uma instrução ("colar no início de cada sessão"), não um caminho, então não tem painel de instalação. Peça **sem `destino`** também não tem painel, e não é erro.
 
 ## Estado atual do conteúdo
