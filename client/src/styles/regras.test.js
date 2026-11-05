@@ -34,7 +34,7 @@ function parse(css) {
 }
 
 const files = listCss(SRC).map((p) => ({
-  name: relative(SRC, p),
+  name: relative(SRC, p).replaceAll('\\', '/'), // Windows usa \ no caminho
   css: readFileSync(p, 'utf8'),
   rules: parse(readFileSync(p, 'utf8')),
 }));
@@ -167,4 +167,8 @@ test('espaço, tipografia e raio só por tokens: nenhum px ou rem solto em paddi
     }
   }
   expect(ruins).toEqual([]);
+});
+
+test('body é posicionado: contém o .sr-only absoluto, que senão escapa das faixas roláveis e alarga a página no celular', () => {
+  expect(decl('styles/global.css', 'body')).toMatch(/position:\s*relative/);
 });

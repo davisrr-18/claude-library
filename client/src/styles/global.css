@@ -41,6 +41,7 @@ html {
 body {
   display: flex;
   flex-direction: column;
+  position: relative; /* contém o .sr-only absoluto: sem isso ele escapa das faixas roláveis e alarga a página */
   margin: 0;
   min-height: 100dvh;
   overflow-x: clip;
