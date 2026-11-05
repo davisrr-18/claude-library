@@ -127,8 +127,18 @@ export function validateManifest(m) {
             errors.push(`${where}: título repetido entre peças do tipo ${piece.type}: ${piece.title}`);
           seenTitles.add(key);
         }
-        if (piece.install !== undefined && piece.install !== 'file' && piece.install !== 'block') {
-          errors.push(`${where}/${piece.type}: "install" deve ser "file" ou "block"`);
+        if (
+          piece.install !== undefined &&
+          piece.install !== 'file' &&
+          piece.install !== 'block' &&
+          piece.install !== 'append'
+        ) {
+          errors.push(`${where}/${piece.type}: "install" deve ser "file", "block" ou "append"`);
+        }
+        if (piece.install === 'append' && !isNonEmptyString(piece.installTo)) {
+          errors.push(
+            `${where}/${piece.type}: "install": "append" exige "installTo" (arquivo que recebe a seção)`,
+          );
         }
         if (typeof piece.file === 'string') {
           if (seenFiles.has(piece.file)) errors.push(`${where}: arquivo repetido no card: ${piece.file}`);

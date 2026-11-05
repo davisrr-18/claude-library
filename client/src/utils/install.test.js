@@ -243,3 +243,22 @@ test('buildInstall windows: aspa tipográfica + @ no início da linha também qu
     assert.ok(!out.includes("@'"), 'não pode usar here-string');
   }
 });
+
+test('installFile: install "append" usa installTo e marca append; sem installTo seguro -> null', () => {
+  const body = '````markdown\n## Secao\ntexto\n````';
+  const piece = { install: 'append', installTo: 'CLAUDE.md' };
+  assert.deepEqual(installFile(piece, { destino: 'colar no CLAUDE.md' }, body), {
+    path: 'CLAUDE.md',
+    content: '## Secao\ntexto',
+    append: true,
+  });
+  assert.equal(installFile({ install: 'append', installTo: '../x.md' }, {}, body), null);
+  assert.equal(installFile({ install: 'append' }, {}, body), null);
+});
+
+test('buildInstall: append usa >> no bash e AppendAllText no PowerShell', () => {
+  const files = [{ path: 'CLAUDE.md', content: 'x', append: true }];
+  assert.match(buildInstall('linux', files), /cat >> 'CLAUDE\.md'/);
+  assert.match(buildInstall('windows', files), /AppendAllText/);
+  assert.doesNotMatch(buildInstall('linux', [{ path: 'a.md', content: 'x' }]), />>/);
+});

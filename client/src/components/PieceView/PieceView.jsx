@@ -46,7 +46,12 @@ export default function PieceView({ piece, headingLevel = 2 }) {
           className={styles.copy}
         />
       </div>
-      {toInstall && <InstallPanel summary={`Salvar "${toInstall.path}" pelo terminal`} files={[toInstall]} />}
+      {toInstall && (
+        <InstallPanel
+          summary={`${toInstall.append ? 'Acrescentar a' : 'Salvar'} "${toInstall.path}" pelo terminal`}
+          files={[toInstall]}
+        />
+      )}
       <Markdown body={body} titles={[piece.title, meta.name]} />
     </section>
   );

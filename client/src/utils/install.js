@@ -49,7 +49,9 @@ export function extractArtifact(markdown, lang = 'markdown') {
  * Precisa de `destino` com um caminho .md/.json seguro (em .json, o conteúdo é o bloco ```json) (senão null).
  */
 export function installFile(piece, meta, body) {
-  const path = installTarget(meta?.destino);
+  // `install: "append"`: o bloco é uma seção a acrescentar a um arquivo que já existe (ex.: CLAUDE.md), no caminho de `installTo`.
+  const append = piece?.install === 'append';
+  const path = append ? (isSafePath(piece.installTo) ? piece.installTo : null) : installTarget(meta?.destino);
   if (!path) return null;
   const content =
     piece?.install === 'file'
@@ -58,7 +60,7 @@ export function installFile(piece, meta, body) {
           .replace(/^\n+/, '')
           .replace(/\s+$/, '')
       : extractArtifact(body, path.endsWith('.json') ? 'json' : 'markdown');
-  return content ? { path, content } : null;
+  return content ? { path, content, ...(append && { append: true }) } : null;
 }
 
 /** 'linux' | 'macos' | 'windows' a partir de navigator.platform ou do userAgent. Padrão: linux. */
@@ -92,13 +94,14 @@ function buildUnix(files) {
   const delim = uniqueDelimiter(files.map((f) => f.content));
   const out = [HEADER];
   const made = new Set();
-  for (const { path, content } of files) {
+  for (const { path, content, append } of files) {
     const dir = dirOf(path);
     if (dir && !made.has(dir)) {
       made.add(dir);
       out.push(`mkdir -p ${shQuote(dir)}`);
     }
-    out.push(`cat > ${shQuote(path)} <<'${delim}'`, content, delim);
+    // shortcut: a seção entra colada ao fim do arquivo; se ele não terminar em quebra de linha, a primeira linha gruda
+    out.push(`cat ${append ? '>>' : '>'} ${shQuote(path)} <<'${delim}'`, content, delim);
   }
   return out.join('\n');
 }
@@ -106,7 +109,7 @@ function buildUnix(files) {
 function buildWindows(files) {
   const out = [HEADER, '$utf8 = New-Object System.Text.UTF8Encoding $false'];
   const made = new Set();
-  for (const { path, content } of files) {
+  for (const { path, content, append } of files) {
     const dir = dirOf(path).replace(/\//g, '\\');
     if (dir && !made.has(dir)) {
       made.add(dir);
@@ -121,7 +124,7 @@ function buildWindows(files) {
       out.push("$content = @'", content, "'@");
     }
     out.push(
-      `[System.IO.File]::WriteAllText((Join-Path (Get-Location) ${psQuote(path.replace(/\//g, '\\'))}), $content + "\`n", $utf8)`,
+      `[System.IO.File]::${append ? 'AppendAllText' : 'WriteAllText'}((Join-Path (Get-Location) ${psQuote(path.replace(/\//g, '\\'))}), $content + "\`n", $utf8)`,
     );
   }
   return out.join('\n');
