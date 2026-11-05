@@ -262,3 +262,12 @@ test('buildInstall: append usa >> no bash e AppendAllText no PowerShell', () => 
   assert.match(buildInstall('windows', files), /AppendAllText/);
   assert.doesNotMatch(buildInstall('linux', [{ path: 'a.md', content: 'x' }]), />>/);
 });
+
+test('installFile: install "file" com installTo grava o arquivo inteiro (sem front matter) no caminho dado', () => {
+  const f = installFile(
+    { install: 'file', installTo: 'docs/pacotes/x/00-indice.md' },
+    { destino: 'consulta' },
+    '\n# Indice\ntexto\n',
+  );
+  assert.deepEqual(f, { path: 'docs/pacotes/x/00-indice.md', content: '# Indice\ntexto' });
+});

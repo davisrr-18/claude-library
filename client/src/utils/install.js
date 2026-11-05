@@ -49,9 +49,15 @@ export function extractArtifact(markdown, lang = 'markdown') {
  * Precisa de `destino` com um caminho .md/.json seguro (em .json, o conteúdo é o bloco ```json) (senão null).
  */
 export function installFile(piece, meta, body) {
-  // `install: "append"`: o bloco é uma seção a acrescentar a um arquivo que já existe (ex.: CLAUDE.md), no caminho de `installTo`.
+  // `installTo` (no manifest) vale mais que o `destino` do front matter: serve às peças de consulta (índice, prompt,
+  // checklist), cujo `destino` é texto, e às de `install: "append"`, seção a acrescentar a um arquivo que já existe.
   const append = piece?.install === 'append';
-  const path = append ? (isSafePath(piece.installTo) ? piece.installTo : null) : installTarget(meta?.destino);
+  const path =
+    piece?.installTo !== undefined
+      ? isSafePath(piece.installTo)
+        ? piece.installTo
+        : null
+      : installTarget(meta?.destino);
   if (!path) return null;
   const content =
     piece?.install === 'file'

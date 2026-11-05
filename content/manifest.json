@@ -26,7 +26,9 @@
             {
               "type": "arquitetura",
               "title": "Pacote geral de estudos em programação",
-              "file": "intermediarias/estudos-em-programacao/00-indice.md"
+              "file": "intermediarias/estudos-em-programacao/00-indice.md",
+              "install": "file",
+              "installTo": "docs/pacotes/estudos-em-programacao/00-indice.md"
             },
             {
               "type": "arquitetura",
@@ -37,7 +39,9 @@
             {
               "type": "prompt",
               "title": "Prompt principal de sessão de estudo",
-              "file": "intermediarias/estudos-em-programacao/01-prompt-principal.md"
+              "file": "intermediarias/estudos-em-programacao/01-prompt-principal.md",
+              "install": "file",
+              "installTo": "docs/pacotes/estudos-em-programacao/01-prompt-principal.md"
             },
             {
               "type": "claude-md",
@@ -77,7 +81,9 @@
             {
               "type": "workflow",
               "title": "Checklist de verificação",
-              "file": "intermediarias/estudos-em-programacao/09-checklist-de-verificacao.md"
+              "file": "intermediarias/estudos-em-programacao/09-checklist-de-verificacao.md",
+              "install": "file",
+              "installTo": "docs/pacotes/estudos-em-programacao/09-checklist-de-verificacao.md"
             }
           ]
         },
@@ -98,7 +104,9 @@
             {
               "type": "arquitetura",
               "title": "Pacote de desenvolvimento web completo",
-              "file": "intermediarias/desenvolvimento-web/00-indice.md"
+              "file": "intermediarias/desenvolvimento-web/00-indice.md",
+              "install": "file",
+              "installTo": "docs/pacotes/desenvolvimento-web/00-indice.md"
             },
             {
               "type": "arquitetura",
@@ -109,7 +117,9 @@
             {
               "type": "prompt",
               "title": "Prompt principal de tarefa web",
-              "file": "intermediarias/desenvolvimento-web/01-prompt-principal.md"
+              "file": "intermediarias/desenvolvimento-web/01-prompt-principal.md",
+              "install": "file",
+              "installTo": "docs/pacotes/desenvolvimento-web/01-prompt-principal.md"
             },
             {
               "type": "claude-md",
@@ -174,7 +184,9 @@
             {
               "type": "workflow",
               "title": "Checklist de verificação",
-              "file": "intermediarias/desenvolvimento-web/14-checklist-de-verificacao.md"
+              "file": "intermediarias/desenvolvimento-web/14-checklist-de-verificacao.md",
+              "install": "file",
+              "installTo": "docs/pacotes/desenvolvimento-web/14-checklist-de-verificacao.md"
             }
           ]
         }
@@ -201,12 +213,16 @@
             {
               "type": "arquitetura",
               "title": "Pacote global de desenvolvimento por orquestração",
-              "file": "complexas/desenvolvimento-por-orquestracao/00-indice.md"
+              "file": "complexas/desenvolvimento-por-orquestracao/00-indice.md",
+              "install": "file",
+              "installTo": "docs/pacotes/desenvolvimento-por-orquestracao/00-indice.md"
             },
             {
               "type": "prompt",
               "title": "Prompt principal de delegação multiagente",
-              "file": "complexas/desenvolvimento-por-orquestracao/01-prompt-principal.md"
+              "file": "complexas/desenvolvimento-por-orquestracao/01-prompt-principal.md",
+              "install": "file",
+              "installTo": "docs/pacotes/desenvolvimento-por-orquestracao/01-prompt-principal.md"
             },
             {
               "type": "claude-md",
@@ -248,7 +264,9 @@
             {
               "type": "workflow",
               "title": "Checklist de desenvolvimento por orquestração",
-              "file": "complexas/desenvolvimento-por-orquestracao/09-checklist.md"
+              "file": "complexas/desenvolvimento-por-orquestracao/09-checklist.md",
+              "install": "file",
+              "installTo": "docs/pacotes/desenvolvimento-por-orquestracao/09-checklist.md"
             }
           ]
         }
