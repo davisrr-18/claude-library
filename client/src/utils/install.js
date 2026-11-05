@@ -50,8 +50,7 @@ export function extractArtifact(markdown, lang = 'markdown') {
  */
 export function installFile(piece, meta, body) {
   // `installTo` (no manifest) vale mais que o `destino` do front matter: serve às peças de consulta (índice, prompt,
-  // checklist), cujo `destino` é texto, e às de `install: "append"`, seção a acrescentar a um arquivo que já existe.
-  const append = piece?.install === 'append';
+  // checklist), cujo `destino` é texto, e ao CLAUDE.md do pacote de orquestração.
   const path =
     piece?.installTo !== undefined
       ? isSafePath(piece.installTo)
@@ -66,7 +65,7 @@ export function installFile(piece, meta, body) {
           .replace(/^\n+/, '')
           .replace(/\s+$/, '')
       : extractArtifact(body, path.endsWith('.json') ? 'json' : 'markdown');
-  return content ? { path, content, ...(append && { append: true }) } : null;
+  return content ? { path, content } : null;
 }
 
 /** 'linux' | 'macos' | 'windows' a partir de navigator.platform ou do userAgent. Padrão: linux. */
@@ -100,14 +99,13 @@ function buildUnix(files) {
   const delim = uniqueDelimiter(files.map((f) => f.content));
   const out = [HEADER];
   const made = new Set();
-  for (const { path, content, append } of files) {
+  for (const { path, content } of files) {
     const dir = dirOf(path);
     if (dir && !made.has(dir)) {
       made.add(dir);
       out.push(`mkdir -p ${shQuote(dir)}`);
     }
-    // shortcut: a seção entra colada ao fim do arquivo; se ele não terminar em quebra de linha, a primeira linha gruda
-    out.push(`cat ${append ? '>>' : '>'} ${shQuote(path)} <<'${delim}'`, content, delim);
+    out.push(`cat > ${shQuote(path)} <<'${delim}'`, content, delim);
   }
   return out.join('\n');
 }
@@ -115,7 +113,7 @@ function buildUnix(files) {
 function buildWindows(files) {
   const out = [HEADER, '$utf8 = New-Object System.Text.UTF8Encoding $false'];
   const made = new Set();
-  for (const { path, content, append } of files) {
+  for (const { path, content } of files) {
     const dir = dirOf(path).replace(/\//g, '\\');
     if (dir && !made.has(dir)) {
       made.add(dir);
@@ -130,7 +128,7 @@ function buildWindows(files) {
       out.push("$content = @'", content, "'@");
     }
     out.push(
-      `[System.IO.File]::${append ? 'AppendAllText' : 'WriteAllText'}((Join-Path (Get-Location) ${psQuote(path.replace(/\//g, '\\'))}), $content + "\`n", $utf8)`,
+      `[System.IO.File]::WriteAllText((Join-Path (Get-Location) ${psQuote(path.replace(/\//g, '\\'))}), $content + "\`n", $utf8)`,
     );
   }
   return out.join('\n');

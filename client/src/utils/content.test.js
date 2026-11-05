@@ -265,14 +265,6 @@ test('pieceDescription: usa description; senao "Destino: ..." (formato do pacote
   assert.equal(pieceDescription(undefined), '');
 });
 
-test('validateManifest: install "append" exige installTo', () => {
-  assert.equal(
-    validateManifest(manifest([card({ pieces: [piece({ install: 'append', installTo: 'CLAUDE.md' })] })])).ok,
-    true,
-  );
-  assert.equal(validateManifest(manifest([card({ pieces: [piece({ install: 'append' })] })])).ok, false);
-});
-
 test('validateManifest: piece.install opcional, so "file" ou "block"', () => {
   assert.equal(validateManifest(manifest([card({ pieces: [piece({ install: 'file' })] })])).ok, true);
   assert.equal(validateManifest(manifest([card({ pieces: [piece({ install: 'block' })] })])).ok, true);
@@ -280,6 +272,6 @@ test('validateManifest: piece.install opcional, so "file" ou "block"', () => {
   for (const bad of ['tudo', '', 1, true, null, ['file']]) {
     const r = validateManifest(manifest([card({ pieces: [piece({ install: bad })] })]));
     assert.equal(r.ok, false, JSON.stringify(bad));
-    assert.match(r.errors.join('\n'), /"install" deve ser "file", "block" ou "append"/);
+    assert.match(r.errors.join('\n'), /"install" deve ser "file" ou "block"/);
   }
 });

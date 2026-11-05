@@ -244,23 +244,20 @@ test('buildInstall windows: aspa tipográfica + @ no início da linha também qu
   }
 });
 
-test('installFile: install "append" usa installTo e marca append; sem installTo seguro -> null', () => {
+test('installFile: installTo com install "block" grava o bloco no caminho dado, sobrescrevendo', () => {
   const body = '````markdown\n## Secao\ntexto\n````';
-  const piece = { install: 'append', installTo: 'CLAUDE.md' };
-  assert.deepEqual(installFile(piece, { destino: 'colar no CLAUDE.md' }, body), {
+  assert.deepEqual(installFile({ install: 'block', installTo: 'CLAUDE.md' }, {}, body), {
     path: 'CLAUDE.md',
     content: '## Secao\ntexto',
-    append: true,
   });
-  assert.equal(installFile({ install: 'append', installTo: '../x.md' }, {}, body), null);
-  assert.equal(installFile({ install: 'append' }, {}, body), null);
+  assert.equal(installFile({ install: 'block', installTo: '../x.md' }, {}, body), null);
 });
 
-test('buildInstall: append usa >> no bash e AppendAllText no PowerShell', () => {
-  const files = [{ path: 'CLAUDE.md', content: 'x', append: true }];
-  assert.match(buildInstall('linux', files), /cat >> 'CLAUDE\.md'/);
-  assert.match(buildInstall('windows', files), /AppendAllText/);
-  assert.doesNotMatch(buildInstall('linux', [{ path: 'a.md', content: 'x' }]), />>/);
+test('buildInstall: sempre sobrescreve com > no bash e WriteAllText no PowerShell', () => {
+  const files = [{ path: 'CLAUDE.md', content: 'x' }];
+  assert.match(buildInstall('linux', files), /cat > 'CLAUDE\.md'/);
+  assert.match(buildInstall('windows', files), /WriteAllText/);
+  assert.doesNotMatch(buildInstall('linux', files), />>/);
 });
 
 test('installFile: install "file" com installTo grava o arquivo inteiro (sem front matter) no caminho dado', () => {

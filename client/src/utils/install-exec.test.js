@@ -103,6 +103,15 @@ for (const [label, files] of [...realPackages(), ['conteudo hostil a shells', NA
   );
 }
 
+test.skipIf(!HAS_BASH)('o bash cria o arquivo mesmo se ja existir (sobrescreve)', () => {
+  const dir = mkdtempSync(join(base, 'bash-overwrite-'));
+  writeFileSync(join(dir, 'CLAUDE.md'), 'regras antigas\n');
+  const files = [{ path: 'CLAUDE.md', content: '## Nova' }];
+  const r = spawnSync('bash', ['-s'], { cwd: dir, input: buildInstall('linux', files), encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(readFileSync(join(dir, 'CLAUDE.md'), 'utf8'), '## Nova\n');
+});
+
 test.skipIf(!HAS_BASH)(
   'o conteudo hostil nunca e executado: nenhum arquivo extra aparece fora das pastas do pacote',
   () => {
@@ -116,15 +125,3 @@ test('aviso: se bash/PowerShell nao existem nesta maquina, os testes corresponde
   assert.ok(typeof HAS_BASH === 'boolean');
   assert.ok(existsSync(base) && statSync(base).isDirectory());
 });
-
-test.skipIf(!HAS_BASH)(
-  'append: o bash acrescenta ao CLAUDE.md existente sem apagar o que ja estava la',
-  () => {
-    const dir = mkdtempSync(join(base, 'bash-append-'));
-    writeFileSync(join(dir, 'CLAUDE.md'), 'regras do usuario\n');
-    const files = [{ path: 'CLAUDE.md', content: '## Secao nova', append: true }];
-    const r = spawnSync('bash', ['-s'], { cwd: dir, input: buildInstall('linux', files), encoding: 'utf8' });
-    assert.equal(r.status, 0, r.stderr);
-    assert.equal(readFileSync(join(dir, 'CLAUDE.md'), 'utf8'), 'regras do usuario\n## Secao nova\n');
-  },
-);

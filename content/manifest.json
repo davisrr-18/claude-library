@@ -228,7 +228,7 @@
               "type": "claude-md",
               "title": "Política de desenvolvimento por orquestração para o CLAUDE.md",
               "file": "complexas/desenvolvimento-por-orquestracao/02-trecho-claude-md.md",
-              "install": "append",
+              "install": "block",
               "installTo": "CLAUDE.md"
             },
             {
