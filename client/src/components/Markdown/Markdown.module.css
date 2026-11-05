@@ -1,6 +1,10 @@
 .md {
-  max-width: 90ch;
   overflow-wrap: anywhere;
+}
+
+/* texto corrido continua com linha legível; blocos de código usam a largura toda */
+.md > :where(p, ul, ol, blockquote) {
+  max-width: 90ch;
 }
 
 .md > :first-child {
