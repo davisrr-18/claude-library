@@ -101,7 +101,7 @@ test('keyframes decorativos terminam onde começam (sem "pulo" ao acabar)', () =
 
 test('elemento já revelado ao rolar não reanima quando .reveal sai', () => {
   const rule = file('styles/global.css').rules.find(
-    (r) => r.prelude === '.reveal.reveal,\n  .revealed.revealed',
+    (r) => r.prelude.replace(/\s+/g, ' ') === '.reveal.reveal, .revealed.revealed', // CRLF no Windows
   );
   expect(rule?.body).toMatch(/animation:\s*none/);
 });
